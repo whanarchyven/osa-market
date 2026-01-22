@@ -50,6 +50,40 @@ export interface BlokKategorij {
   categories: CategoryIdItem[]
 }
 
+export interface TextWithImage {
+  tekst: string
+  izobrazhenie: string
+}
+
+export interface TextOnly {
+  tekst: string
+}
+
+export interface TriVerhnieVkladki {
+  levaya_gruppa: TextWithImage
+  czentralnaya_gruppa: TextWithImage
+  pravaya_gruppa: TextWithImage
+}
+
+export interface CzentralnyeVkladki {
+  verhnyaya_levaya_czentralnaya_vkladka: TextWithImage
+  nizhnyaya_levaya_czentralnaya_vkladka: TextWithImage
+  verhnyaya_pravaya_czentralnaya_vkladka: TextWithImage
+  nizhnyaya_pravaya_czentralnaya_vkladka: TextWithImage
+}
+
+export interface DveNizhnieVkladki {
+  levaya_vkladka: TextOnly
+  pravaya_vkladka: TextOnly
+}
+
+export interface BlokOKompanii {
+  zagolovok: string
+  tri_verhnie_vkladki: TriVerhnieVkladki
+  czentralnye_vkladki: CzentralnyeVkladki
+  dve_nizhnie_vkladki: DveNizhnieVkladki
+}
+
   export interface ZaglavnyjBlok {
     slogan: string
     opisanie: string
@@ -64,6 +98,7 @@ export interface BlokKategorij {
   export interface PageACF {
     zaglavnyj_blok: ZaglavnyjBlok
     blok_kategorij?: BlokKategorij
+  blok_o_kompanii?: BlokOKompanii
   }
   
   export interface PageData {
@@ -173,4 +208,8 @@ export interface BlokKategorij {
     tovary: TovarItem[]
     ssylka_na_video: string
   }
+
+export interface LogoShowcaseProps {
+  blok?: BlokOKompanii
+}
   

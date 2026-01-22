@@ -73,7 +73,7 @@ export function TopBar() {
             <nav className="flex items-center gap-6">
               {navLinks.map((link) => (
                 <Link
-                  key={link.href}
+                  key={`${link.href}-${link.label}`}
                   href={link.href}
                   className="text-sm text-muted-foreground hover:text-primary transition-colors"
                 >

@@ -10,6 +10,7 @@ export default async function HomePage() {
   const pageData = pageDataArray[0]
   const heroData = pageData.acf.zaglavnyj_blok
   const categoriesBlock = pageData.acf.blok_kategorij
+  const companyBlock = pageData.acf.blok_o_kompanii
 
   const categoryIds =
     categoriesBlock?.categories
@@ -42,10 +43,11 @@ export default async function HomePage() {
         tovary={heroData.tovary}
         ssylka_na_video={heroData.ssylka_na_video}
       />
-      <LogoShowcase />
       {categoriesBlock && (
         <CategoriesBlock title={categoriesBlock.zagolovok} categories={categories} />
       )}
+      <LogoShowcase blok={companyBlock} />
+      
     </main>
   )
 }
