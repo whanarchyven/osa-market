@@ -10,6 +10,7 @@ export type {
   ProductImage,
   ProductCategory,
   ProductBrand,
+  ProductBrandApi,
   ProductAttribute as ProductAttributeValue,
   ProductAttributeApi,
   ProductAttributeTermApi,

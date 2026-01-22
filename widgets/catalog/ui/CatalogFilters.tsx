@@ -12,6 +12,7 @@ import { Checkbox } from '@/components/ui/checkbox'
 import { Loader2 } from 'lucide-react'
 import { useUIStore } from '@/shared/store'
 import { getProductAttributeTerms } from '@/shared/api/products/attributes'
+import { getBrands } from '@/shared/api/products/brands/getBrands'
 import type { ProductAttributeApi, ProductAttributeTermApi } from '@/shared/types/api'
 
 interface CatalogFiltersProps {
@@ -40,14 +41,28 @@ export function CatalogFilters({ attributes, categorySlug }: CatalogFiltersProps
   }, [searchParams, setCatalogLoading])
 
   // Загрузка значений атрибута при открытии аккордеона
-  const handleAccordionChange = async (attributeId: number) => {
+  const handleAccordionChange = async (attributeId: number, slug: string) => {
     if (terms[attributeId] || loadingTerms[attributeId]) return
 
     setLoadingTerms(prev => ({ ...prev, [attributeId]: true }))
     
     try {
-      const data = await getProductAttributeTerms(attributeId)
-      setTerms(prev => ({ ...prev, [attributeId]: data }))
+      if (slug === 'brand') {
+        const brands = await getBrands()
+        const mapped = brands.map<ProductAttributeTermApi>((brand) => ({
+          id: brand.id,
+          name: brand.name,
+          slug: brand.slug,
+          description: brand.description ?? '',
+          menu_order: brand.menu_order ?? 0,
+          count: brand.count ?? 0,
+          _links: brand._links,
+        }))
+        setTerms(prev => ({ ...prev, [attributeId]: mapped }))
+      } else {
+        const data = await getProductAttributeTerms(attributeId)
+        setTerms(prev => ({ ...prev, [attributeId]: data }))
+      }
     } catch (error) {
       console.error('Error loading terms:', error)
     } finally {
@@ -94,7 +109,7 @@ export function CatalogFilters({ attributes, categorySlug }: CatalogFiltersProps
         {attributes.map((attr) => (
           <AccordionItem key={attr.id} value={`attr-${attr.id}`} className="border-border">
             <AccordionTrigger 
-              onClick={() => handleAccordionChange(attr.id)}
+              onClick={() => handleAccordionChange(attr.id, attr.slug)}
               className="text-foreground hover:no-underline"
             >
               {attr.name}

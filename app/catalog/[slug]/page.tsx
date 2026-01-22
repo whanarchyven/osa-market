@@ -21,8 +21,8 @@ export default async function CatalogPage({ params, searchParams }: CatalogPageP
   const catalogData = await getCatalogData(slug, search)
 
   return (
-    <main className="min-h-screen bg-background pt-4 pb-12">
-      <div className="container mx-auto px-4">
+      <main className="min-h-screen bg-background pt-4 pb-12">
+        <div className="container mx-auto px-4">
           {/* Хлебные крошки */}
           <Breadcrumb className="mb-6">
             <BreadcrumbList>
@@ -59,7 +59,7 @@ export default async function CatalogPage({ params, searchParams }: CatalogPageP
               totalCount={catalogData.totalCount}
             />
           </div>
-      </div>
-    </main>
+        </div>
+      </main>
   )
 }

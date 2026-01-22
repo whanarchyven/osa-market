@@ -36,11 +36,29 @@ export const getCatalogData = async (
     const normalizedSlugs = new Set(
       availableSlugs
         .filter(Boolean)
-        .map((slug) => (slug.startsWith('pa_') ? slug : `pa_${slug}`))
+        .map((slug) => {
+          if (slug === 'brand' || slug === 'pa_brand') return 'brand'
+          return slug.startsWith('pa_') ? slug : `pa_${slug}`
+        })
     )
     const filteredAttributes = normalizedSlugs.size
       ? attributes.filter((attribute) => normalizedSlugs.has(attribute.slug))
       : attributes
+
+    const shouldShowBrand = normalizedSlugs.has('brand')
+    const attributesWithBrand = shouldShowBrand
+      ? [
+          {
+            id: 0,
+            name: 'Бренд',
+            slug: 'brand',
+            type: 'select',
+            order_by: 'menu_order',
+            has_archives: false,
+          },
+          ...filteredAttributes,
+        ]
+      : filteredAttributes
 
     const activeFilters = Object.entries(searchParams).reduce<
       Record<string, string[]>
@@ -52,7 +70,7 @@ export const getCatalogData = async (
     }, {})
 
     const attributeBySlug = new Map(
-      filteredAttributes.map((attribute) => [attribute.slug, attribute])
+      attributesWithBrand.map((attribute) => [attribute.slug, attribute])
     )
 
     const filterEntries = Object.entries(activeFilters)
@@ -65,6 +83,10 @@ export const getCatalogData = async (
         filterEntries.map(async ([slug, termSlugs]) => {
           const attribute = attributeBySlug.get(slug)
           if (!attribute) return
+          if (slug === 'brand') {
+            termNameMap.set(slug, termSlugs)
+            return
+          }
           const terms = await getProductAttributeTerms(attribute.id)
           const slugToName = new Map(terms.map((term) => [term.slug, term.name]))
           const names = termSlugs
@@ -76,6 +98,13 @@ export const getCatalogData = async (
 
       filteredProducts = filteredProducts.filter((product) => {
         return filterEntries.every(([slug]) => {
+          if (slug === 'brand') {
+            const selectedBrands = termNameMap.get(slug) ?? []
+            if (selectedBrands.length === 0) return false
+            return product.brands?.some((brand) =>
+              selectedBrands.includes(brand.slug)
+            )
+          }
           const attribute = product.attributes.find((item) => item.slug === slug)
           if (!attribute) return false
           const selectedNames = termNameMap.get(slug) ?? []
@@ -115,7 +144,7 @@ export const getCatalogData = async (
       categoryName,
       products: filteredProducts,
       totalCount: filteredProducts.length,
-      attributes: filteredAttributes,
+      attributes: attributesWithBrand,
     }
   } catch (e: any) {
     console.log(e, 'ERROR FETCHING CATALOG DATA')

@@ -2,10 +2,10 @@
 
 import { useState, useEffect, useRef } from 'react'
 import Link from 'next/link'
-import Image from 'next/image'
 import { X, ChevronRight } from 'lucide-react'
 import { useUIStore } from '@/shared/store'
 import type { RazdelKataloga } from '@/shared/types/api'
+import { DynamicIcon } from '@/shared/ui/DynamicIcon'
 
 interface CatalogDropdownProps {
   razdely_kataloga: RazdelKataloga[]
@@ -78,17 +78,16 @@ export function CatalogDropdown({ razdely_kataloga }: CatalogDropdownProps) {
                         }
                       `}
                     >
-                      {kategoriya.ikonka_kategorii && (
-                        <Image 
-                          src={kategoriya.ikonka_kategorii || "/placeholder.svg"} 
-                          alt={kategoriya.naimenovanie_kategorii}
-                          width={20}
-                          height={20}
-                          className="w-5 h-5 flex-shrink-0 object-contain"
+                      {kategoriya.lucide_icon && (
+                        <DynamicIcon
+                          name={kategoriya.lucide_icon}
+                          size={20}
+                          className="w-5 h-5 flex-shrink-0"
                         />
                       )}
+                      
                       <span className="text-sm font-medium flex-1">
-                        {kategoriya.naimenovanie_kategorii}
+                        {kategoriya.naimenovanie_kategorii} {kategoriya.lucide_icon}
                       </span>
                       <ChevronRight 
                         className={`w-4 h-4 transition-transform ${isActive ? 'text-primary' : 'text-muted-foreground'}`} 

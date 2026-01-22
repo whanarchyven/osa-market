@@ -30,6 +30,19 @@ export interface ProductBrand {
   slug: string
 }
 
+export interface ProductBrandApi {
+  id: number
+  name: string
+  slug: string
+  parent: number
+  description: string
+  display: string
+  image: ProductImage | null
+  menu_order: number
+  count: number
+  _links?: ProductLinks
+}
+
 export interface ProductTag {
   id: number
   name: string

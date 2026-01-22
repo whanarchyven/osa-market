@@ -4,6 +4,9 @@ export interface CategoryAttributeSlug {
 
 export interface ProductCategoryAcf {
   dostupnye_attributy: CategoryAttributeSlug[]
+  ikonka_kategorii?: string
+  image?: { url?: string } | string
+  lucide_icon?: string
 }
 
 export interface ProductCategoryTaxonomy {
@@ -17,4 +20,5 @@ export interface ProductCategoryTaxonomy {
   parent: number
   acf?: ProductCategoryAcf
 }
+
 

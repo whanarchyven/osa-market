@@ -48,6 +48,7 @@ export const API = {
   getProductAttributes: `${shopApiUrl}/products/attributes?per_page=100`,
   getProductAttributeTerms: (id: number) =>
     `${shopApiUrl}/products/attributes/${id}/terms?per_page=100`,
+  getProductBrands: `${shopApiUrl}/products/brands?per_page=100`,
 
   //categories
   getCategories:`${wordpressApiUrl}/product_cat?per_page=100${postfix}`,

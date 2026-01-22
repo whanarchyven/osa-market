@@ -127,7 +127,7 @@ export interface Fakt {
   
   export interface Kategoriya {
     naimenovanie_kategorii: string
-    ikonka_kategorii: string
+    lucide_icon: string
     ssylka_na_kategoriyu: SsylkaNaKategoriyu
     gruppy_filtrov: GruppaFiltrovItem[]
   }

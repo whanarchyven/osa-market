@@ -41,6 +41,15 @@ export interface TovarItem {
   product?: ProductApi | null
 }
   
+export interface CategoryIdItem {
+  category_id: number[]
+}
+
+export interface BlokKategorij {
+  zagolovok: string
+  categories: CategoryIdItem[]
+}
+
   export interface ZaglavnyjBlok {
     slogan: string
     opisanie: string
@@ -54,6 +63,7 @@ export interface TovarItem {
   
   export interface PageACF {
     zaglavnyj_blok: ZaglavnyjBlok
+    blok_kategorij?: BlokKategorij
   }
   
   export interface PageData {
