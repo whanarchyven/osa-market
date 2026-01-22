@@ -15,7 +15,7 @@ export function Logo3D({
   className,
   color = '#FFC300',
   depth = 12,
-  rotationSpeed = 0.004,
+  rotationSpeed = 0.01,
 }: Logo3DProps) {
   const containerRef = useRef<HTMLDivElement>(null)
 
@@ -51,30 +51,20 @@ export function Logo3D({
     )
     camera.position.set(0, 0, 400)
 
-    const ambient = new THREE.AmbientLight(0xffffff, 0.6)
+    const ambient = new THREE.AmbientLight(0xffffff, 0.25)
     scene.add(ambient)
 
-    const keyLight = new THREE.DirectionalLight(0xffffff, 1.2)
-    keyLight.position.set(120, 160, 200)
+    const keyLight = new THREE.DirectionalLight(0xffffff, 2.2)
+    keyLight.position.set(60, 0, 260)
     scene.add(keyLight)
 
-    const fillLight = new THREE.PointLight(0xffe38b, 0.7, 600)
-    fillLight.position.set(-120, -80, 180)
+    const fillLight = new THREE.PointLight(0xfff0c2, 1.1, 700)
+    fillLight.position.set(-140, 80, 220)
     scene.add(fillLight)
 
-    const axes = new THREE.AxesHelper(120)
-    scene.add(axes)
-
-    const grid = new THREE.GridHelper(240, 12, 0x444444, 0x222222)
-    grid.rotation.x = Math.PI / 2
-    scene.add(grid)
-
-    const debugCube = new THREE.Mesh(
-      new THREE.BoxGeometry(40, 40, 40),
-      new THREE.MeshBasicMaterial({ color: 0x00ffcc, wireframe: true })
-    )
-    debugCube.position.set(0, 0, 0)
-    scene.add(debugCube)
+    const rimLight = new THREE.PointLight(0xffffff, 0.9, 600)
+    rimLight.position.set(180, -120, 260)
+    scene.add(rimLight)
 
     const group = new THREE.Group()
     scene.add(group)
@@ -83,7 +73,8 @@ export function Logo3D({
     let disposed = false
 
     const loader = new SVGLoader()
-    const baseRotationX = Math.PI + 0.12
+    let svgCenter = new THREE.Vector2(0, 0)
+
     const centerGroup = (width: number, height: number) => {
       group.updateMatrixWorld(true)
       const box = new THREE.Box3().setFromObject(group)
@@ -92,24 +83,34 @@ export function Logo3D({
       box.getCenter(center)
       box.getSize(size)
 
-      group.position.set(-center.x, -center.y, -center.z)
-
       const targetSize = Math.min(width, height) * 0.7
       const maxDim = Math.max(size.x, size.y, size.z)
       const scale = maxDim > 0 ? targetSize / maxDim : 1
       group.scale.set(scale, -scale, scale)
-      group.rotation.x = 0
-      group.position.z = -depth * 0.5
-
-      group.updateMatrixWorld(true)
-      const scaledBox = new THREE.Box3().setFromObject(group)
-      const scaledCenter = new THREE.Vector3()
-      scaledBox.getCenter(scaledCenter)
-      group.position.sub(scaledCenter)
+      group.rotation.set(0, 0, 0)
+      group.position.set(0, 0, 0)
     }
 
     loader.load('/logo.svg', (data: SVGResult) => {
       if (disposed) return
+      const svgEl = data.xml as unknown as SVGSVGElement | undefined
+      const viewBox = svgEl?.getAttribute('viewBox')
+      if (viewBox) {
+        const [minX, minY, width, height] = viewBox
+          .trim()
+          .split(/[ ,]+/)
+          .map((value: string) => Number(value))
+        if ([minX, minY, width, height].every((value) => Number.isFinite(value))) {
+          svgCenter = new THREE.Vector2(minX + width / 2, minY + height / 2)
+        }
+      } else {
+        const width = Number(svgEl?.getAttribute('width') ?? 0)
+        const height = Number(svgEl?.getAttribute('height') ?? 0)
+        if (Number.isFinite(width) && Number.isFinite(height) && width && height) {
+          svgCenter = new THREE.Vector2(width / 2, height / 2)
+        }
+      }
+
       const material = new THREE.MeshStandardMaterial({
         color: new THREE.Color(color),
         emissive: new THREE.Color(color),
@@ -129,13 +130,11 @@ export function Logo3D({
             bevelThickness: depth * 0.2,
             bevelSegments: 2,
           })
+          geometry.translate(-svgCenter.x, -svgCenter.y, -depth / 2)
           const mesh = new THREE.Mesh(geometry, material)
           group.add(mesh)
         })
       })
-
-      const boxHelper = new THREE.BoxHelper(group, 0xff00ff)
-      scene.add(boxHelper)
 
       centerGroup(container.clientWidth, container.clientHeight)
       camera.lookAt(0, 0, 0)
