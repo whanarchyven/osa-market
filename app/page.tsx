@@ -1,6 +1,7 @@
 import { HeroSection } from '@/widgets/hero'
 import { CategoriesBlock } from '@/widgets/categories'
 import { LogoShowcase } from '@/widgets/logo-showcase'
+import { LaptopsBlock } from '@/widgets/laptops'
 import { getMainPage } from '@/shared/api/pages/main'
 import { getCategory } from '@/shared/api/products/categories/getCategory'
 
@@ -11,6 +12,12 @@ export default async function HomePage() {
   const heroData = pageData.acf.zaglavnyj_blok
   const categoriesBlock = pageData.acf.blok_kategorij
   const companyBlock = pageData.acf.blok_o_kompanii
+  const laptopsBlock = pageData.acf.blok_noutbuki
+  const laptopProducts =
+    laptopsBlock?.noutbuki
+      ?.map((item) => item.product)
+      .filter((product): product is NonNullable<typeof product> => Boolean(product)) ??
+    []
 
   const categoryIds =
     categoriesBlock?.categories
@@ -43,10 +50,15 @@ export default async function HomePage() {
         tovary={heroData.tovary}
         ssylka_na_video={heroData.ssylka_na_video}
       />
+      
+      
       {categoriesBlock && (
         <CategoriesBlock title={categoriesBlock.zagolovok} categories={categories} />
       )}
       <LogoShowcase blok={companyBlock} />
+      {laptopsBlock && (
+        <LaptopsBlock title={laptopsBlock.zagolovok} products={laptopProducts} />
+      )}
       
     </main>
   )

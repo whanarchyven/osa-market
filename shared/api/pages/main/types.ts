@@ -84,6 +84,16 @@ export interface BlokOKompanii {
   dve_nizhnie_vkladki: DveNizhnieVkladki
 }
 
+export interface NoutbukItem {
+  noutbuk: number
+  product?: ProductApi | null
+}
+
+export interface BlokNoutbuki {
+  zagolovok: string
+  noutbuki: NoutbukItem[]
+}
+
   export interface ZaglavnyjBlok {
     slogan: string
     opisanie: string
@@ -99,6 +109,7 @@ export interface BlokOKompanii {
     zaglavnyj_blok: ZaglavnyjBlok
     blok_kategorij?: BlokKategorij
   blok_o_kompanii?: BlokOKompanii
+  blok_noutbuki?: BlokNoutbuki
   }
   
   export interface PageData {
