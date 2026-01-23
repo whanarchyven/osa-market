@@ -33,11 +33,11 @@ export function LogoShowcase({ blok }: LogoShowcaseProps) {
   return (
     <section className="py-12">
       <div className="container mx-auto px-4">
-        <div className="mb-8">
+        <div className="mb-8 flex items-center flex-col justify-center">
           <h2 className="text-2xl font-bold text-foreground md:text-3xl">
             {blok.zagolovok}
           </h2>
-          <div className="mt-3 h-1 w-20 rounded-full bg-gradient-to-r from-primary to-primary/10" />
+          <div className="mt-3 h-1 w-52 rounded-full bg-gradient-to-r from-primary to-primary/10" />
         </div>
 
         <div className="grid gap-4 lg:grid-cols-12">
@@ -172,7 +172,7 @@ export function LogoShowcase({ blok }: LogoShowcaseProps) {
 
           <Tile className="lg:col-span-6 h-24 px-6 py-4 flex items-center justify-center text-center">
             <div
-              className="text-lg md:text-xl font-semibold text-foreground [&_strong]:font-bold [&_strong]:text-primary [&_em]:not-italic [&_em]:font-light [&_br]:block"
+              className="text-lg md:text-2xl font-semibold text-foreground [&_strong]:font-bold [&_strong]:text-primary [&_em]:not-italic [&_em]:font-light [&_br]:block"
               dangerouslySetInnerHTML={{
                 __html: dve_nizhnie_vkladki.levaya_vkladka.tekst,
               }}
@@ -180,7 +180,7 @@ export function LogoShowcase({ blok }: LogoShowcaseProps) {
           </Tile>
           <Tile className="lg:col-span-6 h-24 px-6 py-4 flex items-center justify-center text-center">
             <div
-              className="text-lg md:text-xl font-semibold text-foreground [&_strong]:font-bold [&_strong]:text-primary [&_em]:not-italic [&_em]:font-light [&_br]:block"
+              className="text-lg md:text-2xl font-semibold text-foreground [&_strong]:font-bold [&_strong]:text-primary [&_em]:not-italic [&_em]:font-light [&_br]:block"
               dangerouslySetInnerHTML={{
                 __html: dve_nizhnie_vkladki.pravaya_vkladka.tekst,
               }}
