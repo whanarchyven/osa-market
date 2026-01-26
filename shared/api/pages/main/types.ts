@@ -104,6 +104,16 @@ export interface BlokKompyutery {
   kompyutery: KompyuterItem[]
 }
 
+export interface BrandIdItem {
+  brand: number
+}
+
+export interface BrandsBlock {
+  zagolovok_bloka: string
+  brendy_pervoj_gruppy: BrandIdItem[]
+  brendy_vtoroj_gruppy: BrandIdItem[]
+}
+
   export interface ZaglavnyjBlok {
     slogan: string
     opisanie: string
@@ -121,6 +131,7 @@ export interface BlokKompyutery {
   blok_o_kompanii?: BlokOKompanii
   blok_noutbuki?: BlokNoutbuki
   blok_kompyutery?: BlokKompyutery
+  brands_block?: BrandsBlock
   }
   
   export interface PageData {

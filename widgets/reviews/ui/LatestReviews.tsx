@@ -4,7 +4,7 @@ import { useEffect, useRef, useState } from 'react'
 import { Swiper, SwiperSlide } from 'swiper/react'
 import { Navigation } from 'swiper/modules'
 import { ArrowLeft, ArrowRight, Star } from 'lucide-react'
-import type { ProductReviewWithProduct } from '@/shared/types/product'
+import type { ProductReview } from '@/shared/types/product'
 import { Button } from '@/components/ui/button'
 import {
   Dialog,
@@ -19,7 +19,7 @@ import Link from 'next/link'
 
 interface LatestReviewsProps {
   title?: string
-  reviews: ProductReviewWithProduct[]
+  reviews: ProductReview[]
 }
 
 const stripHtml = (value: string) =>
@@ -104,7 +104,7 @@ export function LatestReviews({
           }}
         >
           {reviews.map((review) => {
-            const productId = review.product?.id
+            const productId = review.product_id
 
             return (
               <SwiperSlide key={review.id} className="h-auto">
@@ -132,11 +132,11 @@ export function LatestReviews({
                           onKeyDown={(event) => event.stopPropagation()}
                           className="text-sm hover:text-primary transition-all border-b border-transparent hover:border-primary font-medium text-foreground line-clamp-2"
                         >
-                          {review.product?.name || review.product_name}
+                          {review.product_name}
                         </Link>
                       ) : (
                         <p className="text-sm font-medium text-foreground line-clamp-2">
-                          {review.product?.name || review.product_name}
+                          {review.product_name}
                         </p>
                       )}
                     </div>
@@ -195,8 +195,11 @@ export function LatestReviews({
                           <span>{Number(review.rating).toFixed(1)}</span>
                         </div>
                       </div>
-                      <Link href={`/product/${review.product?.id}`} className="text-sm hover:text-primary transition-all border-transparent hover:border-primary font-medium text-foreground line-clamp-2">
-                        {review.product?.name || review.product_name}
+                      <Link
+                        href={`/product/${review.product_id}`}
+                        className="text-sm hover:text-primary transition-all border-transparent hover:border-primary font-medium text-foreground line-clamp-2"
+                      >
+                        {review.product_name}
                       </Link>
                       <div
                         className="prose prose-invert max-w-none"

@@ -1,6 +1,6 @@
 'use client'
 
-import { useMemo, useState } from 'react'
+import { useEffect, useMemo, useState, useId } from 'react'
 import Image from 'next/image'
 import { Star, Heart, ArrowLeftCircle, ArrowRightCircle, ArrowRight, ArrowLeft } from 'lucide-react'
 import { Swiper, SwiperSlide } from 'swiper/react'
@@ -10,7 +10,14 @@ import { cva } from 'class-variance-authority'
 import { useShopStore } from '@/shared/store'
 import { mapApiProductToStoreProduct } from '@/shared/utils/product'
 import { Button } from '@/components/ui/button'
-import type { ProductApi } from '@/shared/types/product'
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+} from '@/components/ui/dialog'
+import type { ProductApi, ProductReview } from '@/shared/types/product'
+import { getProductReviews } from '@/shared/api/products/reviews/getProductReviews'
 
 import 'swiper/css'
 import 'swiper/css/effect-coverflow'
@@ -26,6 +33,13 @@ interface LaptopsBlockProps {
 
 const stripHtml = (value: string) =>
   value.replace(/<[^>]*>/g, ' ').replace(/\s+/g, ' ').trim()
+
+const formatDate = (value: string) =>
+  new Date(value).toLocaleDateString('ru-RU', {
+    day: 'numeric',
+    month: 'long',
+    year: 'numeric',
+  })
 
 const titleContainerVariants = cva('mb-8 flex w-full flex-col', {
   variants: {
@@ -54,6 +68,12 @@ const titleWrapperVariants = cva('inline-flex flex-col', {
 })
 
 export function LaptopsBlock({ title, products, titleAlign = 'left' }: LaptopsBlockProps) {
+  const uniqueId = useId().replace(/:/g, '')
+  const mainPrevClass = `laptops-swiper-prev-${uniqueId}`
+  const mainNextClass = `laptops-swiper-next-${uniqueId}`
+  const reviewsPrevClass = `reviews-swiper-prev-${uniqueId}`
+  const reviewsNextClass = `reviews-swiper-next-${uniqueId}`
+  const reviewsPaginationClass = `reviews-swiper-pagination-${uniqueId}`
   const [activeIndex, setActiveIndex] = useState(0)
   const { addToCart, toggleFavorite, isFavorite, cart } = useShopStore()
 
@@ -71,18 +91,38 @@ export function LaptopsBlock({ title, products, titleAlign = 'left' }: LaptopsBl
     [currentProduct]
   )
 
-  const reviewCards = useMemo(() => {
-    if (!currentProduct) return []
-    const count = Math.max(2, Math.min(5, currentProduct.rating_count || 2))
-    return Array.from({ length: count }, (_, index) => ({
-      id: `${currentProduct.id}-${index}`,
-      author: `Покупатель ${index + 1}`,
-      rating: currentProduct.average_rating
-        ? Number(currentProduct.average_rating)
-        : 4.8,
-      text: 'Отличный ноутбук, производительность на высоте.',
-    }))
-  }, [currentProduct])
+  const [productReviews, setProductReviews] = useState<ProductReview[]>([])
+  const [reviewsLoading, setReviewsLoading] = useState(false)
+  const [openReviewId, setOpenReviewId] = useState<number | null>(null)
+
+  useEffect(() => {
+    let isActive = true
+
+    const loadReviews = async () => {
+      if (!currentProduct) return
+      setReviewsLoading(true)
+      try {
+        const data = await getProductReviews(currentProduct.id)
+        if (isActive) {
+          setProductReviews(data)
+        }
+      } catch (error) {
+        if (isActive) {
+          setProductReviews([])
+        }
+      } finally {
+        if (isActive) {
+          setReviewsLoading(false)
+        }
+      }
+    }
+
+    loadReviews()
+
+    return () => {
+      isActive = false
+    }
+  }, [currentProduct?.id])
 
   if (!products.length) return null
 
@@ -158,14 +198,14 @@ export function LaptopsBlock({ title, products, titleAlign = 'left' }: LaptopsBl
             <button
               type="button"
               aria-label="Предыдущий слайд"
-              className="laptops-swiper-prev absolute left-2 top-1/3 z-[1000] -translate-y-1/2 rounded-full border border-primary/60 bg-background/80 p-2 text-primary shadow-sm transition hover:bg-primary hover:text-black"
+              className={`${mainPrevClass} absolute left-2 top-1/3 z-[1000] -translate-y-1/2 rounded-full border border-primary/60 bg-background/80 p-2 text-primary shadow-sm transition hover:bg-primary hover:text-black`}
             >
               <ArrowLeft  className=''/>
             </button>
             <button
               type="button"
               aria-label="Следующий слайд"
-              className="laptops-swiper-next absolute right-2 top-1/3 z-[1000] -translate-y-1/2 rounded-full border border-primary/60 bg-background/80 p-2 text-primary shadow-sm transition hover:bg-primary hover:text-black"
+              className={`${mainNextClass} absolute right-2 top-1/3 z-[1000] -translate-y-1/2 rounded-full border border-primary/60 bg-background/80 p-2 text-primary shadow-sm transition hover:bg-primary hover:text-black`}
             >
               <ArrowRight className=''/>
             </button>
@@ -184,13 +224,10 @@ export function LaptopsBlock({ title, products, titleAlign = 'left' }: LaptopsBl
               }}
               pagination={{ clickable: true }}
               navigation={{
-                prevEl: '.laptops-swiper-prev',
-                nextEl: '.laptops-swiper-next',
+                prevEl: `.${mainPrevClass}`,
+                nextEl: `.${mainNextClass}`,
               }}
-              autoplay={{
-                delay: 3000,
-                disableOnInteraction: false,
-              }}
+             
               onSlideChange={(swiper: SwiperClass) =>
                 setActiveIndex(swiper.realIndex)
               }
@@ -226,6 +263,23 @@ export function LaptopsBlock({ title, products, titleAlign = 'left' }: LaptopsBl
                 background-color: #facc15;
                 opacity: 1;
               }
+              .reviews-swiper .swiper-pagination-bullet {
+                background-color: #facc15;
+                opacity: 0.5;
+              }
+              .reviews-swiper .swiper-pagination-bullet-active {
+                background-color: #facc15;
+                opacity: 1;
+              }
+              .reviews-swiper-pagination .swiper-pagination-bullet {
+                background-color: #facc15;
+                opacity: 0.5;
+                margin: 0 6px;
+              }
+              .reviews-swiper-pagination .swiper-pagination-bullet-active {
+                background-color: #facc15;
+                opacity: 1;
+              }
             `}</style>
           </div>
 
@@ -252,26 +306,115 @@ export function LaptopsBlock({ title, products, titleAlign = 'left' }: LaptopsBl
                   <Star className="h-4 w-4 fill-primary text-primary" />
                   {currentProduct?.average_rating || '—'}
                 </div>
-              </div>
-              <div className="flex gap-3 overflow-x-auto pb-2">
-                {reviewCards.map((review) => (
-                  <div
-                    key={review.id}
-                    className="min-w-[200px] rounded-2xl border border-border/60 bg-background/40 p-3"
+                <div className="ml-auto flex items-center gap-2">
+                  <button
+                    type="button"
+                    aria-label="Предыдущий отзыв"
+                    className={`${reviewsPrevClass} rounded-full border border-border/60 bg-card/80 p-1.5 text-foreground transition hover:border-primary/60 hover:text-primary`}
                   >
-                    <div className="flex items-center gap-2 text-xs text-muted-foreground">
-                      <Star className="h-3 w-3 fill-primary text-primary" />
-                      {review.rating}
-                    </div>
-                    <p className="mt-2 text-sm text-foreground line-clamp-3">
-                      {review.text}
-                    </p>
-                    <p className="mt-2 text-xs text-muted-foreground">
-                      {review.author}
-                    </p>
-                  </div>
-                ))}
+                    <ArrowLeft className="h-3.5 w-3.5" />
+                  </button>
+                  <button
+                    type="button"
+                    aria-label="Следующий отзыв"
+                    className={`${reviewsNextClass} rounded-full border border-border/60 bg-card/80 p-1.5 text-foreground transition hover:border-primary/60 hover:text-primary`}
+                  >
+                    <ArrowRight className="h-3.5 w-3.5" />
+                  </button>
+                </div>
               </div>
+              {reviewsLoading ? (
+                <p className="text-xs text-muted-foreground">Загрузка отзывов...</p>
+              ) : productReviews.length ? (
+                <>
+                  <Swiper
+                    className="reviews-swiper"
+                    modules={[Navigation, Pagination]}
+                    navigation={{
+                      prevEl: `.${reviewsPrevClass}`,
+                      nextEl: `.${reviewsNextClass}`,
+                    }}
+                    pagination={{
+                      el: `.${reviewsPaginationClass}`,
+                      clickable: true,
+                    }}
+                    spaceBetween={12}
+                    slidesPerView={1.15}
+                    breakpoints={{
+                      640: { slidesPerView: 1.5 },
+                      1024: { slidesPerView: 1.2 },
+                    }}
+                  >
+                    {productReviews.map((review) => (
+                      <SwiperSlide key={review.id} className="h-auto">
+                        <Dialog
+                          open={openReviewId === review.id}
+                          onOpenChange={(open) =>
+                            setOpenReviewId(open ? review.id : null)
+                          }
+                        >
+                          <div
+                            role="button"
+                            tabIndex={0}
+                            onClick={() => setOpenReviewId(review.id)}
+                            onKeyDown={(event) => {
+                              if (event.key === 'Enter' || event.key === ' ') {
+                                event.preventDefault()
+                                setOpenReviewId(review.id)
+                              }
+                            }}
+                            className="rounded-2xl border border-border/60 bg-background/40 p-3 outline-none transition hover:border-primary/60 focus-visible:border-primary/60"
+                          >
+                            <div className="flex items-center gap-2 text-xs text-muted-foreground">
+                              <Star className="h-3 w-3 fill-primary text-primary" />
+                              {review.rating}
+                            </div>
+                            <p className="mt-2 text-sm text-foreground line-clamp-3">
+                              {stripHtml(review.review)}
+                            </p>
+                            <p className="mt-2 text-xs text-muted-foreground">
+                              {review.reviewer}
+                            </p>
+                          </div>
+                          <DialogContent className="sm:max-w-[560px]">
+                            <DialogHeader>
+                              <DialogTitle>Отзыв</DialogTitle>
+                            </DialogHeader>
+                            <div className="space-y-3">
+                              <div className="flex flex-wrap items-center gap-3 text-sm">
+                                <span className="font-semibold text-foreground">
+                                  {review.reviewer}
+                                </span>
+                                <span className="text-muted-foreground">
+                                  {formatDate(review.date_created)}
+                                </span>
+                                <div className="flex items-center gap-1 text-foreground">
+                                  <Star className="h-4 w-4 text-primary fill-primary" />
+                                  <span>{Number(review.rating).toFixed(1)}</span>
+                                </div>
+                              </div>
+                              <p className="text-sm text-muted-foreground">
+                                {currentProduct?.name}
+                              </p>
+                              <div
+                                className="prose prose-invert max-w-none"
+                                dangerouslySetInnerHTML={{ __html: review.review }}
+                              />
+                            </div>
+                          </DialogContent>
+                        </Dialog>
+                      </SwiperSlide>
+                    ))}
+                  </Swiper>
+                  <div
+                    className={`reviews-swiper-pagination ${reviewsPaginationClass} mt-2 flex justify-center`}
+                  />
+                </>
+              ) : (
+                <p className="text-xs text-muted-foreground">
+                  Пока нет отзывов
+                </p>
+              )}
             </div>
           </div>
         </div>

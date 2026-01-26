@@ -3,19 +3,27 @@ import { CategoriesBlock } from '@/widgets/categories'
 import { LogoShowcase } from '@/widgets/logo-showcase'
 import { LaptopsBlock } from '@/widgets/laptops'
 import { LatestReviews } from '@/widgets/reviews'
+import { BrandsMarquee } from '@/widgets/brands'
 import { getMainPage } from '@/shared/api/pages/main'
 import { getCategory } from '@/shared/api/products/categories/getCategory'
 import { getReviews } from '@/shared/api/products/reviews/getReviews'
+import { getBrands } from '@/shared/api/products/brands/getBrands'
+import type { ProductBrandApi } from '@/shared/types/product'
 
 export default async function HomePage() {
-  const pageDataArray = await getMainPage()
-  
+  const [pageDataArray, latestReviews, brands] = await Promise.all([
+    getMainPage(),
+    getReviews(),
+    getBrands(),
+  ])
+
   const pageData = pageDataArray[0]
   const heroData = pageData.acf.zaglavnyj_blok
   const categoriesBlock = pageData.acf.blok_kategorij
   const companyBlock = pageData.acf.blok_o_kompanii
   const laptopsBlock = pageData.acf.blok_noutbuki
   const computersBlock = pageData.acf.blok_kompyutery
+  const brandsBlock = pageData.acf.brands_block
   const laptopProducts =
     laptopsBlock?.noutbuki
       ?.map((item) => item.product)
@@ -45,7 +53,24 @@ export default async function HomePage() {
       })
     )
   ).filter((category): category is NonNullable<typeof category> => Boolean(category))
-  const latestReviews = await getReviews()
+
+  const brandMap = new Map<number, ProductBrandApi>(
+    brands.map((brand) => [brand.id, brand])
+  )
+
+  const firstGroupBrands =
+    brandsBlock?.brendy_pervoj_gruppy
+      ?.map((item) => brandMap.get(item.brand))
+      .filter(
+        (brand): brand is ProductBrandApi => Boolean(brand)
+      ) ?? []
+
+  const secondGroupBrands =
+    brandsBlock?.brendy_vtoroj_gruppy
+      ?.map((item) => brandMap.get(item.brand))
+      .filter(
+        (brand): brand is ProductBrandApi => Boolean(brand)
+      ) ?? []
 
   return (
     <main>
@@ -65,6 +90,7 @@ export default async function HomePage() {
         <CategoriesBlock title={categoriesBlock.zagolovok} categories={categories} />
       )}
       <LogoShowcase blok={companyBlock} />
+      
       {laptopsBlock && (
         <LaptopsBlock title={laptopsBlock.zagolovok} products={laptopProducts} />
       )}
@@ -72,7 +98,13 @@ export default async function HomePage() {
         <LaptopsBlock title={computersBlock.zagolovok} products={computerProducts} titleAlign="right" />
       )}
       <LatestReviews reviews={latestReviews} />
-      
+      {brandsBlock && (
+        <BrandsMarquee
+          titleHtml={brandsBlock.zagolovok_bloka}
+          firstGroup={firstGroupBrands}
+          secondGroup={secondGroupBrands}
+        />
+      )}
     </main>
   )
 }
