@@ -50,6 +50,12 @@ export const API = {
     `${shopApiUrl}/products/attributes/${id}/terms?per_page=100`,
   getProductBrands: `${shopApiUrl}/products/brands?per_page=100`,
 
+  //reviews
+  getReviews: `${shopApiUrl}/products/reviews?per_page=10`,
+  getProductReviews: (id: number) =>
+    `${shopApiUrl}/products/reviews?status=approved&product=${id}`,
+  createReview: `${shopApiUrl}/products/reviews`,
+
   //categories
   getCategories:`${wordpressApiUrl}/product_cat?per_page=100${postfix}`,
   getCategoryById: (id: number) => `${wordpressApiUrl}/product_cat/${id}?${postfix.replace('&', '')}`,

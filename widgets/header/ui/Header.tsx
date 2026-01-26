@@ -9,7 +9,7 @@ interface HeaderProps {
 
 export function Header({ razdely_kataloga }: HeaderProps) {
   return (
-    <header className="sticky top-0 z-50">
+    <header className="sticky top-0 z-[99999]">
       <TopBar />
       <BottomBar />
       <CatalogDropdown razdely_kataloga={razdely_kataloga} />

@@ -139,11 +139,7 @@ export function ProductInfo({ product }: ProductInfoProps) {
           </Button>
         </div>
 
-        {/* Дополнительная кнопка */}
-        <Button variant="outline" className="w-full bg-transparent">
-          Нашли дешевле?
-        </Button>
-
+       
         {/* Информация о доставке */}
         <div className="space-y-2 text-sm pt-2 border-t border-border">
           <div className="flex items-center justify-between">

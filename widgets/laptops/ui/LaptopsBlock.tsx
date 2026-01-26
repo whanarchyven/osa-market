@@ -2,10 +2,11 @@
 
 import { useMemo, useState } from 'react'
 import Image from 'next/image'
-import { Star, Heart } from 'lucide-react'
+import { Star, Heart, ArrowLeftCircle, ArrowRightCircle, ArrowRight, ArrowLeft } from 'lucide-react'
 import { Swiper, SwiperSlide } from 'swiper/react'
-import { EffectCoverflow, Pagination } from 'swiper/modules'
+import { EffectCoverflow, Pagination, Navigation, Autoplay } from 'swiper/modules'
 import type { Swiper as SwiperClass } from 'swiper'
+import { cva } from 'class-variance-authority'
 import { useShopStore } from '@/shared/store'
 import { mapApiProductToStoreProduct } from '@/shared/utils/product'
 import { Button } from '@/components/ui/button'
@@ -14,16 +15,45 @@ import type { ProductApi } from '@/shared/types/product'
 import 'swiper/css'
 import 'swiper/css/effect-coverflow'
 import 'swiper/css/pagination'
+import 'swiper/css/navigation'
+import Link from 'next/link'
 
 interface LaptopsBlockProps {
   title: string
   products: ProductApi[]
+  titleAlign?: 'left' | 'center'|'right'
 }
 
 const stripHtml = (value: string) =>
   value.replace(/<[^>]*>/g, ' ').replace(/\s+/g, ' ').trim()
 
-export function LaptopsBlock({ title, products }: LaptopsBlockProps) {
+const titleContainerVariants = cva('mb-8 flex w-full flex-col', {
+  variants: {
+    align: {
+      left: 'items-start',
+      center: 'items-center',
+      right: 'items-end',
+    },
+  },
+  defaultVariants: {
+    align: 'left',
+  },
+})
+
+const titleWrapperVariants = cva('inline-flex flex-col', {
+  variants: {
+    align: {
+      left: 'items-start text-left',
+      center: 'items-center text-center',
+      right: 'items-end text-right',
+    },
+  },
+  defaultVariants: {
+    align: 'left',
+  },
+})
+
+export function LaptopsBlock({ title, products, titleAlign = 'left' }: LaptopsBlockProps) {
   const [activeIndex, setActiveIndex] = useState(0)
   const { addToCart, toggleFavorite, isFavorite, cart } = useShopStore()
 
@@ -57,26 +87,28 @@ export function LaptopsBlock({ title, products }: LaptopsBlockProps) {
   if (!products.length) return null
 
   return (
-    <section className="py-12" data-count={products.length}>
+    <section className="py-10" data-count={products.length}>
       <div className="container mx-auto px-4">
-        <div className="mb-8 flex items-center flex-col justify-center">
-          <h2 className="text-2xl font-bold text-foreground md:text-3xl">
-            {title}
-          </h2>
-          <div className="mt-3 h-1 w-52 rounded-full bg-gradient-to-r from-primary to-primary/10" />
+        <div className={titleContainerVariants({ align: titleAlign })}>
+          <div className={titleWrapperVariants({ align: titleAlign })}>
+            <h2 className="text-2xl font-bold text-foreground md:text-3xl">
+              {title}
+            </h2>
+            <div className="mt-3 h-1 w-full rounded-full bg-gradient-to-r from-primary to-primary/10" />
+          </div>
         </div>
 
         <div className="grid gap-6 lg:grid-cols-12 items-stretch">
           <div className="lg:col-span-3 rounded-3xl flex flex-col gap-6">
             <div className="space-y-3">
-              <h3 className="text-2xl font-semibold text-foreground">
+              <Link href={`/product/${currentProduct.id}`} className="text-2xl font-semibold text-foreground">
                 {currentProduct?.name}
-              </h3>
-              <p className="text-sm text-muted-foreground line-clamp-4">
+              </Link>
+              {/* <p className="text-sm text-muted-foreground line-clamp-4">
                 {currentProduct
                   ? stripHtml(currentProduct.short_description || '')
                   : ''}
-              </p>
+              </p> */}
             </div>
 
             <div className="grid grid-cols-1 gap-3">
@@ -95,10 +127,10 @@ export function LaptopsBlock({ title, products }: LaptopsBlockProps) {
               ))}
             </div>
 
-            <div className="mt-auto flex flex-col gap-3">
+            <div className="flex items-center gap-3">
               <Button
                 variant="outline"
-                className="w-full !border !border-primary hover:!text-black hover:!bg-primary"
+                className="!border w-1/2 !border-primary hover:!text-black hover:!bg-primary"
                 onClick={() => storeProduct && addToCart(storeProduct, 1)}
                 disabled={!storeProduct}
               >
@@ -106,7 +138,7 @@ export function LaptopsBlock({ title, products }: LaptopsBlockProps) {
               </Button>
               <Button
                 variant="outline"
-                className="w-full"
+                className="w-1/2"
                 onClick={() => storeProduct && toggleFavorite(storeProduct)}
                 disabled={!storeProduct}
               >
@@ -123,8 +155,22 @@ export function LaptopsBlock({ title, products }: LaptopsBlockProps) {
           <div className="lg:col-span-6 relative overflow-hidden py-8">
             <div className='h-full w-24 from-[#101010] to-[#101010]/0 bg-gradient-to-r z-[999] absolute left-0'></div>
             <div className='h-full w-24 from-[#101010] to-[#101010]/0 bg-gradient-to-l z-[99] absolute right-0'></div>
-            <Swiper className='!w-[1500px] absolute left-1/2 -translate-x-1/2'
-              modules={[EffectCoverflow, Pagination]}
+            <button
+              type="button"
+              aria-label="Предыдущий слайд"
+              className="laptops-swiper-prev absolute left-2 top-1/3 z-[1000] -translate-y-1/2 rounded-full border border-primary/60 bg-background/80 p-2 text-primary shadow-sm transition hover:bg-primary hover:text-black"
+            >
+              <ArrowLeft  className=''/>
+            </button>
+            <button
+              type="button"
+              aria-label="Следующий слайд"
+              className="laptops-swiper-next absolute right-2 top-1/3 z-[1000] -translate-y-1/2 rounded-full border border-primary/60 bg-background/80 p-2 text-primary shadow-sm transition hover:bg-primary hover:text-black"
+            >
+              <ArrowRight className=''/>
+            </button>
+            <Swiper className='laptops-swiper !w-[1500px] absolute left-1/2 -translate-x-1/2'
+              modules={[EffectCoverflow, Pagination, Navigation, Autoplay]}
               effect="coverflow"
               centeredSlides
               slidesPerView={Math.min(3, products.length)}
@@ -137,6 +183,14 @@ export function LaptopsBlock({ title, products }: LaptopsBlockProps) {
                 slideShadows: false,
               }}
               pagination={{ clickable: true }}
+              navigation={{
+                prevEl: '.laptops-swiper-prev',
+                nextEl: '.laptops-swiper-next',
+              }}
+              autoplay={{
+                delay: 3000,
+                disableOnInteraction: false,
+              }}
               onSlideChange={(swiper: SwiperClass) =>
                 setActiveIndex(swiper.realIndex)
               }
@@ -148,7 +202,7 @@ export function LaptopsBlock({ title, products }: LaptopsBlockProps) {
             >
               {products.map((product) => (
                 <SwiperSlide key={product.id}>
-                  <div className="relative mx-auto h-[600px] w-full max-w-[760px] rounded-2xl overflow-hidden">
+                  <div className="relative mx-auto h-[360px] w-full max-w-[760px] rounded-2xl overflow-hidden sm:h-[420px] lg:h-[520px]">
                     {product.images?.[0]?.src ? (
                       <Image
                         src={product.images[0].src}
@@ -163,11 +217,21 @@ export function LaptopsBlock({ title, products }: LaptopsBlockProps) {
                 </SwiperSlide>
               ))}
             </Swiper>
+            <style jsx global>{`
+              .laptops-swiper .swiper-pagination-bullet {
+                background-color: #facc15;
+                opacity: 0.5;
+              }
+              .laptops-swiper .swiper-pagination-bullet-active {
+                background-color: #facc15;
+                opacity: 1;
+              }
+            `}</style>
           </div>
 
-          <div className="lg:col-span-3 rounded-3xl h-2/4 flex gap-4 flex-col">
+          <div className="lg:col-span-3 rounded-3xl flex gap-4 flex-col">
           <p className='text-right text-xl font-bold'>Характеристики</p>
-            <div className="flex-1 overflow-y-auto pr-2 space-y-3">
+            <div className="overflow-y-scroll !h-[200px] pr-2 space-y-3">
               {(currentProduct?.attributes ?? []).map((attr) => (
                 <div
                   key={attr.id}
@@ -181,7 +245,7 @@ export function LaptopsBlock({ title, products }: LaptopsBlockProps) {
               ))}
             </div>
 
-            <div className="mt-4 border-t h-1/4 border-border/60 pt-4">
+            <div className="mt-4 border-t border-border/60 pt-4">
               <div className='flex mb-3 items-center gap-3'>
                 <p className='text-xl'>Отзывы</p>
                 <div className="flex items-center gap-2 text-sm text-muted-foreground">

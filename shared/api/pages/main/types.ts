@@ -94,6 +94,16 @@ export interface BlokNoutbuki {
   noutbuki: NoutbukItem[]
 }
 
+export interface KompyuterItem {
+  kompyuter: number
+  product?: ProductApi | null
+}
+
+export interface BlokKompyutery {
+  zagolovok: string
+  kompyutery: KompyuterItem[]
+}
+
   export interface ZaglavnyjBlok {
     slogan: string
     opisanie: string
@@ -110,6 +120,7 @@ export interface BlokNoutbuki {
     blok_kategorij?: BlokKategorij
   blok_o_kompanii?: BlokOKompanii
   blok_noutbuki?: BlokNoutbuki
+  blok_kompyutery?: BlokKompyutery
   }
   
   export interface PageData {

@@ -1,5 +1,6 @@
-import { ProductGallery, ProductInfo } from '@/widgets/product'
+import { ProductGallery, ProductInfo, ProductReviewForm } from '@/widgets/product'
 import { getProductById } from '@/shared/api/products/getProductById'
+import { getProductReviews } from '@/shared/api/products/reviews/getProductReviews'
 import {
   Breadcrumb,
   BreadcrumbItem,
@@ -10,6 +11,7 @@ import {
 } from '@/components/ui/breadcrumb'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { cn } from '@/lib/utils'
+import { Star } from 'lucide-react'
 
 interface ProductPageProps {
   params: Promise<{ slug: string }>
@@ -20,6 +22,7 @@ export default async function ProductPage({ params }: ProductPageProps) {
   
   const productId = Number(slug)
   const product = await getProductById(productId)
+  const reviews = await getProductReviews(productId)
 
   const category = product.categories[0]
 
@@ -106,8 +109,49 @@ export default async function ProductPage({ params }: ProductPageProps) {
             </TabsContent>
             
             <TabsContent value="reviews" className="mt-6">
-              <div className="text-center py-12 text-muted-foreground">
-                <p>Отзывы скоро появятся</p>
+              <div className="space-y-6">
+                {reviews.length ? (
+                  <div className="space-y-4">
+                    {reviews.map((review) => (
+                      <div
+                        key={review.id}
+                        className="rounded-lg border border-border bg-card p-4"
+                      >
+                        <div className="flex flex-wrap items-center justify-between gap-4">
+                          <div>
+                            <p className="text-sm font-semibold text-foreground">
+                              {review.reviewer}
+                            </p>
+                            <p className="text-xs text-muted-foreground">
+                              {new Date(review.date_created).toLocaleDateString('ru-RU')}
+                            </p>
+                          </div>
+                          <div className="flex items-center gap-1">
+                            {Array.from({ length: 5 }).map((_, index) => (
+                              <Star
+                                key={`${review.id}-star-${index}`}
+                                className={`h-4 w-4 ${
+                                  index < review.rating
+                                    ? 'text-primary fill-primary'
+                                    : 'text-muted-foreground'
+                                }`}
+                              />
+                            ))}
+                          </div>
+                        </div>
+                        <div
+                          className="mt-3 prose prose-invert max-w-none text-sm"
+                          dangerouslySetInnerHTML={{ __html: review.review }}
+                        />
+                      </div>
+                    ))}
+                  </div>
+                ) : (
+                  <div className="text-center py-8 text-muted-foreground">
+                    <p>Пока нет отзывов</p>
+                  </div>
+                )}
+                <ProductReviewForm productId={product.id} />
               </div>
             </TabsContent>
           </Tabs>

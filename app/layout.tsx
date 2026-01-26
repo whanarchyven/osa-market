@@ -5,6 +5,7 @@ import { Analytics } from '@vercel/analytics/next'
 import './globals.css'
 import { Header } from '@/widgets/header'
 import { getHeaderData } from '@/shared/api/pages/header'
+import { Toaster } from "@/components/ui/sonner"
 
 const inter = Inter({ 
   subsets: ['latin', 'cyrillic'],
@@ -65,7 +66,8 @@ export default async function RootLayout({
       <body className={`${inter.variable} ${jetbrainsMono.variable} font-sans antialiased`}>
         <Header razdely_kataloga={razdely_kataloga} />
         {children}
-        <Analytics />
+        {/* <Analytics /> */}
+        <Toaster richColors />
       </body>
     </html>
   )

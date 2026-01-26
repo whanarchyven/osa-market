@@ -85,6 +85,47 @@ export interface ProductLinks {
   collection: ProductLink[]
 }
 
+export interface ProductReviewAvatarUrls {
+  '24': string
+  '48': string
+  '96': string
+}
+
+export interface ProductReviewLinks {
+  self: ProductLink[]
+  collection: ProductLink[]
+  up: ProductLink[]
+  reviewer?: ProductLink[]
+}
+
+export interface ProductReview {
+  id: number
+  date_created: string
+  date_created_gmt: string
+  product_id: number
+  product_name: string
+  product_permalink: string
+  status: string
+  reviewer: string
+  reviewer_email: string
+  review: string
+  rating: number
+  verified: boolean
+  reviewer_avatar_urls: ProductReviewAvatarUrls
+  _links: ProductReviewLinks
+}
+
+export interface ProductReviewWithProduct extends ProductReview {
+  product?: ProductApi | null
+}
+
+export interface ProductReviewCreate {
+  product_id: number
+  reviewer: string
+  reviewer_email: string
+  review: string
+  rating: number
+}
 export interface ProductAttributeApi {
   id: number
   name: string
