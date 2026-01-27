@@ -46,11 +46,11 @@ export function HeroSection({
             {/* Large Logo */}
             <div className="space-y-4">
               <div className='flex items-center gap-2'>
-                <Image src="/logo.svg" alt="OSA-shop" width={100} height={100} />
+                <Image src="/logo.svg" alt="OSA-MARKET" width={100} height={100} />
                 <div className="inline-block">
                 <span className="text-5xl md:text-6xl lg:text-7xl font-bold tracking-tight">
                   <span className="text-primary">OSA</span>
-                  <span className="text-foreground">-shop</span>
+                  <span className="text-foreground">-MARKET</span>
                 </span>
                 <div className="h-1 bg-gradient-to-r from-primary via-primary/50 to-transparent mt-2" />
               </div>

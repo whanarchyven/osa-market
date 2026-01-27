@@ -6,6 +6,8 @@ import './globals.css'
 import { Header } from '@/widgets/header'
 import { getHeaderData } from '@/shared/api/pages/header'
 import { Toaster } from "@/components/ui/sonner"
+import { Footer } from "@/widgets/footer"
+import { getFooterData } from '@/shared/api/pages/footer'
 
 const inter = Inter({ 
   subsets: ['latin', 'cyrillic'],
@@ -18,9 +20,9 @@ const jetbrainsMono = JetBrains_Mono({
 })
 
 export const metadata: Metadata = {
-  title: 'OSA-shop | Ноутбуки, готовые ПК и периферия',
-  description: 'Интернет-магазин компьютерной техники OSA-shop. Ноутбуки, готовые сборки ПК, видеокарты, процессоры и игровая периферия от ведущих брендов. Доставка по всей России.',
-  keywords: 'ноутбуки, компьютеры, видеокарты, игровые ПК, периферия, геймерские аксессуары, OSA-shop',
+  title: 'OSA-MARKET | Ноутбуки, готовые ПК и периферия',
+  description: 'Интернет-магазин компьютерной техники OSA-MARKET. Ноутбуки, готовые сборки ПК, видеокарты, процессоры и игровая периферия от ведущих брендов. Доставка по всей России.',
+  keywords: 'ноутбуки, компьютеры, видеокарты, игровые ПК, периферия, геймерские аксессуары, OSA-MARKET',
   generator: 'v0.app',
   icons: {
     icon: [
@@ -40,7 +42,7 @@ export const metadata: Metadata = {
     apple: '/apple-icon.png',
   },
   openGraph: {
-    title: 'OSA-shop | Ноутбуки, готовые ПК и периферия',
+    title: 'OSA-MARKET | Ноутбуки, готовые ПК и периферия',
     description: 'Интернет-магазин компьютерной техники. Лучшие цены и широкий ассортимент.',
     type: 'website',
     locale: 'ru_RU',
@@ -58,16 +60,30 @@ export default async function RootLayout({
 }: Readonly<{
   children: React.ReactNode
 }>) {
-  const headerData = await getHeaderData()
-  const razdely_kataloga = headerData[0]?.acf?.razdely_kataloga ?? []
+  const [headerData, footerData] = await Promise.all([
+    getHeaderData(),
+    getFooterData(),
+  ])
+
+  const headerAcf = headerData[0]?.acf
+  const razdely_kataloga = headerAcf?.razdely_kataloga ?? []
+  const nomer_telefona = headerAcf?.nomer_telefona
+  const soczialnye_seti = headerAcf?.soczialnye_seti
+
+  const footerAcf = footerData[0]?.acf
 
   return (
     <html lang="ru" className="dark">
       <body className={`${inter.variable} ${jetbrainsMono.variable} font-sans antialiased`}>
-        <Header razdely_kataloga={razdely_kataloga} />
+        <Header
+          razdely_kataloga={razdely_kataloga}
+          nomer_telefona={nomer_telefona}
+          soczialnye_seti={soczialnye_seti}
+        />
         {children}
         {/* <Analytics /> */}
         <Toaster richColors />
+        <Footer data={footerAcf} />
       </body>
     </html>
   )

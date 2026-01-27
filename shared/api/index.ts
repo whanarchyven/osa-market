@@ -1,2 +1,9 @@
 export { getCatalogData } from './pages/catalog'
+export { getBuyoutData } from './pages/buyout/getBuyOutData'
+export { getNewsList } from './news/getNewsList'
+export { getNewsById } from './news/getNewsById'
+export { getNewsBySlug } from './news/getNewsBySlug'
+export { getPromoList } from './promo/getPromoList'
+export { getPromoById } from './promo/getPromoById'
+export { getPromoBySlug } from './promo/getPromoBySlug'
 

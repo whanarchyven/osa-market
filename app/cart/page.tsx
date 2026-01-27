@@ -1,11 +1,21 @@
 'use client'
 
+import { type FormEvent, useState } from 'react'
 import Image from 'next/image'
 import Link from 'next/link'
 import { Minus, Plus, Trash2 } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { useShopStore } from '@/shared/store'
 import { cn } from '@/lib/utils'
+import { DeliveryAddressField } from '@/widgets/cart/ui/DeliveryAddressField'
+
+type CheckoutForm = {
+  firstName: string
+  lastName: string
+  phone: string
+  email: string
+  address: string
+}
 
 export default function CartPage() {
   const {
@@ -19,6 +29,65 @@ export default function CartPage() {
 
   const totalItems = getCartTotalItems()
   const totalPrice = getCartTotalPrice()
+  const [form, setForm] = useState<CheckoutForm>({
+    firstName: '',
+    lastName: '',
+    phone: '',
+    email: '',
+    address: '',
+  })
+  const [errors, setErrors] = useState<Partial<CheckoutForm>>({})
+
+  const setField =
+    (field: keyof CheckoutForm) =>
+    (value: string) => {
+      setForm((prev) => ({ ...prev, [field]: value }))
+    }
+
+  const validateField = (
+    field: keyof CheckoutForm,
+    value: string
+  ): string | undefined => {
+    const trimmed = value.trim()
+
+    if (!trimmed) {
+      return 'Поле обязательно'
+    }
+
+    if (field === 'email') {
+      const isValid = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(trimmed)
+      return isValid ? undefined : 'Введите корректный email'
+    }
+
+    if (field === 'phone') {
+      const digits = trimmed.replace(/\D/g, '')
+      return digits.length >= 10 ? undefined : 'Введите корректный телефон'
+    }
+
+    if (field === 'address' && trimmed.length < 8) {
+      return 'Укажите полный адрес'
+    }
+
+    return undefined
+  }
+
+  const validateForm = () => {
+    const nextErrors: Partial<CheckoutForm> = {}
+    ;(Object.keys(form) as (keyof CheckoutForm)[]).forEach((field) => {
+      const error = validateField(field, form[field])
+      if (error) {
+        nextErrors[field] = error
+      }
+    })
+
+    setErrors(nextErrors)
+    return Object.keys(nextErrors).length === 0
+  }
+
+  const handleSubmit = (event: FormEvent<HTMLFormElement>) => {
+    event.preventDefault()
+    validateForm()
+  }
 
   return (
     <main className="min-h-screen bg-background pt-6 pb-16">
@@ -147,45 +216,173 @@ export default function CartPage() {
                   Оформление
                 </h2>
 
-                <div className="space-y-4">
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                    <input
-                      className="h-11 rounded-lg bg-input border border-border px-3 text-sm text-foreground placeholder:text-muted-foreground"
-                      placeholder="Имя"
-                    />
-                    <input
-                      className="h-11 rounded-lg bg-input border border-border px-3 text-sm text-foreground placeholder:text-muted-foreground"
-                      placeholder="Фамилия"
-                    />
+                <form onSubmit={handleSubmit} className="space-y-6">
+                  <div className="space-y-4">
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                      <div className="space-y-2">
+                        <input
+                          value={form.firstName}
+                          onChange={(event) =>
+                            setField('firstName')(event.target.value)
+                          }
+                          onBlur={() =>
+                            setErrors((prev) => ({
+                              ...prev,
+                              firstName: validateField(
+                                'firstName',
+                                form.firstName
+                              ),
+                            }))
+                          }
+                          className={cn(
+                            'h-11 w-full rounded-lg bg-input border border-border px-3 text-sm text-foreground placeholder:text-muted-foreground',
+                            errors.firstName &&
+                              'border-destructive focus-visible:ring-destructive'
+                          )}
+                          placeholder="Имя"
+                          autoComplete="given-name"
+                          aria-invalid={Boolean(errors.firstName)}
+                        />
+                        {errors.firstName && (
+                          <p className="text-xs text-destructive">
+                            {errors.firstName}
+                          </p>
+                        )}
+                      </div>
+                      <div className="space-y-2">
+                        <input
+                          value={form.lastName}
+                          onChange={(event) =>
+                            setField('lastName')(event.target.value)
+                          }
+                          onBlur={() =>
+                            setErrors((prev) => ({
+                              ...prev,
+                              lastName: validateField(
+                                'lastName',
+                                form.lastName
+                              ),
+                            }))
+                          }
+                          className={cn(
+                            'h-11 w-full rounded-lg bg-input border border-border px-3 text-sm text-foreground placeholder:text-muted-foreground',
+                            errors.lastName &&
+                              'border-destructive focus-visible:ring-destructive'
+                          )}
+                          placeholder="Фамилия"
+                          autoComplete="family-name"
+                          aria-invalid={Boolean(errors.lastName)}
+                        />
+                        {errors.lastName && (
+                          <p className="text-xs text-destructive">
+                            {errors.lastName}
+                          </p>
+                        )}
+                      </div>
+                    </div>
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                      <div className="space-y-2">
+                        <input
+                          value={form.phone}
+                          onChange={(event) =>
+                            setField('phone')(event.target.value)
+                          }
+                          onBlur={() =>
+                            setErrors((prev) => ({
+                              ...prev,
+                              phone: validateField('phone', form.phone),
+                            }))
+                          }
+                          className={cn(
+                            'h-11 w-full rounded-lg bg-input border border-border px-3 text-sm text-foreground placeholder:text-muted-foreground',
+                            errors.phone &&
+                              'border-destructive focus-visible:ring-destructive'
+                          )}
+                          placeholder="Телефон"
+                          autoComplete="tel"
+                          inputMode="tel"
+                          aria-invalid={Boolean(errors.phone)}
+                        />
+                        {errors.phone && (
+                          <p className="text-xs text-destructive">
+                            {errors.phone}
+                          </p>
+                        )}
+                      </div>
+                      <div className="space-y-2">
+                        <input
+                          value={form.email}
+                          onChange={(event) =>
+                            setField('email')(event.target.value)
+                          }
+                          onBlur={() =>
+                            setErrors((prev) => ({
+                              ...prev,
+                              email: validateField('email', form.email),
+                            }))
+                          }
+                          className={cn(
+                            'h-11 w-full rounded-lg bg-input border border-border px-3 text-sm text-foreground placeholder:text-muted-foreground',
+                            errors.email &&
+                              'border-destructive focus-visible:ring-destructive'
+                          )}
+                          placeholder="Email"
+                          type="email"
+                          autoComplete="email"
+                          aria-invalid={Boolean(errors.email)}
+                        />
+                        {errors.email && (
+                          <p className="text-xs text-destructive">
+                            {errors.email}
+                          </p>
+                        )}
+                      </div>
+                    </div>
                   </div>
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                    <input
-                      className="h-11 rounded-lg bg-input border border-border px-3 text-sm text-foreground placeholder:text-muted-foreground"
-                      placeholder="Телефон"
-                    />
-                    <input
-                      className="h-11 rounded-lg bg-input border border-border px-3 text-sm text-foreground placeholder:text-muted-foreground"
-                      placeholder="Email"
-                    />
-                  </div>
-                </div>
 
-                <div className="mt-6 border-t border-border pt-4 space-y-3 text-sm">
-                  <div className="flex items-center justify-between">
-                    <span className="text-muted-foreground">Товаров</span>
-                    <span className="text-foreground">{totalItems} шт.</span>
+                  <div className="space-y-3 border-t border-border pt-4">
+                    <h3 className="text-xl font-semibold text-foreground">
+                      Доставка
+                    </h3>
+                    <DeliveryAddressField
+                      value={form.address}
+                      onChange={setField('address')}
+                      onBlur={() =>
+                        setErrors((prev) => ({
+                          ...prev,
+                          address: validateField('address', form.address),
+                        }))
+                      }
+                      error={errors.address}
+                    />
                   </div>
-                  <div className="flex items-center justify-between">
-                    <span className="text-muted-foreground">Стоимость</span>
-                    <span className="text-foreground">
-                      {new Intl.NumberFormat('ru-RU').format(totalPrice)} ₽
-                    </span>
-                  </div>
-                </div>
 
-                <Button className="w-full mt-5 h-12 text-base font-semibold">
-                  Перейти к оплате
-                </Button>
+                  <div className="border-t border-border pt-4 space-y-3 text-sm">
+                    <div className="flex items-center justify-between">
+                      <span className="text-muted-foreground">Товаров</span>
+                      <span className="text-foreground">{totalItems} шт.</span>
+                    </div>
+                    <div className="flex items-center justify-between">
+                      <span className="text-muted-foreground">Стоимость</span>
+                      <span className="text-foreground">
+                        {new Intl.NumberFormat('ru-RU').format(totalPrice)} ₽
+                      </span>
+                    </div>
+                  </div>
+
+                  <div>
+                    <Button
+                      className="w-full h-12 text-base font-semibold"
+                      type="submit"
+                    >
+                      Заказать
+                    </Button>
+                    <p className="text-sm mt-3 text-muted-foreground">
+                      Нажимая на кнопку "Заказать", вы соглашаетесь с условиями
+                      использования сайта и политикой конфиденциальности.
+                    </p>
+                  </div>
+                </form>
               </div>
             </aside>
           </div>

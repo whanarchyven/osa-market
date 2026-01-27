@@ -104,6 +104,12 @@ export interface BlokKompyutery {
   kompyutery: KompyuterItem[]
 }
 
+export interface TradeInBlock {
+  zagolovok: string
+  podzagolovok: string
+  polnoekrannoe_izobrazhenie: string
+}
+
 export interface BrandIdItem {
   brand: number
 }
@@ -131,6 +137,7 @@ export interface BrandsBlock {
   blok_o_kompanii?: BlokOKompanii
   blok_noutbuki?: BlokNoutbuki
   blok_kompyutery?: BlokKompyutery
+  'blok_trade-in'?: TradeInBlock
   brands_block?: BrandsBlock
   }
   

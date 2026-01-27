@@ -8,7 +8,13 @@ import { Logo } from './Logo'
 import { useUIStore, useShopStore } from '@/shared/store'
 import { useState } from 'react'
 
-export function BottomBar() {
+interface BottomBarProps {
+  nomer_telefona?: string
+}
+
+const normalizePhone = (value?: string) => value?.replace(/\s+/g, '') ?? ''
+
+export function BottomBar({ nomer_telefona }: BottomBarProps) {
   const { isCatalogOpen, toggleCatalog, isMobileMenuOpen, setMobileMenuOpen } = useUIStore()
   const { favorites, getCartTotalItems } = useShopStore()
   const [searchQuery, setSearchQuery] = useState('')
@@ -21,6 +27,9 @@ export function BottomBar() {
       window.location.href = `/search?q=${encodeURIComponent(searchQuery)}`
     }
   }
+
+  const phoneValue = nomer_telefona?.trim() ?? ''
+  const phoneHref = phoneValue ? `tel:${normalizePhone(phoneValue)}` : ''
 
   return (
     <div className="bg-background/95 backdrop-blur-md border-b border-border">
@@ -138,7 +147,7 @@ export function BottomBar() {
               </button>
               
               <Link
-                href="/sales"
+                href="/promos"
                 onClick={() => setMobileMenuOpen(false)}
                 className="flex items-center gap-3 px-4 py-3 text-foreground hover:bg-secondary rounded-lg transition-colors"
               >
@@ -159,14 +168,16 @@ export function BottomBar() {
                 О нас
               </Link>
               
-              <div className="pt-4 border-t border-border">
-                <a 
-                  href="tel:+79991234567" 
-                  className="flex items-center gap-3 px-4 py-3 text-foreground hover:bg-secondary rounded-lg transition-colors"
-                >
-                  +7 (999) 123-45-67
-                </a>
-              </div>
+              {phoneValue && (
+                <div className="pt-4 border-t border-border">
+                  <a
+                    href={phoneHref}
+                    className="flex items-center gap-3 px-4 py-3 text-foreground hover:bg-secondary rounded-lg transition-colors"
+                  >
+                    {phoneValue}
+                  </a>
+                </div>
+              )}
             </nav>
           </div>
         </div>

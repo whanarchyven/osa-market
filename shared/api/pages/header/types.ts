@@ -136,8 +136,19 @@ export interface Fakt {
     kategoriya: Kategoriya
   }
   
+  export interface SocialNetwork {
+    ikonka: string
+    ssylka: string
+  }
+
+  export interface SocialNetworkItem {
+    soczset: SocialNetwork
+  }
+
   export interface HeaderACF {
     razdely_kataloga: RazdelKataloga[]
+    nomer_telefona?: string
+    soczialnye_seti?: SocialNetworkItem[]
   }
   
   export interface HeaderPageData {

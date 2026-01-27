@@ -37,6 +37,29 @@ const wordpressApiUrl="/wp/v2"
 export const API = {
   getMainPage: `${wordpressApiUrl}/pages?slug=main${postfix}`,
   getHeaderPage: `${wordpressApiUrl}/pages?slug=header${postfix}`,
+  getFooterPage: `${wordpressApiUrl}/pages?slug=footer${postfix}`,
+  getBuyoutPage: `${wordpressApiUrl}/pages?slug=buyout${postfix}`,
+  getAboutPage: `${wordpressApiUrl}/pages?slug=about${postfix}`,
+
+  //news
+  getNewsList: (page = 1, perPage = 9, search?: string) =>
+    `${wordpressApiUrl}/news?per_page=${perPage}&page=${page}${postfix}${
+      search ? `&search=${encodeURIComponent(search)}` : ''
+    }`,
+  getNewsById: (id: number) =>
+    `${wordpressApiUrl}/news/${id}?${postfix.replace('&', '')}`,
+  getNewsBySlug: (slug: string) =>
+    `${wordpressApiUrl}/news?slug=${slug}${postfix}`,
+
+  //promo
+  getPromoList: (page = 1, perPage = 9, search?: string) =>
+    `${wordpressApiUrl}/promo?per_page=${perPage}&page=${page}${postfix}${
+      search ? `&search=${encodeURIComponent(search)}` : ''
+    }`,
+  getPromoById: (id: number) =>
+    `${wordpressApiUrl}/promo/${id}?${postfix.replace('&', '')}`,
+  getPromoBySlug: (slug: string) =>
+    `${wordpressApiUrl}/promo?slug=${slug}${postfix}`,
 
 
   //products

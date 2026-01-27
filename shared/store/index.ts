@@ -223,7 +223,7 @@ export const useShopStore = create<ShopState>()(
         get().cart.reduce((sum, item) => sum + item.price * item.quantity, 0),
     }),
     {
-      name: 'osa-shop-storage',
+      name: 'osa-MARKET-storage',
     }
   )
 )

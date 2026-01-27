@@ -4,6 +4,7 @@ import { LogoShowcase } from '@/widgets/logo-showcase'
 import { LaptopsBlock } from '@/widgets/laptops'
 import { LatestReviews } from '@/widgets/reviews'
 import { BrandsMarquee } from '@/widgets/brands'
+import { TradeIn } from '@/widgets/buyout'
 import { getMainPage } from '@/shared/api/pages/main'
 import { getCategory } from '@/shared/api/products/categories/getCategory'
 import { getReviews } from '@/shared/api/products/reviews/getReviews'
@@ -24,6 +25,7 @@ export default async function HomePage() {
   const laptopsBlock = pageData.acf.blok_noutbuki
   const computersBlock = pageData.acf.blok_kompyutery
   const brandsBlock = pageData.acf.brands_block
+  const tradeInBlock = pageData.acf['blok_trade-in']
   const laptopProducts =
     laptopsBlock?.noutbuki
       ?.map((item) => item.product)
@@ -103,6 +105,13 @@ export default async function HomePage() {
           titleHtml={brandsBlock.zagolovok_bloka}
           firstGroup={firstGroupBrands}
           secondGroup={secondGroupBrands}
+        />
+      )}
+      {tradeInBlock && (
+        <TradeIn
+          data={tradeInBlock}
+          ctaHref="/buyout"
+          ctaLabel="Подробнее"
         />
       )}
     </main>

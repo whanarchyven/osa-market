@@ -3,7 +3,7 @@
 
 @custom-variant dark (&:is(.dark *));
 
-/* OSA-shop Dark Theme - #101010 background, #FFC300 accent, #FFF white */
+/* OSA-MARKET Dark Theme - #101010 background, #FFC300 accent, #FFF white */
 :root {
   --background: #101010;
   --foreground: #ffffff;
