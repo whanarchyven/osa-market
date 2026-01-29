@@ -1,17 +1,18 @@
 'use client'
 
-import { type FormEvent, useState } from 'react'
+import { type FormEvent, useEffect, useState } from 'react'
 import Image from 'next/image'
 import Link from 'next/link'
+import { useRouter } from 'next/navigation'
 import { Minus, Plus, Trash2 } from 'lucide-react'
 import { Button } from '@/components/ui/button'
-import { useShopStore } from '@/shared/store'
+import { createOrder } from '@/shared/api'
+import { useAuthStore, useShopStore } from '@/shared/store'
 import { cn } from '@/lib/utils'
 import { DeliveryAddressField } from '@/widgets/cart/ui/DeliveryAddressField'
 
 type CheckoutForm = {
   firstName: string
-  lastName: string
   phone: string
   email: string
   address: string
@@ -26,17 +27,36 @@ export default function CartPage() {
     getCartTotalItems,
     getCartTotalPrice,
   } = useShopStore()
+  const user = useAuthStore((state) => state.user)
+  const isAuthenticated = useAuthStore((state) => state.isAuthenticated)
 
   const totalItems = getCartTotalItems()
   const totalPrice = getCartTotalPrice()
+  const router = useRouter()
   const [form, setForm] = useState<CheckoutForm>({
     firstName: '',
-    lastName: '',
     phone: '',
     email: '',
     address: '',
   })
   const [errors, setErrors] = useState<Partial<CheckoutForm>>({})
+  const [isSubmitting, setIsSubmitting] = useState(false)
+  const [submitError, setSubmitError] = useState<string | null>(null)
+
+  useEffect(() => {
+    if (!isAuthenticated || !user) {
+      return
+    }
+
+    const fullName = (user.name ?? '').trim()
+
+    setForm((prev) => ({
+      ...prev,
+      firstName: prev.firstName || fullName || '',
+      email: prev.email || user.email || '',
+      phone: prev.phone || user.phone || '',
+    }))
+  }, [isAuthenticated, user])
 
   const setField =
     (field: keyof CheckoutForm) =>
@@ -84,9 +104,102 @@ export default function CartPage() {
     return Object.keys(nextErrors).length === 0
   }
 
-  const handleSubmit = (event: FormEvent<HTMLFormElement>) => {
+  const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault()
-    validateForm()
+    if (isSubmitting) {
+      return
+    }
+
+    const isValid = validateForm()
+    if (!isValid) {
+      return
+    }
+
+    const lineItems = cart
+      .map((item) => ({
+        product_id: Number(item.id),
+        quantity: item.quantity,
+      }))
+      .filter((item) => Number.isFinite(item.product_id) && item.product_id > 0)
+
+    if (lineItems.length === 0) {
+      setSubmitError('Не удалось сформировать заказ. Попробуйте ещё раз.')
+      return
+    }
+
+    setIsSubmitting(true)
+    setSubmitError(null)
+
+    try {
+      const customerId = isAuthenticated ? Number(user?.id) : null
+      const order = await createOrder({
+        ...(Number.isFinite(customerId) && customerId && customerId > 0
+          ? { customer_id: customerId }
+          : {}),
+        billing: {
+          first_name: form.firstName.trim(),
+          last_name: '',
+          email: form.email.trim(),
+          phone: form.phone.trim(),
+          address_1: form.address.trim(),
+        },
+        shipping: {
+          first_name: form.firstName.trim(),
+          last_name: '',
+          address_1: form.address.trim(),
+        },
+        line_items: lineItems,
+      })
+
+      try {
+        const telegramResponse = await fetch('/api/telegram/order', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            orderId: order.id,
+            customer: {
+              firstName: form.firstName.trim(),
+              lastName: '',
+              email: form.email.trim(),
+              phone: form.phone.trim(),
+              address: form.address.trim(),
+            },
+            items: cart.map((item) => ({
+              id: item.id,
+              name: item.name,
+              quantity: item.quantity,
+              price: item.price,
+            })),
+            totalPrice,
+            totalItems,
+          }),
+        })
+
+        if (!telegramResponse.ok) {
+          // keep checkout successful even if Telegram fails
+          console.warn('Telegram delivery failed')
+        }
+      } catch (error) {
+        // keep checkout successful even if Telegram fails
+        console.warn('Telegram delivery failed', error)
+      }
+
+      clearCart()
+      setForm({
+        firstName: '',
+        phone: '',
+        email: '',
+        address: '',
+      })
+      setErrors({})
+      router.push('/order-success')
+    } catch (error) {
+      setSubmitError('Не удалось оформить заказ. Попробуйте позже.')
+    } finally {
+      setIsSubmitting(false)
+    }
   }
 
   return (
@@ -219,7 +332,7 @@ export default function CartPage() {
                 <form onSubmit={handleSubmit} className="space-y-6">
                   <div className="space-y-4">
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                      <div className="space-y-2">
+                      <div className="space-y-2 sm:col-span-2">
                         <input
                           value={form.firstName}
                           onChange={(event) =>
@@ -246,36 +359,6 @@ export default function CartPage() {
                         {errors.firstName && (
                           <p className="text-xs text-destructive">
                             {errors.firstName}
-                          </p>
-                        )}
-                      </div>
-                      <div className="space-y-2">
-                        <input
-                          value={form.lastName}
-                          onChange={(event) =>
-                            setField('lastName')(event.target.value)
-                          }
-                          onBlur={() =>
-                            setErrors((prev) => ({
-                              ...prev,
-                              lastName: validateField(
-                                'lastName',
-                                form.lastName
-                              ),
-                            }))
-                          }
-                          className={cn(
-                            'h-11 w-full rounded-lg bg-input border border-border px-3 text-sm text-foreground placeholder:text-muted-foreground',
-                            errors.lastName &&
-                              'border-destructive focus-visible:ring-destructive'
-                          )}
-                          placeholder="Фамилия"
-                          autoComplete="family-name"
-                          aria-invalid={Boolean(errors.lastName)}
-                        />
-                        {errors.lastName && (
-                          <p className="text-xs text-destructive">
-                            {errors.lastName}
                           </p>
                         )}
                       </div>
@@ -374,9 +457,13 @@ export default function CartPage() {
                     <Button
                       className="w-full h-12 text-base font-semibold"
                       type="submit"
+                      disabled={isSubmitting}
                     >
-                      Заказать
+                      {isSubmitting ? 'Отправляем…' : 'Заказать'}
                     </Button>
+                    {submitError && (
+                      <p className="text-sm mt-3 text-destructive">{submitError}</p>
+                    )}
                     <p className="text-sm mt-3 text-muted-foreground">
                       Нажимая на кнопку "Заказать", вы соглашаетесь с условиями
                       использования сайта и политикой конфиденциальности.

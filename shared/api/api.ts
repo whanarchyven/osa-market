@@ -79,6 +79,9 @@ export const API = {
     `${shopApiUrl}/products/reviews?status=approved&product=${id}`,
   createReview: `${shopApiUrl}/products/reviews`,
 
+  //orders
+  createOrder: `${shopApiUrl}/orders`,
+
   //categories
   getCategories:`${wordpressApiUrl}/product_cat?per_page=100${postfix}`,
   getCategoryById: (id: number) => `${wordpressApiUrl}/product_cat/${id}?${postfix.replace('&', '')}`,

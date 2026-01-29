@@ -2,9 +2,12 @@
 
 import Link from 'next/link'
 import { LayoutGrid, User, ArrowRight } from 'lucide-react'
-import { useUIStore, useAuthStore } from '@/shared/store'
+import { useAuthStore, useUIStore } from '@/shared/store'
+import { useAuthSync } from '@/shared/hooks/useAuthSync'
 
 export function HeroButtons() {
+  useAuthSync()
+
   const { toggleCatalog } = useUIStore()
   const isAuthenticated = useAuthStore((state) => state.isAuthenticated)
 
@@ -24,7 +27,7 @@ export function HeroButtons() {
         className="group flex items-center gap-3 px-8 py-4 bg-secondary hover:bg-secondary/80 text-foreground font-semibold rounded-full border border-border hover:border-primary/50 transition-all"
       >
         <User className="w-5 h-5" />
-        <span>{isAuthenticated ? 'Личный кабинет' : 'Войти'}</span>
+        <span>{isAuthenticated ? 'Кабинет' : 'Войти'}</span>
       </Link>
     </div>
   )

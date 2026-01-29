@@ -6,4 +6,7 @@ export { getNewsBySlug } from './news/getNewsBySlug'
 export { getPromoList } from './promo/getPromoList'
 export { getPromoById } from './promo/getPromoById'
 export { getPromoBySlug } from './promo/getPromoBySlug'
+export { createOrder } from './orders/createOrder'
+export { getAccountOrders } from './account/getOrders'
+export { loginUser, registerUser, logoutUser } from './auth'
 

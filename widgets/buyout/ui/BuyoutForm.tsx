@@ -18,6 +18,8 @@ export function BuyoutForm({ contacts }: BuyoutFormProps) {
   })
   const [interest, setInterest] = useState<InterestType>('buyout')
   const [isSubmitting, setIsSubmitting] = useState(false)
+  const [submitError, setSubmitError] = useState<string | null>(null)
+  const [isSuccess, setIsSuccess] = useState(false)
 
   const handleChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
@@ -31,23 +33,46 @@ export function BuyoutForm({ contacts }: BuyoutFormProps) {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
+    if (isSubmitting) {
+      return
+    }
     setIsSubmitting(true)
+    setSubmitError(null)
 
     try {
-      // TODO: Replace with actual API endpoint
-      console.log('[v0] Submitting buyout form:', {
-        ...formData,
+      const payload = {
+        name: formData.name.trim(),
+        phone: formData.phone.trim(),
+        comment: formData.comment.trim(),
         interest,
+      }
+
+      if (!payload.name || !payload.phone || !payload.comment) {
+        setSubmitError('Заполните все поля формы.')
+        setIsSuccess(false)
+        return
+      }
+
+      const response = await fetch('/api/telegram/buyout', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(payload),
       })
-      
-      // Simulate API call
-      await new Promise((resolve) => setTimeout(resolve, 1000))
-      
+
+      if (!response.ok) {
+        const data = (await response.json().catch(() => null)) as
+          | { message?: string }
+          | null
+        throw new Error(data?.message ?? 'Telegram delivery failed')
+      }
+
       setFormData({ name: '', phone: '', comment: '' })
-      alert('Заявка отправлена! Мы свяжемся с вами в ближайшее время.')
+      setIsSuccess(true)
     } catch (error) {
-      console.error('[v0] Form submission error:', error)
-      alert('Ошибка при отправке формы. Пожалуйста, попробуйте позже.')
+      setSubmitError('Ошибка при отправке формы. Пожалуйста, попробуйте позже.')
+      setIsSuccess(false)
     } finally {
       setIsSubmitting(false)
     }
@@ -66,6 +91,11 @@ export function BuyoutForm({ contacts }: BuyoutFormProps) {
       </p>
 
       <form onSubmit={handleSubmit} className="space-y-4">
+        {isSuccess && (
+          <div className="rounded-lg border border-primary/40 bg-primary/10 px-4 py-3 text-sm text-primary">
+            Заявка отправлена! Мы свяжемся с вами в ближайшее время.
+          </div>
+        )}
         <div>
           <span className="block text-sm font-medium text-white mb-2">
             Что вас интересует
@@ -152,6 +182,9 @@ export function BuyoutForm({ contacts }: BuyoutFormProps) {
         >
           {isSubmitting ? 'Отправка...' : 'Отправить заявку'}
         </button>
+        {submitError && (
+          <p className="text-sm text-destructive">{submitError}</p>
+        )}
 
         <div className="pt-4 border-t border-border space-y-3">
           <p className="text-sm text-muted-foreground">

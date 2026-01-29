@@ -19,7 +19,12 @@ type DadataResponse = {
   suggestions?: DadataSuggestion[]
 }
 
-const VisibleInput = (props: InputProps) => (
+type AddressOption = {
+  value: string
+  label: string
+}
+
+const VisibleInput = (props: InputProps<AddressOption, false>) => (
   <components.Input {...props} isHidden={false} />
 )
 
@@ -39,11 +44,11 @@ export function DeliveryAddressField({
   const latestQueryRef = useRef(value)
   const abortControllerRef = useRef<AbortController | null>(null)
 
-  const options = useMemo(
+  const options = useMemo<AddressOption[]>(
     () => suggestions.map((item) => ({ value: item, label: item })),
     [suggestions]
   )
-  const selectedOption = value ? { value, label: value } : null
+  const selectedOption: AddressOption | null = value ? { value, label: value } : null
 
   useEffect(() => {
     setInputValue(value)
@@ -144,7 +149,7 @@ export function DeliveryAddressField({
       <label className="text-sm font-medium text-foreground" htmlFor={inputId}>
         Адрес доставки
       </label>
-      <Select
+      <Select<AddressOption, false>
         inputId={inputId}
         unstyled
         components={{ Input: VisibleInput }}
@@ -157,7 +162,7 @@ export function DeliveryAddressField({
             onChange(nextValue)
           }
         }}
-        onChange={(option: SingleValue<{ value: string; label: string }>) => {
+        onChange={(option: SingleValue<AddressOption>) => {
           const nextValue = option?.value ?? ''
           setInputValue(nextValue)
           onChange(nextValue)
