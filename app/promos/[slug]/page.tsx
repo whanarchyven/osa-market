@@ -6,6 +6,8 @@ import { PromoProductsSlider } from '@/widgets/promo/ui/PromoProductsSlider'
 import { PromoSignupForm } from '@/widgets/promo/ui/PromoSignupForm'
 import { parseRichTextBlock } from '@/shared/utils/richText'
 
+export const revalidate = 60
+
 interface PromoDetailPageProps {
   params: Promise<{ slug: string }>
 }

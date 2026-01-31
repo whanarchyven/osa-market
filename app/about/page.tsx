@@ -4,8 +4,10 @@ import type { Metadata } from 'next'
 
 export const metadata: Metadata = {
   title: 'О нас - OSA-MARKET',
-  description: 'Узнайте о компании OSA-MARKET: наша история, команда, ценности и миссия в мире компьютерных технологий.'
+  description: 'Узнайте о компании OSA-MARKET: наша история, ценности и миссия в мире компьютерных технологий.'
 }
+
+export const revalidate = 60
 
 export default async function AboutPage() {
   const data = await getAboutPageData()
@@ -32,7 +34,7 @@ export default async function AboutPage() {
           opisanie: p.plashka.podzagolovok,
         }))}
       />
-      <AboutTeam
+      {/* <AboutTeam
         zagolovok_komandy={acf.blok_s_komandoj.zagolovok}
         opisanie_komandy={acf.blok_s_komandoj.podzagolovok}
         chlenov_komandy={acf.blok_s_komandoj.komanda.map(
@@ -43,7 +45,7 @@ export default async function AboutPage() {
             foto: k.chlen_komandy.izobrazhenie,
           })
         )}
-      />
+      /> */}
       <AboutValues
         zagolovok_cennostei={acf.blok_czennosti.zagolovok}
         cennosti={acf.blok_czennosti.czennosti.map((c) => c.czennost)}

@@ -11,6 +11,8 @@ import { getReviews } from '@/shared/api/products/reviews/getReviews'
 import { getBrands } from '@/shared/api/products/brands/getBrands'
 import type { ProductBrandApi } from '@/shared/types/product'
 
+export const revalidate = 60
+
 export default async function HomePage() {
   const [pageDataArray, latestReviews, brands] = await Promise.all([
     getMainPage(),

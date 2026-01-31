@@ -12,6 +12,8 @@ export const metadata: Metadata = {
   description: 'Дорого выкупим ноутбуки, ПК и комплектующие. Быстрая оценка и оплата сразу.'
 }
 
+export const revalidate = 60
+
 export default async function BuyoutPage() {
   const data = await getBuyoutData()
   const pageData = data[0]

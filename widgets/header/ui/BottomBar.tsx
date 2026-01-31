@@ -132,7 +132,7 @@ export function BottomBar({ nomer_telefona }: BottomBarProps) {
           </button>
 
           {/* Search bar */}
-          <form onSubmit={handleSearch} className="flex-1 max-w-2xl">
+          <form onSubmit={handleSearch} className="flex-1 hidden md:block max-w-2xl">
             <div className="relative">
               <input
                 type="text"

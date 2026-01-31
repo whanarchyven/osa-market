@@ -10,6 +10,8 @@ export function PromoSignupForm() {
     comment: '',
   })
   const [isSubmitting, setIsSubmitting] = useState(false)
+  const [submitError, setSubmitError] = useState<string | null>(null)
+  const [isSuccess, setIsSuccess] = useState(false)
 
   const handleChange = (
     event: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
@@ -20,15 +22,45 @@ export function PromoSignupForm() {
 
   const handleSubmit = async (event: React.FormEvent) => {
     event.preventDefault()
+    if (isSubmitting) {
+      return
+    }
     setIsSubmitting(true)
+    setSubmitError(null)
     try {
-      console.log('[v0] Submitting promo form:', formData)
-      await new Promise((resolve) => setTimeout(resolve, 800))
+      const payload = {
+        name: formData.name.trim(),
+        phone: formData.phone.trim(),
+        email: formData.email.trim(),
+        comment: formData.comment.trim(),
+      }
+
+      if (!payload.name || !payload.phone) {
+        setSubmitError('Заполните обязательные поля.')
+        setIsSuccess(false)
+        return
+      }
+
+      const response = await fetch('/api/telegram/promo', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(payload),
+      })
+
+      if (!response.ok) {
+        const data = (await response.json().catch(() => null)) as
+          | { message?: string }
+          | null
+        throw new Error(data?.message ?? 'Telegram delivery failed')
+      }
+
       setFormData({ name: '', phone: '', email: '', comment: '' })
-      alert('Заявка отправлена! Мы свяжемся с вами в ближайшее время.')
+      setIsSuccess(true)
     } catch (error) {
-      console.error('[v0] Promo form error:', error)
-      alert('Ошибка при отправке. Попробуйте позже.')
+      setSubmitError('Ошибка при отправке. Попробуйте позже.')
+      setIsSuccess(false)
     } finally {
       setIsSubmitting(false)
     }
@@ -43,6 +75,11 @@ export function PromoSignupForm() {
         Оставьте контакты, и мы поможем оформить покупку по акции
       </p>
       <form onSubmit={handleSubmit} className="space-y-4">
+        {isSuccess && (
+          <div className="rounded-lg border border-primary/40 bg-primary/10 px-4 py-3 text-sm text-primary">
+            Заявка отправлена! Мы свяжемся с вами в ближайшее время.
+          </div>
+        )}
         <div className="grid gap-4 md:grid-cols-2">
           <div>
             <label className="block text-sm font-medium text-foreground mb-2">
@@ -106,6 +143,9 @@ export function PromoSignupForm() {
         >
           {isSubmitting ? 'Отправка...' : 'Оставить заявку'}
         </button>
+        {submitError && (
+          <p className="text-sm text-destructive">{submitError}</p>
+        )}
       </form>
     </div>
   )

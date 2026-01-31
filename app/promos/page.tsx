@@ -2,6 +2,8 @@ import Image from 'next/image'
 import Link from 'next/link'
 import { getPromoList } from '@/shared/api/promo/getPromoList'
 
+export const revalidate = 60
+
 interface PromosPageProps {
   searchParams?: {
     page?: string

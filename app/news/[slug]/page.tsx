@@ -1,6 +1,8 @@
 import { notFound } from 'next/navigation'
 import { getNewsBySlug } from '@/shared/api/news/getNewsBySlug'
 
+export const revalidate = 60
+
 interface NewsDetailPageProps {
   params: Promise<{ slug: string }>
 }

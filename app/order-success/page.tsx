@@ -1,5 +1,7 @@
 import Link from 'next/link'
 
+export const revalidate = 60
+
 export default function OrderSuccessPage() {
   return (
     <main className="min-h-screen bg-background pt-10 pb-16">

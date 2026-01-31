@@ -2,6 +2,8 @@ import Image from 'next/image'
 import Link from 'next/link'
 import { getNewsList } from '@/shared/api/news/getNewsList'
 
+export const revalidate = 60
+
 interface NewsPageProps {
   searchParams?: {
     page?: string
