@@ -93,7 +93,7 @@ export function HeroSection({
           </div>
 
           {/* Right side - Featured Slider */}
-          <div className="hidden lg:block">
+          {/* <div className="hidden lg:block">
             <div className="max-w-md ml-auto">
               <FeaturedSlider 
                 title={nazvanie_bloka_s_tovarami}
@@ -101,7 +101,7 @@ export function HeroSection({
                 tovary={tovary}
               />
             </div>
-          </div>
+          </div> */}
         </div>
       </div>
 

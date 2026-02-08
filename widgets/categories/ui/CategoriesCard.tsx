@@ -6,6 +6,8 @@ import { DynamicIcon } from '@/shared/ui/DynamicIcon'
 
 interface CategoriesCardProps {
   category: ProductCategoryTaxonomy
+  /** Подсветка активной категории (жёлтый бордер) */
+  isActive?: boolean
 }
 
 const resolveCategoryImage = (category: ProductCategoryTaxonomy) => {
@@ -15,14 +17,21 @@ const resolveCategoryImage = (category: ProductCategoryTaxonomy) => {
   return null
 }
 
-export function CategoriesCard({ category }: CategoriesCardProps) {
+export function CategoriesCard({
+  category,
+  isActive = false,
+}: CategoriesCardProps) {
   const imageSrc = resolveCategoryImage(category)
   const categoryLink = `/catalog/${category.slug}`
 
   return (
     <Link
       href={categoryLink}
-      className="group flex h-full flex-col rounded-2xl border border-border/60 bg-card/80 p-4 shadow-sm transition-all hover:-translate-y-1 hover:border-primary/40 hover:shadow-lg"
+      className={`group flex h-full flex-col rounded-2xl border bg-card/80 p-4 shadow-sm transition-all hover:-translate-y-1 hover:border-primary/40 hover:shadow-lg ${
+        isActive
+          ? 'border-primary ring-2 ring-primary/30'
+          : 'border-border/60'
+      }`}
     >
       <div className="relative aspect-[4/3] w-full overflow-hidden rounded-xl bg-gradient-to-br from-muted/50 to-muted/10">
         <Image

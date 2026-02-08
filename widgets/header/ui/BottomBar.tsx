@@ -113,8 +113,8 @@ export function BottomBar({ nomer_telefona }: BottomBarProps) {
           </div>
 
           {/* Catalog button */}
-          <button
-            onClick={toggleCatalog}
+          <Link
+            href="/catalog/pcs"
             className={`
               hidden lg:flex items-center gap-2 px-5 py-2.5 rounded-full font-medium transition-all
               ${isCatalogOpen 
@@ -129,7 +129,7 @@ export function BottomBar({ nomer_telefona }: BottomBarProps) {
               <LayoutGrid className="w-5 h-5" />
             )}
             <span>Каталог товаров</span>
-          </button>
+          </Link>
 
           {/* Search bar */}
           <form onSubmit={handleSearch} className="flex-1 hidden md:block max-w-2xl">

@@ -1,10 +1,10 @@
 import { API } from '@/shared/api/api'
 import { axiosInstance } from '@/shared/api/axios'
-import type { ProductApi } from '@/shared/types/product'
+import type { ProductCategoryTaxonomy } from '@/shared/types/category'
 
-export const getCategories = async (): Promise<ProductApi> => {
+export const getCategories = async (): Promise<ProductCategoryTaxonomy[]> => {
   try {
-    const result = await axiosInstance.get<ProductApi>(API.getCategories)
+    const result = await axiosInstance.get<ProductCategoryTaxonomy[]>(API.getCategories)
     console.log(result.data, 'CATEGORIES DATA')
     return result.data
   } catch (e: any) {

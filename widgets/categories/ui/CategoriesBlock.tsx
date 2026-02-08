@@ -5,9 +5,15 @@ import { CategoriesGrid } from './CategoriesGrid'
 interface CategoriesBlockProps {
   title: string
   categories: ProductCategoryTaxonomy[]
+  /** Если передан и категория есть в списке — подсветить карточку (жёлтый бордер) */
+  activeCategoryId?: number
 }
 
-export function CategoriesBlock({ title, categories }: CategoriesBlockProps) {
+export function CategoriesBlock({
+  title,
+  categories,
+  activeCategoryId,
+}: CategoriesBlockProps) {
   if (!categories.length) return null
 
   return (
@@ -19,7 +25,10 @@ export function CategoriesBlock({ title, categories }: CategoriesBlockProps) {
           </h2>
           <div className="mt-3 h-1 w-20 rounded-full bg-gradient-to-r from-primary to-primary/10" />
         </div>
-        <CategoriesGrid categories={categories} />
+        <CategoriesGrid
+          categories={categories}
+          activeCategoryId={activeCategoryId}
+        />
       </div>
     </section>
   )

@@ -2,25 +2,24 @@
 
 import Link from 'next/link'
 import { LayoutGrid, User, ArrowRight } from 'lucide-react'
-import { useAuthStore, useUIStore } from '@/shared/store'
+import { useAuthStore } from '@/shared/store'
 import { useAuthSync } from '@/shared/hooks/useAuthSync'
 
 export function HeroButtons() {
   useAuthSync()
 
-  const { toggleCatalog } = useUIStore()
   const isAuthenticated = useAuthStore((state) => state.isAuthenticated)
 
   return (
     <div className="flex flex-wrap gap-4">
-      <button
-        onClick={toggleCatalog}
+      <Link
+        href="/catalog/laptops"
         className="group flex items-center gap-3 px-8 py-4 bg-primary hover:bg-primary/90 text-primary-foreground font-semibold rounded-full transition-all hover:shadow-lg hover:shadow-primary/25"
       >
         <LayoutGrid className="w-5 h-5" />
-        <span>Открыть каталог</span>
+        <p>Открыть каталог</p>
         <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
-      </button>
+      </Link>
       
       <Link
         href={isAuthenticated ? '/account' : '/login'}

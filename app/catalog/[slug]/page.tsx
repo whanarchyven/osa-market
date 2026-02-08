@@ -8,6 +8,9 @@ import {
   BreadcrumbPage,
   BreadcrumbSeparator,
 } from '@/components/ui/breadcrumb'
+import { CategoriesBlock } from '@/widgets/categories/ui/CategoriesBlock'
+import { getCatalogPageData } from '@/shared/api/pages/catalog/getCatalogPageData'
+import { getCategory } from '@/shared/api/products/categories/getCategory'
 
 export const revalidate = 60
 
@@ -19,8 +22,23 @@ interface CatalogPageProps {
 export default async function CatalogPage({ params, searchParams }: CatalogPageProps) {
   const { slug } = await params
   const search = await searchParams
-  
-  const catalogData = await getCatalogData(slug, search)
+
+  const [catalogData, catalogPageData] = await Promise.all([
+    getCatalogData(slug, search),
+    getCatalogPageData(),
+  ])
+
+  const categoryIds =
+    catalogPageData[0]?.acf?.otobrazhaemye_kategorii?.map(
+      (item) => item.kategoriya?.[0]
+    ).filter((id): id is number => id != null) ?? []
+
+  const categories =
+    categoryIds.length > 0
+      ? await Promise.all(categoryIds.map((id) => getCategory(id)))
+      : []
+
+  const activeCategoryId = categories.find((c) => c.slug === slug)?.id
 
   return (
       <main className="min-h-screen bg-background pt-4 pb-12">
@@ -37,6 +55,12 @@ export default async function CatalogPage({ params, searchParams }: CatalogPageP
               </BreadcrumbItem>
             </BreadcrumbList>
           </Breadcrumb>
+
+          <CategoriesBlock
+            title="Категории"
+            categories={categories}
+            activeCategoryId={activeCategoryId}
+          />
 
           {/* Заголовок */}
           <h1 className="text-2xl md:text-3xl font-bold text-foreground mb-8">
