@@ -1,4 +1,5 @@
 import Image from 'next/image'
+import type { Metadata } from 'next'
 import { notFound } from 'next/navigation'
 import { getPromoBySlug } from '@/shared/api/promo/getPromoBySlug'
 import { getProductById } from '@/shared/api/products/getProductById'
@@ -7,6 +8,47 @@ import { PromoSignupForm } from '@/widgets/promo/ui/PromoSignupForm'
 import { parseRichTextBlock } from '@/shared/utils/richText'
 
 export const revalidate = 60
+const SITE_URL = process.env.NEXT_PUBLIC_FRONT_BASE_URL || 'https://osa-market.ru'
+
+const stripHtml = (html: string) =>
+  html.replace(/<[^>]*>/g, ' ').replace(/\s+/g, ' ').trim()
+
+export async function generateMetadata(
+  { params }: PromoDetailPageProps
+): Promise<Metadata> {
+  const { slug } = await params
+  const promo = await getPromoBySlug(slug)
+
+  if (!promo) {
+    return { title: 'Акция — OSA-MARKET' }
+  }
+
+  const title = promo.acf.zagolovok
+  const description = stripHtml(promo.acf.opisanie || '').slice(0, 200)
+  const url = `${SITE_URL}/promos/${slug}`
+  const image = promo.acf.oblozhka || undefined
+
+  return {
+    title: `${title} — OSA-MARKET`,
+    description,
+    alternates: {
+      canonical: url,
+    },
+    openGraph: {
+      title,
+      description,
+      url,
+      type: 'article',
+      images: image ? [{ url: image }] : undefined,
+    },
+    twitter: {
+      card: 'summary_large_image',
+      title,
+      description,
+      images: image ? [image] : undefined,
+    },
+  }
+}
 
 interface PromoDetailPageProps {
   params: Promise<{ slug: string }>

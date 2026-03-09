@@ -1,4 +1,5 @@
 import { CatalogFilters, CatalogGrid } from '@/widgets/catalog'
+import type { Metadata } from 'next'
 import { getCatalogData } from '@/shared/api'
 import {
   Breadcrumb,
@@ -13,6 +14,36 @@ import { getCatalogPageData } from '@/shared/api/pages/catalog/getCatalogPageDat
 import { getCategory } from '@/shared/api/products/categories/getCategory'
 
 export const revalidate = 60
+const SITE_URL = process.env.NEXT_PUBLIC_FRONT_BASE_URL || 'https://osa-market.ru'
+
+const stripHtml = (html: string) =>
+  html.replace(/<[^>]*>/g, ' ').replace(/\s+/g, ' ').trim()
+
+export async function generateMetadata(
+  { params }: CatalogPageProps
+): Promise<Metadata> {
+  const { slug } = await params
+  const catalogData = await getCatalogData(slug, {})
+  const title = `${catalogData.categoryName} — купить в OSA-MARKET`
+  const description = stripHtml(
+    `Категория ${catalogData.categoryName}. ${catalogData.totalCount} товаров в наличии.`
+  )
+  const url = `${SITE_URL}/catalog/${slug}`
+
+  return {
+    title,
+    description,
+    alternates: {
+      canonical: url,
+    },
+    openGraph: {
+      title,
+      description,
+      url,
+      type: 'website',
+    },
+  }
+}
 
 interface CatalogPageProps {
   params: Promise<{ slug: string }>
@@ -28,20 +59,60 @@ export default async function CatalogPage({ params, searchParams }: CatalogPageP
     getCatalogPageData(),
   ])
 
-  const categoryIds =
-    catalogPageData[0]?.acf?.otobrazhaemye_kategorii?.map(
-      (item) => item.kategoriya?.[0]
-    ).filter((id): id is number => id != null) ?? []
+  const managedCategories =
+    catalogPageData[0]?.acf?.otobrazhaemye_kategorii
+      ?.map((item) => item.upravlyaemaya_kategoriya)
+      .filter((item): item is NonNullable<typeof item> => item != null) ?? []
+
+  const categoryIds = managedCategories
+    .map((item) => item.kategoriya)
+    .filter((id): id is number => id != null)
 
   const categories =
     categoryIds.length > 0
       ? await Promise.all(categoryIds.map((id) => getCategory(id)))
       : []
 
-  const activeCategoryId = categories.find((c) => c.slug === slug)?.id
+  const showProductsById = new Map(
+    managedCategories
+      .filter((item): item is Required<Pick<typeof item, 'kategoriya'>> & {
+        show_products?: boolean
+      } => item.kategoriya != null)
+      .map((item) => [item.kategoriya, item.show_products === true])
+  )
+
+  const categoriesWithFlags = categories.map((category) => ({
+    ...category,
+    showProducts: showProductsById.get(category.id) ?? false,
+  }))
+
+  const activeCategoryId = categoriesWithFlags.find((c) => c.slug === slug)?.id
 
   return (
       <main className="min-h-screen bg-background pt-4 pb-12">
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{
+            __html: JSON.stringify({
+              '@context': 'https://schema.org',
+              '@type': 'BreadcrumbList',
+              itemListElement: [
+                {
+                  '@type': 'ListItem',
+                  position: 1,
+                  name: 'Главная',
+                  item: `${SITE_URL}/`,
+                },
+                {
+                  '@type': 'ListItem',
+                  position: 2,
+                  name: catalogData.categoryName,
+                  item: `${SITE_URL}/catalog/${slug}`,
+                },
+              ],
+            }),
+          }}
+        />
         <div className="container mx-auto px-4">
           {/* Хлебные крошки */}
           <Breadcrumb className="mb-6">
@@ -58,7 +129,7 @@ export default async function CatalogPage({ params, searchParams }: CatalogPageP
 
           <CategoriesBlock
             title="Категории"
-            categories={categories}
+            categories={categoriesWithFlags}
             activeCategoryId={activeCategoryId}
           />
 

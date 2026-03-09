@@ -19,6 +19,8 @@ export interface ProductCategoryTaxonomy {
   taxonomy: string
   parent: number
   acf?: ProductCategoryAcf
+  /** Флаг управления отображением количества товаров на карточке */
+  showProducts?: boolean
 }
 
 

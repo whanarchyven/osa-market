@@ -1,4 +1,5 @@
 import { ProductGallery, ProductInfo, ProductReviewForm } from '@/widgets/product'
+import type { Metadata } from 'next'
 import { getProductById } from '@/shared/api/products/getProductById'
 import { getProductReviews } from '@/shared/api/products/reviews/getProductReviews'
 import {
@@ -14,6 +15,44 @@ import { cn } from '@/lib/utils'
 import { Star } from 'lucide-react'
 
 export const revalidate = 60
+const SITE_URL = process.env.NEXT_PUBLIC_FRONT_BASE_URL || 'https://osa-market.ru'
+
+const stripHtml = (html: string) =>
+  html.replace(/<[^>]*>/g, ' ').replace(/\s+/g, ' ').trim()
+
+export async function generateMetadata(
+  { params }: ProductPageProps
+): Promise<Metadata> {
+  const { slug } = await params
+  const productId = Number(slug)
+  const product = await getProductById(productId)
+
+  const title = `${product.name} — купить в OSA-MARKET`
+  const description = stripHtml(product.short_description || product.description || '')
+  const image = product.images?.[0]?.src
+  const url = `${SITE_URL}/product/${product.id}`
+
+  return {
+    title,
+    description,
+    alternates: {
+      canonical: url,
+    },
+    openGraph: {
+      title,
+      description,
+      url,
+      type: 'website',
+      images: image ? [{ url: image }] : undefined,
+    },
+    twitter: {
+      card: 'summary_large_image',
+      title,
+      description,
+      images: image ? [image] : undefined,
+    },
+  }
+}
 
 interface ProductPageProps {
   params: Promise<{ slug: string }>
@@ -25,11 +64,90 @@ export default async function ProductPage({ params }: ProductPageProps) {
   const productId = Number(slug)
   const product = await getProductById(productId)
   const reviews = await getProductReviews(productId)
+  const productUrl = `${SITE_URL}/product/${product.id}`
+  const primaryImage = product.images?.[0]?.src
+  const offerPrice = product.on_sale ? product.sale_price : product.price
+  const availability =
+    product.stock_status === 'instock'
+      ? 'https://schema.org/InStock'
+      : 'https://schema.org/OutOfStock'
 
   const category = product.categories[0]
+  const breadcrumbItems = [
+    {
+      '@type': 'ListItem',
+      position: 1,
+      name: 'Главная',
+      item: `${SITE_URL}/`,
+    },
+    ...(category
+      ? [
+          {
+            '@type': 'ListItem',
+            position: 2,
+            name: category.name,
+            item: `${SITE_URL}/catalog/${category.slug}`,
+          },
+          {
+            '@type': 'ListItem',
+            position: 3,
+            name: product.name,
+            item: productUrl,
+          },
+        ]
+      : [
+          {
+            '@type': 'ListItem',
+            position: 2,
+            name: product.name,
+            item: productUrl,
+          },
+        ]),
+  ]
 
   return (
     <main className="min-h-screen bg-background pt-4 pb-12">
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{
+          __html: JSON.stringify({
+            '@context': 'https://schema.org',
+            '@type': 'Product',
+            name: product.name,
+            description: stripHtml(product.short_description || product.description || ''),
+            sku: product.sku || undefined,
+            image: primaryImage ? [primaryImage] : undefined,
+            brand: product.brands?.[0]
+              ? { '@type': 'Brand', name: product.brands[0].name }
+              : undefined,
+            offers: {
+              '@type': 'Offer',
+              url: productUrl,
+              priceCurrency: 'RUB',
+              price: offerPrice || undefined,
+              availability,
+            },
+            aggregateRating:
+              product.rating_count > 0
+                ? {
+                    '@type': 'AggregateRating',
+                    ratingValue: Number(product.average_rating || 0),
+                    reviewCount: product.rating_count,
+                  }
+                : undefined,
+          }),
+        }}
+      />
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{
+          __html: JSON.stringify({
+            '@context': 'https://schema.org',
+            '@type': 'BreadcrumbList',
+            itemListElement: breadcrumbItems,
+          }),
+        }}
+      />
       <div className="container mx-auto px-4">
           {/* Хлебные крошки */}
           <Breadcrumb className="mb-6">

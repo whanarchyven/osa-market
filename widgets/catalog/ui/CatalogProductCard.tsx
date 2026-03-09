@@ -54,9 +54,9 @@ export function CatalogProductCard({ product }: CatalogProductCardProps) {
       </Link>
 
       {/* Информация */}
-      <div className="p-4 space-y-3">
+      <div className="p-3 md:p-4 space-y-2 md:space-y-3">
         {/* Рейтинг и отзывы */}
-        <div className="flex items-center justify-between text-sm">
+        <div className="flex items-center justify-between text-xs md:text-sm">
           <div className="flex items-center gap-3 text-muted-foreground">
             <span className="flex items-center gap-1">
               <Star className="h-4 w-4 fill-primary text-primary" />
@@ -89,17 +89,22 @@ export function CatalogProductCard({ product }: CatalogProductCardProps) {
 
         {/* Название */}
         <Link href={`/product/${product.id}`}>
-          <h3 className="font-medium text-foreground line-clamp-3 hover:text-primary transition-colors leading-tight">
+          <h3 className="text-sm md:text-base font-medium text-foreground line-clamp-3 hover:text-primary transition-colors leading-tight">
             {product.name}
           </h3>
         </Link>
 
         {/* Характеристики */}
-        <div className="space-y-5 pt-2 border-t border-border">
+        <div className="pt-2 border-t border-border grid grid-cols-2 gap-2 md:block md:space-y-5">
           {mainAttributes.map((attr) => (
-            <div key={attr.id} className="flex p-3 rounded border-primary/20 border shadow-primary/20 hover:shadow-xl flex-col items-start gap-2 text-xs">
+            <div
+              key={attr.id}
+              className="flex p-2 md:p-3 rounded border-primary/20 border shadow-primary/20 hover:shadow-xl flex-col items-start gap-1.5 text-[10px] md:text-xs"
+            >
               <span className="text-muted-foreground shrink-0">{attr.name}:</span>
-              <span className="text-foreground text-lg text-primary">{attr.options.join(', ')}</span>
+              <span className="text-foreground text-sm md:text-lg text-primary">
+                {attr.options.join(', ')}
+              </span>
             </div>
           ))}
         </div>
@@ -118,7 +123,7 @@ export function CatalogProductCard({ product }: CatalogProductCardProps) {
               </div>
             </div>
           ) : (
-            <span className="text-xl font-bold text-foreground">
+            <span className="text-lg md:text-xl font-bold text-foreground">
               {formatPrice(product.price)} ₽
             </span>
           )}

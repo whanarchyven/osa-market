@@ -1,7 +1,49 @@
 import { notFound } from 'next/navigation'
+import type { Metadata } from 'next'
 import { getNewsBySlug } from '@/shared/api/news/getNewsBySlug'
 
 export const revalidate = 60
+const SITE_URL = process.env.NEXT_PUBLIC_FRONT_BASE_URL || 'https://osa-market.ru'
+
+const stripHtml = (html: string) =>
+  html.replace(/<[^>]*>/g, ' ').replace(/\s+/g, ' ').trim()
+
+export async function generateMetadata(
+  { params }: NewsDetailPageProps
+): Promise<Metadata> {
+  const { slug } = await params
+  const news = await getNewsBySlug(slug)
+
+  if (!news) {
+    return { title: 'Новость — OSA-MARKET' }
+  }
+
+  const title = news.acf.zagolovok
+  const description = stripHtml(news.acf.kontent || '').slice(0, 200)
+  const url = `${SITE_URL}/news/${slug}`
+  const image = news.acf.oblozhka || undefined
+
+  return {
+    title: `${title} — OSA-MARKET`,
+    description,
+    alternates: {
+      canonical: url,
+    },
+    openGraph: {
+      title,
+      description,
+      url,
+      type: 'article',
+      images: image ? [{ url: image }] : undefined,
+    },
+    twitter: {
+      card: 'summary_large_image',
+      title,
+      description,
+      images: image ? [image] : undefined,
+    },
+  }
+}
 
 interface NewsDetailPageProps {
   params: Promise<{ slug: string }>

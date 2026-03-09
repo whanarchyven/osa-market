@@ -75,8 +75,7 @@ export default function CartPage() {
     }
 
     if (field === 'email') {
-      const isValid = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(trimmed)
-      return isValid ? undefined : 'Введите корректный email'
+      return undefined
     }
 
     if (field === 'phone') {
@@ -162,7 +161,7 @@ export default function CartPage() {
             customer: {
               firstName: form.firstName.trim(),
               lastName: '',
-              email: form.email.trim(),
+              messengerId: form.email.trim(),
               phone: form.phone.trim(),
               address: form.address.trim(),
             },
@@ -317,8 +316,7 @@ export default function CartPage() {
                   Напишите нам — поможем с оформлением, доставкой и оплатой.
                 </p>
                 <div className="mt-4 space-y-1 text-sm text-foreground">
-                  <div>+7 495 266 07 92</div>
-                  <div>info@28bit.ru</div>
+                  <div>info@osa-market.ru</div>
                 </div>
               </div>
             </section>
@@ -409,9 +407,9 @@ export default function CartPage() {
                             errors.email &&
                               'border-destructive focus-visible:ring-destructive'
                           )}
-                          placeholder="Email"
-                          type="email"
-                          autoComplete="email"
+                          placeholder="Ваш ID (username)"
+                          type="text"
+                          autoComplete="username"
                           aria-invalid={Boolean(errors.email)}
                         />
                         {errors.email && (
@@ -419,6 +417,9 @@ export default function CartPage() {
                             {errors.email}
                           </p>
                         )}
+                        <p className="text-xs text-muted-foreground">
+                          Пример: @username или номер телефона в мессенджерах (telegram, whatsapp, MAX)
+                        </p>
                       </div>
                     </div>
                   </div>

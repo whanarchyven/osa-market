@@ -27,6 +27,15 @@ export function CatalogFilters({ attributes, categorySlug }: CatalogFiltersProps
   const [loadingTerms, setLoadingTerms] = useState<Record<number, boolean>>({})
   const [terms, setTerms] = useState<Record<number, ProductAttributeTermApi[]>>({})
   const [selectedFilters, setSelectedFilters] = useState<Record<string, string[]>>({})
+  const sortByMenuOrder = (items: ProductAttributeTermApi[]) => {
+    const collator = new Intl.Collator('ru', { numeric: true, sensitivity: 'base' })
+    return [...items].sort((a, b) => {
+      const orderA = a.menu_order ?? 0
+      const orderB = b.menu_order ?? 0
+      if (orderA !== orderB) return orderA - orderB
+      return collator.compare(a.name, b.name)
+    })
+  }
 
   // Инициализация выбранных фильтров из URL
   useEffect(() => {
@@ -58,10 +67,10 @@ export function CatalogFilters({ attributes, categorySlug }: CatalogFiltersProps
           count: brand.count ?? 0,
           _links: brand._links,
         }))
-        setTerms(prev => ({ ...prev, [attributeId]: mapped }))
+        setTerms(prev => ({ ...prev, [attributeId]: sortByMenuOrder(mapped) }))
       } else {
         const data = await getProductAttributeTerms(attributeId)
-        setTerms(prev => ({ ...prev, [attributeId]: data }))
+        setTerms(prev => ({ ...prev, [attributeId]: sortByMenuOrder(data) }))
       }
     } catch (error) {
       console.error('Error loading terms:', error)

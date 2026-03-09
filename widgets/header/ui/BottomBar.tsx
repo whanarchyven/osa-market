@@ -256,17 +256,13 @@ export function BottomBar({ nomer_telefona }: BottomBarProps) {
         <div className="lg:hidden border-t border-border bg-card">
           <div className="container mx-auto px-4 py-4">
             <nav className="space-y-2">
-              <button
-                onClick={() => {
-                  toggleCatalog()
-                  setMobileMenuOpen(false)
-                }}
-                className="w-full flex items-center gap-3 px-4 py-3 bg-primary text-primary-foreground rounded-lg font-medium"
+              <Link
+                href="/catalog/pcs"
+                onClick={() => setMobileMenuOpen(false)}
+                className="block w-full flex bg-primary text-primary-foreground items-center gap-3 px-4 py-3 text-foreground hover:bg-secondary rounded-lg transition-colors"
               >
-                <LayoutGrid className="w-5 h-5" />
                 Каталог товаров
-              </button>
-              
+              </Link>
               <Link
                 href="/promos"
                 onClick={() => setMobileMenuOpen(false)}

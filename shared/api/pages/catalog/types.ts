@@ -1,6 +1,9 @@
 /** Элемент списка отображаемых категорий с ручки страницы каталога */
 export interface CatalogPageCategoryItem {
-  kategoriya: number[]
+  upravlyaemaya_kategoriya?: {
+    kategoriya?: number
+    show_products?: boolean
+  }
 }
 
 export interface CatalogPageACF {

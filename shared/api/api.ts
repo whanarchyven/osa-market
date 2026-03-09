@@ -41,6 +41,7 @@ export const API = {
   getBuyoutPage: `${wordpressApiUrl}/pages?slug=buyout${postfix}`,
   getAboutPage: `${wordpressApiUrl}/pages?slug=about${postfix}`,
   getCatalogPage: `${wordpressApiUrl}/pages?slug=catalog${postfix}`,
+  getHowToPassPage: `${wordpressApiUrl}/pages?slug=how-to-pass${postfix}`,
 
   //news
   getNewsList: (page = 1, perPage = 9, search?: string) =>

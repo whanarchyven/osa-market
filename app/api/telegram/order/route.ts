@@ -5,7 +5,7 @@ type TelegramOrderPayload = {
   customer: {
     firstName: string
     lastName: string
-    email?: string
+    messengerId?: string
     phone?: string
     address?: string
   }
@@ -35,8 +35,8 @@ const buildMessage = (payload: TelegramOrderPayload) => {
     payload.customer.phone
       ? `*Телефон:* \`${escapeMarkdownV2(payload.customer.phone)}\``
       : '',
-    payload.customer.email
-      ? `*Email:* \`${escapeMarkdownV2(payload.customer.email)}\``
+    payload.customer.messengerId
+      ? `*ID в мессенджере:* \`${escapeMarkdownV2(payload.customer.messengerId)}\``
       : '',
     payload.customer.address
       ? `*Адрес:* ${escapeMarkdownV2(payload.customer.address)}`

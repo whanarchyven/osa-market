@@ -56,9 +56,11 @@ export function CategoriesCard({
             />
           )}
         </div>
-        <p className="text-base text-muted-foreground">
-          {category.count} товаров
-        </p>
+        {category.showProducts === true && (
+          <p className="text-base text-muted-foreground">
+            {category.count} товаров
+          </p>
+        )}
       </div>
     </Link>
   )
