@@ -12,6 +12,30 @@ export interface CatalogData {
   products: ProductApi[]
   totalCount: number
   attributes: ProductAttributeApi[]
+  totalPages: number
+  currentPage: number
+}
+
+const API_PAGE_SIZE = 100
+const UI_PAGE_SIZE = 12
+
+const fetchAllProducts = async (): Promise<ProductApi[]> => {
+  const items: ProductApi[] = []
+  let page = 1
+
+  while (page < 100) {
+    const result = await axiosInstance.get<ProductApi[]>(
+      `${API.getProducts}&page=${page}`
+    )
+    const data = result.data ?? []
+    items.push(...data)
+    if (data.length < API_PAGE_SIZE) {
+      break
+    }
+    page += 1
+  }
+
+  return items
 }
 
 export const getCatalogData = async (
@@ -19,14 +43,14 @@ export const getCatalogData = async (
   searchParams: Record<string, string | string[] | undefined>
 ): Promise<CatalogData> => {
   try {
-    const [productsResult, attributes, categoryResult] = await Promise.all([
-      axiosInstance.get<ProductApi[]>(API.getProducts),
+    const [products, attributes, categoryResult] = await Promise.all([
+      fetchAllProducts(),
       getProductAttributes(),
       axiosInstance.get<ProductCategoryTaxonomy[]>(
         API.getCategoryBySlug(categorySlug)
       ),
     ])
-    const products = productsResult.data.filter((product) =>
+    const productsByCategory = products.filter((product) =>
       product.categories?.some((category) => category.slug === categorySlug)
     )
     const category = categoryResult.data[0]
@@ -74,7 +98,7 @@ export const getCatalogData = async (
     )
 
     const filterEntries = Object.entries(activeFilters)
-    let filteredProducts = products
+    let filteredProducts = productsByCategory
 
     if (filterEntries.length > 0) {
       const termNameMap = new Map<string, string[]>()
@@ -140,10 +164,23 @@ export const getCatalogData = async (
       })
     }
 
+    const pageParam = Array.isArray(searchParams.page)
+      ? searchParams.page[0]
+      : searchParams.page
+    const requestedPage = Math.max(1, Number(pageParam) || 1)
+    const totalCount = filteredProducts.length
+    const totalPages = Math.max(1, Math.ceil(totalCount / UI_PAGE_SIZE))
+    const page = Math.min(requestedPage, totalPages)
+    const start = (page - 1) * UI_PAGE_SIZE
+    const end = start + UI_PAGE_SIZE
+    const pageProducts = filteredProducts.slice(start, end)
+
     return {
       categoryName,
-      products: filteredProducts,
-      totalCount: filteredProducts.length,
+      products: pageProducts,
+      totalCount,
+      totalPages,
+      currentPage: page,
       attributes: attributesWithBrand,
     }
   } catch (e: any) {

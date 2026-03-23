@@ -65,15 +65,15 @@ export const API = {
 
 
   //products
-  getProducts: `${shopApiUrl}/products?per_page=1000${postfix}`,
+  getProducts: `${shopApiUrl}/products?per_page=100${postfix}`,
   getProductById: (id: number) => `${shopApiUrl}/products/${id}?${postfix.replace('&', '')}`,
   getProductBySlug: (slug: string) => `${shopApiUrl}/products?slug=${slug}${postfix}`,
 
   //attributes and terms
-  getProductAttributes: `${shopApiUrl}/products/attributes?per_page=1000`,
+  getProductAttributes: `${shopApiUrl}/products/attributes?per_page=100`,
   getProductAttributeTerms: (id: number) =>
-    `${shopApiUrl}/products/attributes/${id}/terms?per_page=1000`,
-  getProductBrands: `${shopApiUrl}/products/brands?per_page=1000`,
+    `${shopApiUrl}/products/attributes/${id}/terms?per_page=100`,
+  getProductBrands: `${shopApiUrl}/products/brands?per_page=100`,
 
   //reviews
   getReviews: `${shopApiUrl}/products/reviews?per_page=10`,

@@ -151,10 +151,12 @@ export default async function CatalogPage({ params, searchParams }: CatalogPageP
             </aside>
 
             {/* Сетка товаров */}
-            <CatalogGrid 
-              products={catalogData.products} 
-              totalCount={catalogData.totalCount}
-            />
+          <CatalogGrid 
+            products={catalogData.products} 
+            totalCount={catalogData.totalCount}
+            totalPages={catalogData.totalPages}
+            currentPage={catalogData.currentPage}
+          />
           </div>
         </div>
       </main>

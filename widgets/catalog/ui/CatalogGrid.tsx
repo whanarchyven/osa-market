@@ -18,6 +18,8 @@ import { useUIStore } from '@/shared/store'
 interface CatalogGridProps {
   products: Product[]
   totalCount: number
+  totalPages: number
+  currentPage: number
 }
 
 type SortOption = 'price_asc' | 'price_desc' | 'rating' | 'newest'
@@ -29,7 +31,12 @@ const sortOptions: { value: SortOption; label: string }[] = [
   { value: 'newest', label: 'Новинки' },
 ]
 
-export function CatalogGrid({ products, totalCount }: CatalogGridProps) {
+export function CatalogGrid({
+  products,
+  totalCount,
+  totalPages,
+  currentPage,
+}: CatalogGridProps) {
   const router = useRouter()
   const searchParams = useSearchParams()
   const { isCatalogLoading, setCatalogLoading } = useUIStore()
@@ -49,6 +56,18 @@ export function CatalogGrid({ products, totalCount }: CatalogGridProps) {
     setSortBy(value)
     const params = new URLSearchParams(searchParams.toString())
     params.set('sort', value)
+    params.delete('page')
+    setCatalogLoading(true)
+    router.push(`?${params.toString()}`)
+  }
+
+  const handlePageChange = (page: number) => {
+    const params = new URLSearchParams(searchParams.toString())
+    if (page <= 1) {
+      params.delete('page')
+    } else {
+      params.set('page', String(page))
+    }
     setCatalogLoading(true)
     router.push(`?${params.toString()}`)
   }
@@ -110,6 +129,27 @@ export function CatalogGrid({ products, totalCount }: CatalogGridProps) {
           </div>
         )}
       </div>
+      {totalPages > 1 && (
+        <div className="mt-8 flex items-center justify-center gap-2">
+          <Button
+            variant="outline"
+            onClick={() => handlePageChange(Math.max(1, currentPage - 1))}
+            disabled={currentPage <= 1}
+          >
+            Назад
+          </Button>
+          <div className="text-sm text-muted-foreground">
+            Страница {currentPage} из {totalPages}
+          </div>
+          <Button
+            variant="outline"
+            onClick={() => handlePageChange(Math.min(totalPages, currentPage + 1))}
+            disabled={currentPage >= totalPages}
+          >
+            Вперед
+          </Button>
+        </div>
+      )}
     </div>
   )
 }
