@@ -132,7 +132,7 @@ export function ProductInfo({ product }: ProductInfoProps) {
           {/* Кнопка купить */}
           <Button
             onClick={handleAddToCart}
-            disabled={product.stock_status !== 'instock'}
+            disabled={false}
             className="flex-1 h-12 text-lg font-semibold"
           >
             Купить
@@ -140,7 +140,7 @@ export function ProductInfo({ product }: ProductInfoProps) {
         </div>
 
        
-        {/* Информация о доставке */}
+        {/* Информация о доставке
         <div className="space-y-2 text-sm pt-2 border-t border-border">
           <div className="flex items-center justify-between">
             <span className="text-muted-foreground">Самовывоз:</span>
@@ -150,7 +150,7 @@ export function ProductInfo({ product }: ProductInfoProps) {
             <span className="text-muted-foreground">Доставка:</span>
             <span className="text-primary">2-6 дней</span>
           </div>
-        </div>
+        </div> */}
       </div>
 
       {/* Действия */}

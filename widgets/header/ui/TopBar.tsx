@@ -22,6 +22,7 @@ const navLinks = [
   { href: '/news', label: 'Новости' },
   { href: '/about', label: 'О нас' },
   { href: '/buyout', label: 'Выкуп' },
+  { href: '/how-to-pass', label: 'Как добраться' },
 ]
 
 interface TopBarProps {

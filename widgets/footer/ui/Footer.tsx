@@ -154,15 +154,13 @@ export function Footer({ data }: FooterProps) {
         <div className="border-t border-border pt-8 flex flex-col md:flex-row justify-between items-center gap-4 text-sm text-muted-foreground">
           <p>{copyright}</p>
           <div className="flex gap-6">
-            <Link href="#" className="hover:text-primary transition">
+            <Link href="/privacy-policy" className="hover:text-primary transition">
               Политика конфиденциальности
             </Link>
-            <Link href="#" className="hover:text-primary transition">
+            <Link href="/terms-of-use" className="hover:text-primary transition">
               Условия использования
             </Link>
-            <Link href="#" className="hover:text-primary transition">
-              Доставка и возврат
-            </Link>
+            
           </div>
         </div>
       </div>
