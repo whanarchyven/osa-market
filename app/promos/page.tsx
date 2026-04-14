@@ -1,6 +1,9 @@
 import Image from 'next/image'
 import Link from 'next/link'
 import { getPromoList } from '@/shared/api/promo/getPromoList'
+import type { Metadata } from 'next'
+
+const SITE_URL = process.env.NEXT_PUBLIC_FRONT_BASE_URL || 'https://osa-market.ru'
 
 export const revalidate = 60
 
@@ -12,6 +15,30 @@ interface PromosPageProps {
 
 const stripHtml = (value: string) =>
   value.replace(/<[^>]*>/g, ' ').replace(/\s+/g, ' ').trim()
+
+export async function generateMetadata({
+  searchParams,
+}: PromosPageProps): Promise<Metadata> {
+  const page = Math.max(1, Number(searchParams?.page ?? '1'))
+  const baseTitle = 'Акции - OSA-MARKET'
+  const title = page > 1 ? `${baseTitle} | Страница ${page}` : baseTitle
+  const description = 'Специальные предложения и скидки OSA-MARKET'
+  const url = page > 1 ? `${SITE_URL}/promos?page=${page}` : `${SITE_URL}/promos`
+
+  return {
+    title,
+    description,
+    alternates: {
+      canonical: url,
+    },
+    openGraph: {
+      title,
+      description,
+      url,
+      type: 'website',
+    },
+  }
+}
 
 export default async function PromosPage({ searchParams }: PromosPageProps) {
   const page = Math.max(1, Number(searchParams?.page ?? '1'))

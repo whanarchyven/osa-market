@@ -28,9 +28,6 @@ export const metadata: Metadata = {
   keywords: 'ноутбуки, компьютеры, видеокарты, игровые ПК, периферия, геймерские аксессуары, OSA-MARKET',
   generator: 'v0.app',
   metadataBase: new URL(SITE_URL),
-  alternates: {
-    canonical: '/',
-  },
   robots: {
     index: true,
     follow: true,
@@ -57,7 +54,6 @@ export const metadata: Metadata = {
     description: 'Интернет-магазин компьютерной техники. Лучшие цены и широкий ассортимент.',
     type: 'website',
     locale: 'ru_RU',
-    url: SITE_URL,
     siteName: 'OSA-MARKET',
   },
   twitter: {

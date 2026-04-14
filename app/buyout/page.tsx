@@ -7,9 +7,21 @@ import {
 import { getBuyoutData } from '@/shared/api'
 import type { Metadata } from 'next'
 
+const SITE_URL = process.env.NEXT_PUBLIC_FRONT_BASE_URL || 'https://osa-market.ru'
+
 export const metadata: Metadata = {
   title: 'Выкуп техники - OSA-MARKET',
-  description: 'Дорого выкупим ноутбуки, ПК и комплектующие. Быстрая оценка и оплата сразу.'
+  description: 'Дорого выкупим ноутбуки, ПК и комплектующие. Быстрая оценка и оплата сразу.',
+  alternates: {
+    canonical: `${SITE_URL}/buyout`,
+  },
+  openGraph: {
+    title: 'Выкуп техники - OSA-MARKET',
+    description:
+      'Дорого выкупим ноутбуки, ПК и комплектующие. Быстрая оценка и оплата сразу.',
+    url: `${SITE_URL}/buyout`,
+    type: 'website',
+  },
 }
 
 export const revalidate = 60

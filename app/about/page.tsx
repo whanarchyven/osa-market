@@ -2,9 +2,21 @@ import { AboutHero, AboutStory, AboutStats, AboutTeam, AboutValues, AboutCTA } f
 import { getAboutPageData } from '@/shared/api/pages/about/getAboutPageData'
 import type { Metadata } from 'next'
 
+const SITE_URL = process.env.NEXT_PUBLIC_FRONT_BASE_URL || 'https://osa-market.ru'
+
 export const metadata: Metadata = {
   title: 'О нас - OSA-MARKET',
-  description: 'Узнайте о компании OSA-MARKET: наша история, ценности и миссия в мире компьютерных технологий.'
+  description: 'Узнайте о компании OSA-MARKET: наша история, ценности и миссия в мире компьютерных технологий.',
+  alternates: {
+    canonical: `${SITE_URL}/about`,
+  },
+  openGraph: {
+    title: 'О нас - OSA-MARKET',
+    description:
+      'Узнайте о компании OSA-MARKET: наша история, ценности и миссия в мире компьютерных технологий.',
+    url: `${SITE_URL}/about`,
+    type: 'website',
+  },
 }
 
 export const revalidate = 60

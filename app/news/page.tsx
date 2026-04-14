@@ -1,6 +1,9 @@
 import Image from 'next/image'
 import Link from 'next/link'
 import { getNewsList } from '@/shared/api/news/getNewsList'
+import type { Metadata } from 'next'
+
+const SITE_URL = process.env.NEXT_PUBLIC_FRONT_BASE_URL || 'https://osa-market.ru'
 
 export const revalidate = 60
 
@@ -12,6 +15,30 @@ interface NewsPageProps {
 
 const stripHtml = (value: string) =>
   value.replace(/<[^>]*>/g, ' ').replace(/\s+/g, ' ').trim()
+
+export async function generateMetadata({
+  searchParams,
+}: NewsPageProps): Promise<Metadata> {
+  const page = Math.max(1, Number(searchParams?.page ?? '1'))
+  const baseTitle = 'Новости - OSA-MARKET'
+  const title = page > 1 ? `${baseTitle} | Страница ${page}` : baseTitle
+  const description = 'Актуальные новости и аналитика рынка техники'
+  const url = page > 1 ? `${SITE_URL}/news?page=${page}` : `${SITE_URL}/news`
+
+  return {
+    title,
+    description,
+    alternates: {
+      canonical: url,
+    },
+    openGraph: {
+      title,
+      description,
+      url,
+      type: 'website',
+    },
+  }
+}
 
 export default async function NewsPage({ searchParams }: NewsPageProps) {
   const page = Math.max(1, Number(searchParams?.page ?? '1'))

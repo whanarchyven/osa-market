@@ -10,6 +10,25 @@ import { getCategory } from '@/shared/api/products/categories/getCategory'
 import { getReviews } from '@/shared/api/products/reviews/getReviews'
 import { getBrands } from '@/shared/api/products/brands/getBrands'
 import type { ProductBrandApi } from '@/shared/types/product'
+import type { Metadata } from 'next'
+
+const SITE_URL = process.env.NEXT_PUBLIC_FRONT_BASE_URL || 'https://osa-market.ru'
+
+export const metadata: Metadata = {
+  title: 'OSA-MARKET | Ноутбуки, готовые ПК и периферия',
+  description:
+    'Интернет-магазин компьютерной техники OSA-MARKET. Ноутбуки, готовые сборки ПК, видеокарты, процессоры и игровая периферия от ведущих брендов. Доставка по всей России.',
+  alternates: {
+    canonical: `${SITE_URL}/`,
+  },
+  openGraph: {
+    title: 'OSA-MARKET | Ноутбуки, готовые ПК и периферия',
+    description:
+      'Интернет-магазин компьютерной техники OSA-MARKET. Ноутбуки, готовые сборки ПК, видеокарты, процессоры и игровая периферия от ведущих брендов. Доставка по всей России.',
+    url: `${SITE_URL}/`,
+    type: 'website',
+  },
+}
 
 export const revalidate = 60
 
