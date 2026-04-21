@@ -19,7 +19,8 @@ export const metadata: Metadata = {
   },
 }
 
-export const revalidate = 60
+/** Редко меняющаяся страница: дольше CDN/браузерный кэш, товарные — 60 с. */
+export const revalidate = 86400
 
 export default async function AboutPage() {
   const data = await getAboutPageData()

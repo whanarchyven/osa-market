@@ -1,6 +1,8 @@
 import type { Metadata } from 'next'
 import { LegalDocument } from '@/shared/ui/LegalDocument'
 
+export const revalidate = 86400
+
 export const metadata: Metadata = {
   title: 'Политика конфиденциальности - OSA-MARKET',
   description:

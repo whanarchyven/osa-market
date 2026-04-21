@@ -69,8 +69,6 @@ export const viewport: Viewport = {
   initialScale: 1,
 }
 
-export const revalidate = 60
-
 export default async function RootLayout({
   children,
 }: Readonly<{
