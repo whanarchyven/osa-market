@@ -7,7 +7,6 @@ export const getProductAttributes = async (): Promise<ProductAttributeApi[]> => 
     const result = await axiosInstance.get<ProductAttributeApi[]>(
       API.getProductAttributes
     )
-    console.log(result.data, 'PRODUCT ATTRIBUTES DATA')
     return result.data
   } catch (e: any) {
     console.log(e, 'ERROR FETCHING PRODUCT ATTRIBUTES')

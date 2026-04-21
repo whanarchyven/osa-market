@@ -2,8 +2,12 @@
 
 import Image from 'next/image'
 import Link from 'next/link'
+import { useRouter } from 'next/navigation'
 import { Heart, ShoppingCart, Star } from 'lucide-react'
 import { type Product, useShopStore } from '@/shared/store'
+import { useAddToCartWithToast } from '@/shared/hooks/useAddToCartWithToast'
+import { getProductPath } from '@/shared/utils/productRoute'
+import { Button } from '@/components/ui/button'
 
 interface ProductCardProps {
   product: Product
@@ -11,7 +15,9 @@ interface ProductCardProps {
 }
 
 export function ProductCard({ product, variant = 'default' }: ProductCardProps) {
-  const { addToCart, toggleFavorite, isFavorite } = useShopStore()
+  const router = useRouter()
+  const { toggleFavorite, isFavorite } = useShopStore()
+  const addToCartWithToast = useAddToCartWithToast()
   const isInFavorites = isFavorite(product.id)
 
   const formatPrice = (price: number) => {
@@ -22,6 +28,11 @@ export function ProductCard({ product, variant = 'default' }: ProductCardProps) 
     ? Math.round((1 - product.price / product.oldPrice) * 100) 
     : null
 
+  const handleBuyNow = () => {
+    addToCartWithToast(product)
+    router.push('/cart')
+  }
+
   if (variant === 'compact') {
     return (
       <div className="group relative bg-card/80 backdrop-blur-sm rounded-xl p-4 border border-border/50 hover:border-primary/50 transition-all duration-300">
@@ -29,7 +40,7 @@ export function ProductCard({ product, variant = 'default' }: ProductCardProps) 
           <div className="relative w-24 h-24 flex-shrink-0 rounded-lg overflow-hidden bg-secondary">
             <Image
               src={product.image || "/placeholder.svg"}
-              alt={product.name}
+              alt={product.imageAlt || product.name}
               fill
               className="object-cover group-hover:scale-105 transition-transform duration-300"
             />
@@ -86,7 +97,7 @@ export function ProductCard({ product, variant = 'default' }: ProductCardProps) 
       <div className="relative aspect-square bg-secondary overflow-hidden">
         <Image
           src={product.image || "/placeholder.svg"}
-          alt={product.name}
+          alt={product.imageAlt || product.name}
           fill
           className="object-cover group-hover:scale-105 transition-transform duration-500"
         />
@@ -114,7 +125,7 @@ export function ProductCard({ product, variant = 'default' }: ProductCardProps) 
 
       {/* Content */}
       <div className="p-4">
-        <Link href={`/product/${product.id}`}>
+        <Link href={getProductPath(product)}>
           <h3 className="text-base font-medium text-foreground line-clamp-2 min-h-[48px] group-hover:text-primary transition-colors">
             {product.name}
           </h3>
@@ -130,23 +141,32 @@ export function ProductCard({ product, variant = 'default' }: ProductCardProps) 
           </div>
         )}
 
-        <div className="flex items-end justify-between mt-3">
-          <div>
-            <span className="text-xl font-bold text-primary">{formatPrice(product.price)}</span>
-            {product.oldPrice && (
-              <p className="text-sm text-muted-foreground line-through">
-                {formatPrice(product.oldPrice)}
-              </p>
-            )}
+        <div className="mt-3 space-y-3">
+          <div className="flex items-end justify-between">
+            <div>
+              <span className="text-xl font-bold text-primary">{formatPrice(product.price)}</span>
+              {product.oldPrice && (
+                <p className="text-sm text-muted-foreground line-through">
+                  {formatPrice(product.oldPrice)}
+                </p>
+              )}
+            </div>
+            
+            <button
+              onClick={() => addToCartWithToast(product)}
+              className="p-2.5 bg-primary hover:bg-primary/90 text-primary-foreground rounded-full transition-colors"
+              aria-label="Добавить в корзину"
+            >
+              <ShoppingCart className="w-5 h-5" />
+            </button>
           </div>
-          
-          <button
-            onClick={() => addToCart(product)}
-            className="p-2.5 bg-primary hover:bg-primary/90 text-primary-foreground rounded-full transition-colors"
-            aria-label="Добавить в корзину"
+          <Button
+            variant="outline"
+            className="w-full !border !border-primary hover:!bg-primary hover:!text-black"
+            onClick={handleBuyNow}
           >
-            <ShoppingCart className="w-5 h-5" />
-          </button>
+            Купить в один клик
+          </Button>
         </div>
       </div>
     </div>

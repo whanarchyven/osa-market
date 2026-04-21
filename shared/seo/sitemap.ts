@@ -1,6 +1,7 @@
 import { API } from '@/shared/api/api'
 import { axiosInstance } from '@/shared/api/axios'
 import { API_URL, SITE_URL } from '@/shared/config/site'
+import { getProductPath } from '@/shared/utils/productRoute'
 import type { ProductApi } from '@/shared/types/product'
 
 export type SitemapEntry = {
@@ -188,6 +189,18 @@ export const getStaticEntries = (): SitemapEntry[] => {
       changefreq: 'yearly',
       priority: 0.3,
     },
+    {
+      loc: `${SITE_URL}/delivery`,
+      lastmod: now,
+      changefreq: 'monthly',
+      priority: 0.5,
+    },
+    {
+      loc: `${SITE_URL}/warranty-and-refund`,
+      lastmod: now,
+      changefreq: 'monthly',
+      priority: 0.5,
+    },
   ]
 }
 
@@ -234,7 +247,7 @@ export const getProductEntries = async (): Promise<SitemapEntry[]> => {
   const items = await fetchAllProducts()
 
   return items.map((item) => ({
-    loc: `${SITE_URL}/product/${item.id}`,
+    loc: `${SITE_URL}${getProductPath(item)}`,
     lastmod: item.date_modified
       ? new Date(item.date_modified).toISOString()
       : nowIso(),

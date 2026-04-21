@@ -5,6 +5,7 @@ import Link from 'next/link'
 import { Swiper, SwiperSlide } from 'swiper/react'
 import { Navigation, Pagination } from 'swiper/modules'
 import type { ProductApi } from '@/shared/types/product'
+import { getProductPath } from '@/shared/utils/productRoute'
 
 import 'swiper/css'
 import 'swiper/css/navigation'
@@ -34,14 +35,14 @@ export function PromoProductsSlider({ products }: PromoProductsSliderProps) {
         {products.map((product) => (
           <SwiperSlide key={product.id} className="h-auto">
             <Link
-              href={`/product/${product.id}`}
+              href={getProductPath(product)}
               className="block h-full rounded-2xl border border-border/60 bg-card/80 p-4 transition hover:border-primary/60 hover:shadow-[0_0_25px_rgba(255,195,0,0.25)]"
             >
               <div className="relative h-48 w-full overflow-hidden rounded-xl bg-muted/30">
                 {product.images?.[0]?.src ? (
                   <Image
                     src={product.images[0].src}
-                    alt={product.name}
+                    alt={product.images[0].alt || product.name}
                     fill
                     className="object-contain p-4"
                   />

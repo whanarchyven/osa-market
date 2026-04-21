@@ -7,6 +7,7 @@ import { Logo } from './Logo'
 import { useAuthStore, useShopStore, useUIStore } from '@/shared/store'
 import { useAuthSync } from '@/shared/hooks/useAuthSync'
 import type { ProductApi } from '@/shared/types/product'
+import { getProductPath } from '@/shared/utils/productRoute'
 
 interface BottomBarProps {
   nomer_telefona?: string
@@ -177,7 +178,7 @@ export function BottomBar({ nomer_telefona }: BottomBarProps) {
                     {searchResults.map((product) => (
                       <Link
                         key={product.id}
-                        href={`/product/${product.id}`}
+                        href={getProductPath(product)}
                         className="flex items-center gap-3 px-4 py-3 hover:bg-secondary transition-colors"
                         onClick={() => setIsSearchOpen(false)}
                       >

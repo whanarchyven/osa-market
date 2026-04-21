@@ -73,6 +73,7 @@ export function FeaturedSlider({ title, description, tovary }: FeaturedSliderPro
                     image:
                       apiProduct?.images?.[0]?.src ??
                       'https://images.unsplash.com/photo-1587202372775-e229f172b9d7?w=400&h=400&fit=crop',
+                    imageAlt: apiProduct?.images?.[0]?.alt ?? apiProduct?.name ?? item.tovar.post_title,
                     category: apiProduct?.categories?.[0]?.name ?? item.tovar.post_type,
                     subcategory: '',
                     brand: apiProduct?.brands?.[0]?.name ?? '',

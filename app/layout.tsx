@@ -1,6 +1,5 @@
 import React from "react"
 import type { Metadata, Viewport } from 'next'
-import Script from 'next/script'
 import { Inter, JetBrains_Mono } from 'next/font/google'
 import { Analytics } from '@vercel/analytics/next'
 import './globals.css'
@@ -9,17 +8,20 @@ import { getHeaderData } from '@/shared/api/pages/header'
 import { Toaster } from "@/components/ui/sonner"
 import { Footer } from "@/widgets/footer"
 import { getFooterData } from '@/shared/api/pages/footer'
+import { CookieConsent } from '@/shared/ui/CookieConsent'
 
 const SITE_URL = process.env.NEXT_PUBLIC_FRONT_BASE_URL || 'https://osa-market.ru'
 
 const inter = Inter({ 
   subsets: ['latin', 'cyrillic'],
   variable: '--font-sans',
+  display: 'swap',
 })
 
 const jetbrainsMono = JetBrains_Mono({ 
   subsets: ['latin', 'cyrillic'],
   variable: '--font-mono',
+  display: 'swap',
 })
 
 export const metadata: Metadata = {
@@ -88,6 +90,15 @@ export default async function RootLayout({
 
   return (
     <html lang="ru" className="dark">
+      <head>
+        <link rel="dns-prefetch" href="//api.osa-market.ru" />
+        <link rel="preconnect" href="https://api.osa-market.ru" crossOrigin="anonymous" />
+        <link rel="dns-prefetch" href="//mc.yandex.ru" />
+        <link rel="preconnect" href="https://mc.yandex.ru" crossOrigin="anonymous" />
+        <link rel="dns-prefetch" href="//images.unsplash.com" />
+        <link rel="preconnect" href="https://images.unsplash.com" crossOrigin="anonymous" />
+        <link rel="preload" href="/logo.svg" as="image" type="image/svg+xml" />
+      </head>
       <body className={`${inter.variable} ${jetbrainsMono.variable} font-sans antialiased`}>
         <Header
           razdely_kataloga={razdely_kataloga}
@@ -97,6 +108,7 @@ export default async function RootLayout({
         {children}
         {/* <Analytics /> */}
         <Toaster richColors />
+        <CookieConsent />
         <Footer data={footerAcf} />
         <script
           type="application/ld+json"
@@ -119,31 +131,6 @@ export default async function RootLayout({
             }),
           }}
         />
-        <Script
-          id="yandex-metrika"
-          strategy="afterInteractive"
-          dangerouslySetInnerHTML={{
-            __html: `
-              (function(m,e,t,r,i,k,a){
-                m[i]=m[i]||function(){(m[i].a=m[i].a||[]).push(arguments)};
-                m[i].l=1*new Date();
-                for (var j = 0; j < document.scripts.length; j++) {if (document.scripts[j].src === r) { return; }}
-                k=e.createElement(t),a=e.getElementsByTagName(t)[0],k.async=1,k.src=r,a.parentNode.insertBefore(k,a)
-              })(window, document,'script','https://mc.yandex.ru/metrika/tag.js?id=107058084', 'ym');
-
-              ym(107058084, 'init', {ssr:true, webvisor:true, clickmap:true, ecommerce:"dataLayer", referrer: document.referrer, url: location.href, accurateTrackBounce:true, trackLinks:true});
-            `,
-          }}
-        />
-        <noscript>
-          <div>
-            <img
-              src="https://mc.yandex.ru/watch/107058084"
-              style={{ position: 'absolute', left: '-9999px' }}
-              alt=""
-            />
-          </div>
-        </noscript>
       </body>
     </html>
   )

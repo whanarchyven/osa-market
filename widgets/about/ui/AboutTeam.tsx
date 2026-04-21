@@ -1,11 +1,13 @@
 import Image from 'next/image'
 import { parseRichText } from '@/shared/utils/richText'
+import type { BackendMedia } from '@/shared/types/media'
+import { getBackendMediaAlt, getBackendMediaUrl } from '@/shared/utils/media'
 
 interface TeamMember {
   imya: string
   dolzhnost: string
   opisanie: string
-  foto: string
+  foto: BackendMedia
 }
 
 interface AboutTeamProps {
@@ -30,8 +32,8 @@ export function AboutTeam({ zagolovok_komandy, opisanie_komandy, chlenov_komandy
           >
             <div className="relative h-64 overflow-hidden bg-muted">
               <Image
-                src={member.foto || "/placeholder.svg"}
-                alt={member.imya}
+                src={getBackendMediaUrl(member.foto) || "/placeholder.svg"}
+                alt={getBackendMediaAlt(member.foto, member.imya)}
                 fill
                 className="object-cover group-hover:scale-110 transition-transform duration-300"
               />

@@ -2,6 +2,7 @@ import Image from 'next/image'
 import { Logo3D } from '@/shared/ui/Logo3D'
 import { cn } from '@/lib/utils'
 import type { LogoShowcaseProps } from '@/shared/api/pages/main/types'
+import { getBackendMediaAlt, getBackendMediaUrl } from '@/shared/utils/media'
 
 const htmlTextClassName =
   'text-sm md:text-base leading-snug text-foreground/90 [&_strong]:font-bold [&_strong]:text-primary [&_em]:not-italic [&_em]:font-light [&_br]:block'
@@ -49,8 +50,8 @@ export function LogoShowcase({ blok }: LogoShowcaseProps) {
               }}
             />
             <Image
-              src={tri_verhnie_vkladki.levaya_gruppa.izobrazhenie}
-              alt=""
+              src={getBackendMediaUrl(tri_verhnie_vkladki.levaya_gruppa.izobrazhenie)}
+              alt={getBackendMediaAlt(tri_verhnie_vkladki.levaya_gruppa.izobrazhenie)}
               width={256}
               height={256}
               className="absolute -bottom-6 -right-6 h-24 w-24 opacity-70"
@@ -64,8 +65,8 @@ export function LogoShowcase({ blok }: LogoShowcaseProps) {
               }}
             />
             <Image
-              src={tri_verhnie_vkladki.czentralnaya_gruppa.izobrazhenie}
-              alt=""
+              src={getBackendMediaUrl(tri_verhnie_vkladki.czentralnaya_gruppa.izobrazhenie)}
+              alt={getBackendMediaAlt(tri_verhnie_vkladki.czentralnaya_gruppa.izobrazhenie)}
               width={88}
               height={88}
               className="absolute -bottom-6 -right-6 h-24 w-24 opacity-70"
@@ -79,8 +80,8 @@ export function LogoShowcase({ blok }: LogoShowcaseProps) {
               }}
             />
             <Image
-              src={tri_verhnie_vkladki.pravaya_gruppa.izobrazhenie}
-              alt=""
+              src={getBackendMediaUrl(tri_verhnie_vkladki.pravaya_gruppa.izobrazhenie)}
+              alt={getBackendMediaAlt(tri_verhnie_vkladki.pravaya_gruppa.izobrazhenie)}
               width={88}
               height={88}
               className="absolute -bottom-6 -right-6 h-24 w-24 opacity-70"
@@ -96,11 +97,14 @@ export function LogoShowcase({ blok }: LogoShowcaseProps) {
               }}
             />
             <Image
-              src={
+              src={getBackendMediaUrl(
                 czentralnye_vkladki.verhnyaya_levaya_czentralnaya_vkladka
                   .izobrazhenie
-              }
-              alt=""
+              )}
+              alt={getBackendMediaAlt(
+                czentralnye_vkladki.verhnyaya_levaya_czentralnaya_vkladka
+                  .izobrazhenie
+              )}
               width={96}
               height={96}
               className="absolute inset-0 m-auto -bottom-24 w-20 h-20 opacity-75"
@@ -120,11 +124,14 @@ export function LogoShowcase({ blok }: LogoShowcaseProps) {
               }}
             />
             <Image
-              src={
+              src={getBackendMediaUrl(
                 czentralnye_vkladki.verhnyaya_pravaya_czentralnaya_vkladka
                   .izobrazhenie
-              }
-              alt=""
+              )}
+              alt={getBackendMediaAlt(
+                czentralnye_vkladki.verhnyaya_pravaya_czentralnaya_vkladka
+                  .izobrazhenie
+              )}
               width={96}
               height={96}
               className="absolute inset-0 m-auto -bottom-24 w-20 h-20 opacity-75"
@@ -139,11 +146,14 @@ export function LogoShowcase({ blok }: LogoShowcaseProps) {
               }}
             />
             <Image
-              src={
+              src={getBackendMediaUrl(
                 czentralnye_vkladki.nizhnyaya_levaya_czentralnaya_vkladka
                   .izobrazhenie
-              }
-              alt=""
+              )}
+              alt={getBackendMediaAlt(
+                czentralnye_vkladki.nizhnyaya_levaya_czentralnaya_vkladka
+                  .izobrazhenie
+              )}
               width={96}
               height={96}
               className="absolute inset-0 m-auto -bottom-24 w-20 h-20 opacity-75"
@@ -159,11 +169,14 @@ export function LogoShowcase({ blok }: LogoShowcaseProps) {
               }}
             />
             <Image
-              src={
+              src={getBackendMediaUrl(
                 czentralnye_vkladki.nizhnyaya_pravaya_czentralnaya_vkladka
                   .izobrazhenie
-              }
-              alt=""
+              )}
+              alt={getBackendMediaAlt(
+                czentralnye_vkladki.nizhnyaya_pravaya_czentralnaya_vkladka
+                  .izobrazhenie
+              )}
               width={96}
               height={96}
               className="absolute inset-0 m-auto -bottom-24 w-20 h-20 opacity-75"

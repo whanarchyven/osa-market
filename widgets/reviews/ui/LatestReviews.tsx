@@ -16,6 +16,7 @@ import {
 import 'swiper/css'
 import 'swiper/css/navigation'
 import Link from 'next/link'
+import { getProductPathFromPermalink } from '@/shared/utils/productRoute'
 
 interface LatestReviewsProps {
   title?: string
@@ -127,7 +128,10 @@ export function LatestReviews({
                     <div className="flex items-center gap-3">
                       {productId ? (
                         <Link
-                          href={`/product/${productId}`}
+                          href={getProductPathFromPermalink(
+                            review.product_permalink,
+                            review.product_id
+                          )}
                           onClick={(event) => event.stopPropagation()}
                           onKeyDown={(event) => event.stopPropagation()}
                           className="text-sm hover:text-primary transition-all border-b border-transparent hover:border-primary font-medium text-foreground line-clamp-2"
@@ -196,7 +200,10 @@ export function LatestReviews({
                         </div>
                       </div>
                       <Link
-                        href={`/product/${review.product_id}`}
+                        href={getProductPathFromPermalink(
+                          review.product_permalink,
+                          review.product_id
+                        )}
                         className="text-sm hover:text-primary transition-all border-transparent hover:border-primary font-medium text-foreground line-clamp-2"
                       >
                         {review.product_name}

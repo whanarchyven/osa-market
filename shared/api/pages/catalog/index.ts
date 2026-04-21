@@ -1,31 +1,133 @@
+import { cache } from 'react'
 import { API } from '@/shared/api/api'
 import { axiosInstance } from '@/shared/api/axios'
 import {
   getProductAttributes,
   getProductAttributeTerms,
 } from '@/shared/api/products/attributes'
-import type { ProductApi } from '@/shared/types/product'
+import type { YoastHeadJson } from '@/shared/seo/yoast'
 import type { ProductAttributeApi, ProductCategoryTaxonomy } from '@/shared/types/api'
+import type { ProductApi, ProductListItem } from '@/shared/types/product'
 
 export interface CatalogData {
   categoryName: string
-  products: ProductApi[]
+  categoryDescription: string
+  products: ProductListItem[]
   totalCount: number
   attributes: ProductAttributeApi[]
   totalPages: number
   currentPage: number
+  yoastHeadJson?: YoastHeadJson | null
 }
 
 const API_PAGE_SIZE = 100
 const UI_PAGE_SIZE = 12
+const PRODUCT_LIST_FIELDS = [
+  'id',
+  'name',
+  'slug',
+  'short_description',
+  'price',
+  'regular_price',
+  'sale_price',
+  'on_sale',
+  'average_rating',
+  'rating_count',
+  'stock_status',
+  'categories',
+  'brands',
+  'images',
+  'attributes',
+  'date_created',
+].join(',')
 
-const fetchAllProducts = async (): Promise<ProductApi[]> => {
-  const items: ProductApi[] = []
+type SortOption = 'price_asc' | 'price_desc' | 'rating' | 'newest'
+type CatalogSearchParams = Record<string, string | string[] | undefined>
+type CatalogProduct = ProductListItem & Pick<ProductApi, 'date_created'>
+
+const mapProductToListItem = (product: CatalogProduct): ProductListItem => ({
+  id: product.id,
+  name: product.name,
+  slug: product.slug,
+  short_description: product.short_description,
+  price: product.price,
+  regular_price: product.regular_price,
+  sale_price: product.sale_price,
+  on_sale: product.on_sale,
+  average_rating: product.average_rating,
+  rating_count: product.rating_count,
+  stock_status: product.stock_status,
+  categories: product.categories,
+  brands: product.brands,
+  images: product.images.slice(0, 1).map((image) => ({
+    src: image.src,
+    alt: image.alt,
+  })),
+  attributes: product.attributes.slice(0, 5),
+})
+
+const getSortKey = (searchParams: CatalogSearchParams): SortOption | undefined => {
+  const sortParam = Array.isArray(searchParams.sort)
+    ? searchParams.sort[0]
+    : searchParams.sort
+
+  switch (sortParam) {
+    case 'price_asc':
+    case 'price_desc':
+    case 'rating':
+    case 'newest':
+      return sortParam
+    default:
+      return undefined
+  }
+}
+
+const getRequestedPage = (searchParams: CatalogSearchParams) => {
+  const pageParam = Array.isArray(searchParams.page)
+    ? searchParams.page[0]
+    : searchParams.page
+
+  return Math.max(1, Number(pageParam) || 1)
+}
+
+const getDirectSortParams = (sortKey?: SortOption) => {
+  switch (sortKey) {
+    case 'price_asc':
+      return { orderby: 'price', order: 'asc' }
+    case 'price_desc':
+      return { orderby: 'price', order: 'desc' }
+    case 'rating':
+      return { orderby: 'rating', order: 'desc' }
+    case 'newest':
+      return { orderby: 'date', order: 'desc' }
+    default:
+      return {}
+  }
+}
+
+export const getCatalogCategoryBySlug = cache(
+  async (categorySlug: string): Promise<ProductCategoryTaxonomy | null> => {
+    const result = await axiosInstance.get<ProductCategoryTaxonomy[]>(
+      API.getCategoryBySlug(categorySlug)
+    )
+
+    return result.data[0] ?? null
+  }
+)
+
+const fetchAllProducts = async (categoryId?: number): Promise<CatalogProduct[]> => {
+  const items: CatalogProduct[] = []
   let page = 1
 
   while (page < 100) {
-    const result = await axiosInstance.get<ProductApi[]>(
-      `${API.getProducts}&page=${page}`
+    const result = await axiosInstance.get<CatalogProduct[]>(
+      API.getProductsList({
+        page,
+        per_page: API_PAGE_SIZE,
+        category: categoryId,
+        status: 'publish',
+        _fields: PRODUCT_LIST_FIELDS,
+      })
     )
     const data = result.data ?? []
     items.push(...data)
@@ -38,22 +140,46 @@ const fetchAllProducts = async (): Promise<ProductApi[]> => {
   return items
 }
 
+const fetchCategoryProductsPage = async (
+  categoryId: number,
+  searchParams: CatalogSearchParams
+) => {
+  const requestedPage = getRequestedPage(searchParams)
+  const sortKey = getSortKey(searchParams)
+  const result = await axiosInstance.get<CatalogProduct[]>(
+    API.getProductsList({
+      category: categoryId,
+      page: requestedPage,
+      per_page: UI_PAGE_SIZE,
+      status: 'publish',
+      _fields: PRODUCT_LIST_FIELDS,
+      ...getDirectSortParams(sortKey),
+    })
+  )
+
+  const totalCount = Number(result.headers['x-wp-total'] ?? result.data.length)
+  const totalPages = Math.max(
+    1,
+    Number(result.headers['x-wp-totalpages'] ?? Math.ceil(totalCount / UI_PAGE_SIZE) ?? 1)
+  )
+
+  return {
+    products: result.data.map(mapProductToListItem),
+    totalCount,
+    totalPages,
+    currentPage: Math.min(requestedPage, totalPages),
+  }
+}
+
 export const getCatalogData = async (
   categorySlug: string,
-  searchParams: Record<string, string | string[] | undefined>
+  searchParams: CatalogSearchParams
 ): Promise<CatalogData> => {
   try {
-    const [products, attributes, categoryResult] = await Promise.all([
-      fetchAllProducts(),
+    const [attributes, category] = await Promise.all([
       getProductAttributes(),
-      axiosInstance.get<ProductCategoryTaxonomy[]>(
-        API.getCategoryBySlug(categorySlug)
-      ),
+      getCatalogCategoryBySlug(categorySlug),
     ])
-    const productsByCategory = products.filter((product) =>
-      product.categories?.some((category) => category.slug === categorySlug)
-    )
-    const category = categoryResult.data[0]
     const categoryName = category?.name ?? categorySlug
     const availableSlugs =
       category?.acf?.dostupnye_attributy?.map((item) => item.slug_attributa) ?? []
@@ -92,6 +218,28 @@ export const getCatalogData = async (
       acc[key] = values.filter(Boolean)
       return acc
     }, {})
+
+    if (Object.keys(activeFilters).length === 0 && category?.id) {
+      const pagedProducts = await fetchCategoryProductsPage(category.id, searchParams)
+
+      return {
+        categoryName,
+        categoryDescription: category.description ?? '',
+        products: pagedProducts.products,
+        totalCount: pagedProducts.totalCount,
+        totalPages: pagedProducts.totalPages,
+        currentPage: pagedProducts.currentPage,
+        attributes: attributesWithBrand,
+        yoastHeadJson: category?.yoast_head_json ?? null,
+      }
+    }
+
+    const products = await fetchAllProducts(category?.id)
+    const productsByCategory = category?.id
+      ? products
+      : products.filter((product) =>
+          product.categories?.some((item) => item.slug === categorySlug)
+        )
 
     const attributeBySlug = new Map(
       attributesWithBrand.map((attribute) => [attribute.slug, attribute])
@@ -144,7 +292,7 @@ export const getCatalogData = async (
 
     if (sortKey) {
       filteredProducts = [...filteredProducts].sort((a, b) => {
-        const getPrice = (product: ProductApi) =>
+        const getPrice = (product: CatalogProduct) =>
           Number(product.sale_price || product.price || 0)
         switch (sortKey) {
           case 'price_asc':
@@ -173,15 +321,17 @@ export const getCatalogData = async (
     const page = Math.min(requestedPage, totalPages)
     const start = (page - 1) * UI_PAGE_SIZE
     const end = start + UI_PAGE_SIZE
-    const pageProducts = filteredProducts.slice(start, end)
+    const pageProducts = filteredProducts.slice(start, end).map(mapProductToListItem)
 
     return {
       categoryName,
+      categoryDescription: category?.description ?? '',
       products: pageProducts,
       totalCount,
       totalPages,
       currentPage: page,
       attributes: attributesWithBrand,
+      yoastHeadJson: category?.yoast_head_json ?? null,
     }
   } catch (e: any) {
     console.log(e, 'ERROR FETCHING CATALOG DATA')

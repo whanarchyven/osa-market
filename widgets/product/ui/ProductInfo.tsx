@@ -5,6 +5,7 @@ import { Heart, Share2, BarChart3, Minus, Plus } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { useShopStore } from '@/shared/store'
 import type { Product } from '@/shared/types/api'
+import { useAddToCartWithToast } from '@/shared/hooks/useAddToCartWithToast'
 import { cn } from '@/lib/utils'
 import { mapApiProductToStoreProduct } from '@/shared/utils/product'
 
@@ -14,7 +15,8 @@ interface ProductInfoProps {
 
 export function ProductInfo({ product }: ProductInfoProps) {
   const [quantity, setQuantity] = useState(1)
-  const { toggleFavorite, isFavorite, addToCart } = useShopStore()
+  const { toggleFavorite, isFavorite } = useShopStore()
+  const addToCartWithToast = useAddToCartWithToast()
   const storeProduct = mapApiProductToStoreProduct(product)
   const isInFavorites = isFavorite(storeProduct.id)
 
@@ -27,7 +29,7 @@ export function ProductInfo({ product }: ProductInfoProps) {
     : 0
 
   const handleAddToCart = () => {
-    addToCart(storeProduct, quantity)
+    addToCartWithToast(storeProduct, quantity)
   }
 
   const decreaseQuantity = () => {

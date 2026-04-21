@@ -8,7 +8,9 @@ import { EffectCoverflow, Pagination, Navigation, Autoplay } from 'swiper/module
 import type { Swiper as SwiperClass } from 'swiper'
 import { cva } from 'class-variance-authority'
 import { useShopStore } from '@/shared/store'
+import { useAddToCartWithToast } from '@/shared/hooks/useAddToCartWithToast'
 import { mapApiProductToStoreProduct } from '@/shared/utils/product'
+import { getProductPath } from '@/shared/utils/productRoute'
 import { Button } from '@/components/ui/button'
 import {
   Dialog,
@@ -16,7 +18,7 @@ import {
   DialogHeader,
   DialogTitle,
 } from '@/components/ui/dialog'
-import type { ProductApi, ProductReview } from '@/shared/types/product'
+import type { ProductListItem, ProductReview } from '@/shared/types/product'
 import { getProductReviews } from '@/shared/api/products/reviews/getProductReviews'
 
 import 'swiper/css'
@@ -27,8 +29,9 @@ import Link from 'next/link'
 
 interface LaptopsBlockProps {
   title: string
-  products: ProductApi[]
+  products: ProductListItem[]
   titleAlign?: 'left' | 'center'|'right'
+  prioritizeFirstImage?: boolean
 }
 
 const stripHtml = (value: string) =>
@@ -67,7 +70,12 @@ const titleWrapperVariants = cva('inline-flex flex-col', {
   },
 })
 
-export function LaptopsBlock({ title, products, titleAlign = 'left' }: LaptopsBlockProps) {
+export function LaptopsBlock({
+  title,
+  products,
+  titleAlign = 'left',
+  prioritizeFirstImage = false,
+}: LaptopsBlockProps) {
   const uniqueId = useId().replace(/:/g, '')
   const mainPrevClass = `laptops-swiper-prev-${uniqueId}`
   const mainNextClass = `laptops-swiper-next-${uniqueId}`
@@ -75,7 +83,8 @@ export function LaptopsBlock({ title, products, titleAlign = 'left' }: LaptopsBl
   const reviewsNextClass = `reviews-swiper-next-${uniqueId}`
   const reviewsPaginationClass = `reviews-swiper-pagination-${uniqueId}`
   const [activeIndex, setActiveIndex] = useState(0)
-  const { addToCart, toggleFavorite, isFavorite, cart } = useShopStore()
+  const { toggleFavorite, isFavorite, cart } = useShopStore()
+  const addToCartWithToast = useAddToCartWithToast()
 
   const currentProduct = products[activeIndex] ?? products[0]
   const storeProduct = currentProduct
@@ -141,7 +150,7 @@ export function LaptopsBlock({ title, products, titleAlign = 'left' }: LaptopsBl
         <div className="grid gap-6 lg:grid-cols-12 items-stretch">
           <div className="lg:col-span-3 rounded-3xl flex flex-col gap-6">
             <div className="space-y-3">
-              <Link href={`/product/${currentProduct.id}`} className="text-2xl font-semibold text-foreground">
+              <Link href={getProductPath(currentProduct)} className="text-2xl font-semibold text-foreground">
                 {currentProduct?.name}
               </Link>
               {/* <p className="text-sm text-muted-foreground line-clamp-4">
@@ -171,7 +180,7 @@ export function LaptopsBlock({ title, products, titleAlign = 'left' }: LaptopsBl
               <Button
                 variant="outline"
                 className="!border w-1/2 !border-primary hover:!text-black hover:!bg-primary"
-                onClick={() => storeProduct && addToCart(storeProduct, 1)}
+                onClick={() => storeProduct && addToCartWithToast(storeProduct, 1)}
                 disabled={!storeProduct}
               >
                 {isInCart ? 'В корзине' : 'В корзину'}
@@ -237,14 +246,19 @@ export function LaptopsBlock({ title, products, titleAlign = 'left' }: LaptopsBl
                 1024: { slidesPerView: 3 },
               }}
             >
-              {products.map((product) => (
+              {products.map((product, index) => (
                 <SwiperSlide key={product.id}>
                   <div className="relative mx-auto h-[360px] w-full max-w-[760px] rounded-2xl overflow-hidden sm:h-[420px] lg:h-[520px]">
                     {product.images?.[0]?.src ? (
                       <Image
                         src={product.images[0].src}
-                        alt={product.name}
+                        alt={product.images[0].alt || product.name}
                         fill
+                        sizes="(max-width: 640px) 80vw, (max-width: 1024px) 55vw, 42vw"
+                        priority={prioritizeFirstImage && index === 0}
+                        fetchPriority={
+                          prioritizeFirstImage && index === 0 ? 'high' : undefined
+                        }
                         className="object-contain p-6"
                       />
                     ) : (

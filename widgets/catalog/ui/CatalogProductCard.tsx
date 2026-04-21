@@ -2,19 +2,24 @@
 
 import Image from 'next/image'
 import Link from 'next/link'
+import { useRouter } from 'next/navigation'
 import { Star, MessageCircle, Heart, BarChart3, Minus, Plus } from 'lucide-react'
 import { useShopStore } from '@/shared/store'
-import type { Product } from '@/shared/types/api'
+import type { ProductListItem } from '@/shared/types/product'
 import { cn } from '@/lib/utils'
 import { mapApiProductToStoreProduct } from '@/shared/utils/product'
+import { useAddToCartWithToast } from '@/shared/hooks/useAddToCartWithToast'
+import { getProductPath } from '@/shared/utils/productRoute'
 import { Button } from '@/components/ui/button'
 
 interface CatalogProductCardProps {
-  product: Product
+  product: ProductListItem
 }
 
 export function CatalogProductCard({ product }: CatalogProductCardProps) {
-  const { toggleFavorite, isFavorite, addToCart, cart, updateCartQuantity } = useShopStore()
+  const router = useRouter()
+  const { toggleFavorite, isFavorite, cart, updateCartQuantity } = useShopStore()
+  const addToCartWithToast = useAddToCartWithToast()
   const storeProduct = mapApiProductToStoreProduct(product)
   const isInFavorites = isFavorite(storeProduct.id)
   const cartItem = cart.find((item) => item.id === storeProduct.id)
@@ -32,14 +37,19 @@ export function CatalogProductCard({ product }: CatalogProductCardProps) {
   // Получаем основные характеристики для отображения
   const mainAttributes = product.attributes.slice(0, 5)
 
+  const handleBuyNow = () => {
+    addToCartWithToast(storeProduct, 1)
+    router.push('/cart')
+  }
+
   return (
     <div className="group bg-card rounded-lg border border-border overflow-hidden hover:border-primary/50 transition-colors">
       {/* Изображение */}
-      <Link href={`/product/${product.id}`} className="block relative aspect-square bg-secondary/30">
+      <Link href={getProductPath(product)} className="block relative aspect-square bg-secondary/30">
         {product.images[0] && (
           <Image
             src={product.images[0].src || "/placeholder.svg"}
-            alt={product.name}
+            alt={product.images[0].alt || product.name}
             fill
             className="object-contain p-4 group-hover:scale-105 transition-transform duration-300"
           />
@@ -88,7 +98,7 @@ export function CatalogProductCard({ product }: CatalogProductCardProps) {
         </div>
 
         {/* Название */}
-        <Link href={`/product/${product.id}`}>
+        <Link href={getProductPath(product)}>
           <h3 className="text-sm md:text-base font-medium text-foreground line-clamp-3 hover:text-primary transition-colors leading-tight">
             {product.name}
           </h3>
@@ -138,35 +148,43 @@ export function CatalogProductCard({ product }: CatalogProductCardProps) {
           )}
         </div>
         {/* Кнопка купить */}
-        {!isInCart ? (
-          <Button
-            variant="outline"
-            className="w-full !border !border-primary hover:!text-black hover:!bg-primary"
-            onClick={() => addToCart(storeProduct, 1)}
-          >
-            В корзину
-          </Button>
-        ) : (
-          <div className="flex items-center justify-between w-full border border-primary rounded-lg overflow-hidden">
-            <button
-              onClick={() => updateCartQuantity(storeProduct.id, quantity - 1)}
-              className="flex items-center justify-center w-10 h-10 text-primary hover:bg-primary hover:text-primary-foreground transition-colors"
-              aria-label="Уменьшить количество"
+        <div className="space-y-2">
+          {!isInCart ? (
+            <Button
+              variant="outline"
+              className="w-full !border !border-primary hover:!text-black hover:!bg-primary"
+              onClick={() => addToCartWithToast(storeProduct, 1)}
             >
-              <Minus className="w-4 h-4" />
-            </button>
-            <div className="flex-1 text-center text-sm font-semibold text-foreground">
-              {quantity}
+              В корзину
+            </Button>
+          ) : (
+            <div className="flex items-center justify-between w-full border border-primary rounded-lg overflow-hidden">
+              <button
+                onClick={() => updateCartQuantity(storeProduct.id, quantity - 1)}
+                className="flex items-center justify-center w-10 h-10 text-primary hover:bg-primary hover:text-primary-foreground transition-colors"
+                aria-label="Уменьшить количество"
+              >
+                <Minus className="w-4 h-4" />
+              </button>
+              <div className="flex-1 text-center text-sm font-semibold text-foreground">
+                {quantity}
+              </div>
+              <button
+                onClick={() => updateCartQuantity(storeProduct.id, quantity + 1)}
+                className="flex items-center justify-center w-10 h-10 text-primary hover:bg-primary hover:text-primary-foreground transition-colors"
+                aria-label="Увеличить количество"
+              >
+                <Plus className="w-4 h-4" />
+              </button>
             </div>
-            <button
-              onClick={() => updateCartQuantity(storeProduct.id, quantity + 1)}
-              className="flex items-center justify-center w-10 h-10 text-primary hover:bg-primary hover:text-primary-foreground transition-colors"
-              aria-label="Увеличить количество"
-            >
-              <Plus className="w-4 h-4" />
-            </button>
-          </div>
-        )}
+          )}
+          <Button
+            className="w-full"
+            onClick={handleBuyNow}
+          >
+            Купить в один клик
+          </Button>
+        </div>
       </div>
     </div>
   )

@@ -33,9 +33,20 @@ const postfix = `&_embed&acf_format=standard`;
 
 const shopApiUrl="/wc/v3"
 const wordpressApiUrl="/wp/v2"
+const buildQueryString = (params: Record<string, string | number | undefined>) => {
+  const query = new URLSearchParams()
+
+  Object.entries(params).forEach(([key, value]) => {
+    if (value == null || value === '') return
+    query.set(key, String(value))
+  })
+
+  return query.toString()
+}
 
 export const API = {
   getMainPage: `${wordpressApiUrl}/pages?slug=main${postfix}`,
+  getPageBySlug: (slug: string) => `${wordpressApiUrl}/pages?slug=${slug}${postfix}`,
   getHeaderPage: `${wordpressApiUrl}/pages?slug=header${postfix}`,
   getFooterPage: `${wordpressApiUrl}/pages?slug=footer${postfix}`,
   getBuyoutPage: `${wordpressApiUrl}/pages?slug=buyout${postfix}`,
@@ -66,6 +77,8 @@ export const API = {
 
   //products
   getProducts: `${shopApiUrl}/products?per_page=100${postfix}`,
+  getProductsList: (params: Record<string, string | number | undefined>) =>
+    `${shopApiUrl}/products?${buildQueryString(params)}`,
   getProductById: (id: number) => `${shopApiUrl}/products/${id}?${postfix.replace('&', '')}`,
   getProductBySlug: (slug: string) => `${shopApiUrl}/products?slug=${slug}${postfix}`,
 

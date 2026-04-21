@@ -2,6 +2,9 @@ import Image from 'next/image'
 import Link from 'next/link'
 import { getPromoList } from '@/shared/api/promo/getPromoList'
 import type { Metadata } from 'next'
+import { getPageSeoBySlug } from '@/shared/api/pages/getPageSeoBySlug'
+import { buildMetadataWithYoast, seoContextFromEnv } from '@/shared/seo/yoast'
+import { getBackendMediaAlt, getBackendMediaUrl } from '@/shared/utils/media'
 
 const SITE_URL = process.env.NEXT_PUBLIC_FRONT_BASE_URL || 'https://osa-market.ru'
 
@@ -25,7 +28,7 @@ export async function generateMetadata({
   const description = 'Специальные предложения и скидки OSA-MARKET'
   const url = page > 1 ? `${SITE_URL}/promos?page=${page}` : `${SITE_URL}/promos`
 
-  return {
+  const fallback: Metadata = {
     title,
     description,
     alternates: {
@@ -38,6 +41,18 @@ export async function generateMetadata({
       type: 'website',
     },
   }
+
+  if (page > 1) {
+    return fallback
+  }
+
+  const seoPage = await getPageSeoBySlug('promos')
+  const { siteUrl, apiBaseUrl } = seoContextFromEnv()
+  return buildMetadataWithYoast(fallback, seoPage?.yoast_head_json, {
+    siteUrl,
+    apiBaseUrl,
+    canonicalPath: '/promos',
+  })
 }
 
 export default async function PromosPage({ searchParams }: PromosPageProps) {
@@ -67,8 +82,8 @@ export default async function PromosPage({ searchParams }: PromosPageProps) {
                 <div className="relative h-48 bg-muted/30">
                   {promo.acf.miniatyura ? (
                     <Image
-                      src={promo.acf.miniatyura}
-                      alt={promo.acf.zagolovok}
+                      src={getBackendMediaUrl(promo.acf.miniatyura)}
+                      alt={getBackendMediaAlt(promo.acf.miniatyura, promo.acf.zagolovok)}
                       fill
                       className="object-cover"
                     />

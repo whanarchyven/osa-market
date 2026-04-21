@@ -2,6 +2,7 @@ import Image from 'next/image'
 import Link from 'next/link'
 
 import type { ProductCategoryTaxonomy } from '@/shared/types/category'
+import { getBackendMediaAlt, getBackendMediaUrl } from '@/shared/utils/media'
 import { DynamicIcon } from '@/shared/ui/DynamicIcon'
 
 interface CategoriesCardProps {
@@ -12,9 +13,7 @@ interface CategoriesCardProps {
 
 const resolveCategoryImage = (category: ProductCategoryTaxonomy) => {
   const image = category.acf?.image ?? category.acf?.ikonka_kategorii
-  if (typeof image === 'string') return image
-  if (image && typeof image === 'object' && 'url' in image) return image.url ?? null
-  return null
+  return getBackendMediaUrl(image) || null
 }
 
 export function CategoriesCard({
@@ -36,7 +35,7 @@ export function CategoriesCard({
       <div className="relative aspect-[4/3] w-full overflow-hidden rounded-xl bg-gradient-to-br from-muted/50 to-muted/10">
         <Image
             src={imageSrc || '/placeholder.svg'}
-            alt={category.name}
+            alt={getBackendMediaAlt(category.acf?.image, category.name)}
             fill
             sizes="(max-width: 1024px) 50vw, (max-width: 1280px) 33vw, 16vw"
             className="object-contain p-4 transition-transform duration-300 group-hover:scale-105"

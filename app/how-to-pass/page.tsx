@@ -1,6 +1,7 @@
 import { notFound } from 'next/navigation'
 import type { Metadata } from 'next'
 import { getHowToPassPageData } from '@/shared/api/pages/how-to-pass/getHowToPassPageData'
+import { buildMetadataWithYoast, seoContextFromEnv } from '@/shared/seo/yoast'
 
 export const revalidate = 60
 const SITE_URL = process.env.NEXT_PUBLIC_FRONT_BASE_URL || 'https://osa-market.ru'
@@ -22,7 +23,7 @@ export async function generateMetadata(): Promise<Metadata> {
   const description = stripHtml(page.acf?.content || '').slice(0, 200)
   const url = `${SITE_URL}/how-to-pass`
 
-  return {
+  const fallback: Metadata = {
     title: `${title} — OSA-MARKET`,
     description,
     alternates: {
@@ -35,6 +36,14 @@ export async function generateMetadata(): Promise<Metadata> {
       type: 'article',
     },
   }
+
+  const yoast = page.yoast_head_json
+  const { siteUrl, apiBaseUrl } = seoContextFromEnv()
+  return buildMetadataWithYoast(fallback, yoast, {
+    siteUrl,
+    apiBaseUrl,
+    canonicalPath: '/how-to-pass',
+  })
 }
 
 export default async function HowToPassPage() {

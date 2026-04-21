@@ -1,3 +1,5 @@
+import type { YoastHeadJson } from '@/shared/seo/yoast'
+
 /** Элемент списка отображаемых категорий с ручки страницы каталога */
 export interface CatalogPageCategoryItem {
   upravlyaemaya_kategoriya?: {
@@ -48,4 +50,6 @@ export interface CatalogPageData {
   class_list: string[]
   acf: CatalogPageACF
   _links?: Record<string, unknown>
+  yoast_head?: string
+  yoast_head_json?: YoastHeadJson
 }

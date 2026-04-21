@@ -2,16 +2,25 @@
 
 import Image from 'next/image'
 import Link from 'next/link'
+import { useRouter } from 'next/navigation'
 import { Heart, ShoppingCart, Trash2 } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { useShopStore } from '@/shared/store'
+import { useAddToCartWithToast } from '@/shared/hooks/useAddToCartWithToast'
+import { getProductPath } from '@/shared/utils/productRoute'
 
 export default function FavoritesPage() {
+  const router = useRouter()
   const {
     favorites,
     removeFavorite,
-    addToCart,
   } = useShopStore()
+  const addToCartWithToast = useAddToCartWithToast()
+
+  const handleBuyNow = (product: (typeof favorites)[number]) => {
+    addToCartWithToast(product, 1)
+    router.push('/cart')
+  }
 
   return (
     <main className="min-h-screen bg-background pt-6 pb-16">
@@ -50,7 +59,7 @@ export default function FavoritesPage() {
                 <div className="relative aspect-[4/3] bg-secondary">
                   <Image
                     src={product.image || '/placeholder.svg'}
-                    alt={product.name}
+                    alt={product.imageAlt || product.name}
                     fill
                     className="object-cover"
                   />
@@ -67,9 +76,12 @@ export default function FavoritesPage() {
                   <div className="text-xs text-muted-foreground">
                     {product.category || 'Категория'}
                   </div>
-                  <h3 className="text-base font-medium text-foreground line-clamp-2">
+                  <Link
+                    href={getProductPath(product)}
+                    className="text-base font-medium text-foreground line-clamp-2 hover:text-primary transition-colors"
+                  >
                     {product.name}
-                  </h3>
+                  </Link>
                   {product.excerpt && (
                     <p className="text-sm text-muted-foreground line-clamp-2">
                       {product.excerpt}
@@ -92,9 +104,9 @@ export default function FavoritesPage() {
                     </span>
                   </div>
 
-                  <div className="flex items-center gap-2">
+                  <div className="grid grid-cols-[1fr_auto] gap-2">
                     <Button
-                      onClick={() => addToCart(product, 1)}
+                      onClick={() => addToCartWithToast(product, 1)}
                       className="flex-1 h-10"
                     >
                       <ShoppingCart className="w-4 h-4 mr-2" />
@@ -108,6 +120,13 @@ export default function FavoritesPage() {
                       <Trash2 className="w-4 h-4" />
                     </button>
                   </div>
+                  <Button
+                    variant="outline"
+                    onClick={() => handleBuyNow(product)}
+                    className="w-full h-10"
+                  >
+                    Купить в один клик
+                  </Button>
                 </div>
               </div>
             ))}

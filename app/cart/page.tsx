@@ -10,6 +10,9 @@ import { createOrder } from '@/shared/api'
 import { useAuthStore, useShopStore } from '@/shared/store'
 import { cn } from '@/lib/utils'
 import { DeliveryAddressField } from '@/widgets/cart/ui/DeliveryAddressField'
+import type { ProductApi } from '@/shared/types/product'
+import { PromoProductsSlider } from '@/widgets/promo/ui/PromoProductsSlider'
+import { getProductPath } from '@/shared/utils/productRoute'
 
 type CheckoutForm = {
   firstName: string
@@ -42,6 +45,8 @@ export default function CartPage() {
   const [errors, setErrors] = useState<Partial<CheckoutForm>>({})
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [submitError, setSubmitError] = useState<string | null>(null)
+  const [crossSellProducts, setCrossSellProducts] = useState<ProductApi[]>([])
+  const [isCrossSellLoading, setIsCrossSellLoading] = useState(false)
 
   useEffect(() => {
     if (!isAuthenticated || !user) {
@@ -57,6 +62,80 @@ export default function CartPage() {
       phone: prev.phone || user.phone || '',
     }))
   }, [isAuthenticated, user])
+
+  useEffect(() => {
+    const productIds = cart
+      .map((item) => Number(item.id))
+      .filter((id) => Number.isFinite(id) && id > 0)
+
+    if (!productIds.length) {
+      setCrossSellProducts([])
+      setIsCrossSellLoading(false)
+      return
+    }
+
+    let isActive = true
+
+    const loadCrossSells = async () => {
+      setIsCrossSellLoading(true)
+
+      try {
+        const cartProductsResponse = await fetch(
+          `/api/proxy/wc/v3/products?include=${productIds.join(',')}&per_page=${productIds.length}&status=publish&_fields=id,cross_sell_ids`
+        )
+
+        if (!cartProductsResponse.ok) {
+          throw new Error('Failed to load cart products')
+        }
+
+        const cartProducts = (await cartProductsResponse.json()) as Array<{
+          id: number
+          cross_sell_ids?: number[]
+        }>
+
+        const crossSellIds = [...new Set(
+          cartProducts.flatMap((product) => product.cross_sell_ids ?? [])
+        )]
+          .filter((id) => !productIds.includes(id))
+          .slice(0, 12)
+
+        if (!crossSellIds.length) {
+          if (isActive) {
+            setCrossSellProducts([])
+          }
+          return
+        }
+
+        const crossSellResponse = await fetch(
+          `/api/proxy/wc/v3/products?include=${crossSellIds.join(',')}&per_page=${crossSellIds.length}&status=publish&orderby=include`
+        )
+
+        if (!crossSellResponse.ok) {
+          throw new Error('Failed to load cross-sell products')
+        }
+
+        const data = (await crossSellResponse.json()) as ProductApi[]
+
+        if (isActive) {
+          setCrossSellProducts(data)
+        }
+      } catch {
+        if (isActive) {
+          setCrossSellProducts([])
+        }
+      } finally {
+        if (isActive) {
+          setIsCrossSellLoading(false)
+        }
+      }
+    }
+
+    loadCrossSells()
+
+    return () => {
+      isActive = false
+    }
+  }, [cart])
 
   const setField =
     (field: keyof CheckoutForm) =>
@@ -237,19 +316,25 @@ export default function CartPage() {
                     key={item.id}
                     className="flex flex-col sm:flex-row sm:items-center gap-4 border-b border-border pb-6 last:border-b-0 last:pb-0"
                   >
-                    <div className="relative w-24 h-24 rounded-xl overflow-hidden bg-secondary">
+                    <Link
+                      href={getProductPath(item)}
+                      className="relative w-24 h-24 rounded-xl overflow-hidden bg-secondary block"
+                    >
                       <Image
                         src={item.image || '/placeholder.svg'}
-                        alt={item.name}
+                        alt={item.imageAlt || item.name}
                         fill
                         className="object-cover"
                       />
-                    </div>
+                    </Link>
 
                     <div className="flex-1 min-w-0">
-                      <h3 className="text-base font-medium text-foreground line-clamp-2">
+                      <Link
+                        href={getProductPath(item)}
+                        className="text-base font-medium text-foreground line-clamp-2 hover:text-primary transition-colors"
+                      >
                         {item.name}
-                      </h3>
+                      </Link>
                       <div className="text-sm text-muted-foreground mt-1">
                         {item.category || 'Категория'}
                       </div>
@@ -307,6 +392,19 @@ export default function CartPage() {
                   </div>
                 ))}
               </div>
+
+              {(isCrossSellLoading || crossSellProducts.length > 0) && (
+                <div className="bg-card border border-border rounded-2xl p-6">
+                  <h2 className="text-lg font-semibold text-foreground mb-4">
+                    Добавьте к заказу
+                  </h2>
+                  {isCrossSellLoading ? (
+                    <p className="text-sm text-muted-foreground">Подбираем товары...</p>
+                  ) : (
+                    <PromoProductsSlider products={crossSellProducts} />
+                  )}
+                </div>
+              )}
 
               <div className="bg-card border border-border rounded-2xl p-6">
                 <h2 className="text-lg font-semibold text-foreground mb-4">

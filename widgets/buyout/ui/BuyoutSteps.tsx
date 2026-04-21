@@ -1,6 +1,7 @@
 import Image from 'next/image'
 import { ArrowRight } from 'lucide-react'
 import type { BuyoutStepsBlock } from '@/shared/types/api'
+import { getBackendMediaAlt, getBackendMediaUrl } from '@/shared/utils/media'
 
 interface BuyoutStepsProps {
   data: BuyoutStepsBlock
@@ -26,8 +27,8 @@ export function BuyoutSteps({ data }: BuyoutStepsProps) {
                 <div className="bg-secondary border border-primary/50 rounded-xl p-6 h-full hover:border-primary transition-colors">
                   <div className="relative h-40 mb-6 rounded-lg overflow-hidden">
                     <Image
-                      src={step.izobrazhenie || '/placeholder.svg'}
-                      alt={step.zagolovok}
+                      src={getBackendMediaUrl(step.izobrazhenie) || '/placeholder.svg'}
+                      alt={getBackendMediaAlt(step.izobrazhenie, step.zagolovok)}
                       fill
                       className="object-cover"
                     />

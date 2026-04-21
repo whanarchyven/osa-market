@@ -1,3 +1,6 @@
+import type { YoastHeadJson } from '@/shared/seo/yoast'
+import type { BackendMedia } from '@/shared/types/media'
+
 export interface BuyoutAdvantageItem {
   preimushhestvo: {
     tekst_preimushhestva: string
@@ -14,7 +17,7 @@ export interface BuyoutHeroBlock {
 export interface BuyoutCard {
   zagolovok: string
   podzagolovok: string
-  izobrazhenie: string
+  izobrazhenie: BackendMedia
 }
 
 export interface BuyoutWhatWeBuyBlock {
@@ -27,7 +30,7 @@ export type WhatWebuyBlock = BuyoutWhatWeBuyBlock
 export interface BuyoutStep {
   zagolovok: string
   podzagolovok: string
-  izobrazhenie: string
+  izobrazhenie: BackendMedia
 }
 
 export interface BuyoutStepsBlock {
@@ -94,4 +97,6 @@ export interface BuyoutPageData {
   }
   class_list: string[]
   acf: BuyoutPageACF
+  yoast_head?: string
+  yoast_head_json?: YoastHeadJson
 }

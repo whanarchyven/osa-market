@@ -3,11 +3,13 @@
 import Image from 'next/image'
 import { useState } from 'react'
 import { parseRichText } from '@/shared/utils/richText'
+import type { BackendMedia } from '@/shared/types/media'
+import { getBackendMediaAlt, getBackendMediaUrl } from '@/shared/utils/media'
 
 interface AboutStoryProps {
   zagolovok_istorii: string
   tekst_istorii: string
-  gallereya: string[]
+  gallereya: BackendMedia[]
   akcent_zagolovok: string
   akcent_podzagolovok: string
 }
@@ -45,8 +47,8 @@ export function AboutStory({
           <div className="relative h-[400px] rounded-xl overflow-hidden shadow-2xl mb-4">
             {selectedImage && (
               <Image
-                src={selectedImage || "/placeholder.svg"}
-                alt={`Галерея ${selectedImageIndex + 1}`}
+                src={getBackendMediaUrl(selectedImage) || "/placeholder.svg"}
+                alt={getBackendMediaAlt(selectedImage, `Галерея ${selectedImageIndex + 1}`)}
                 fill
                 className="object-cover"
               />
@@ -64,8 +66,8 @@ export function AboutStory({
                   }`}
                 >
                   <Image
-                    src={image || "/placeholder.svg"}
-                    alt={`Thumbnail ${idx + 1}`}
+                    src={getBackendMediaUrl(image) || "/placeholder.svg"}
+                    alt={getBackendMediaAlt(image, `Thumbnail ${idx + 1}`)}
                     fill
                     className="object-cover"
                   />

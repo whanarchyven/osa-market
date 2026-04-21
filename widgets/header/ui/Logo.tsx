@@ -6,7 +6,7 @@ import Image from 'next/image'
 export function Logo({ className = '' }: { className?: string }) {
   return (
     <Link href="/" className={`flex items-center gap-2 ${className}`}>
-      <Image src="/logo.svg" alt="OSA-MARKET" width={40} height={40} />
+      <Image src="/logo.svg" alt="OSA-MARKET" width={40} height={40} priority />
       <div className="relative">
         <span className="text-2xl md:text-3xl font-bold tracking-tight">
           <span className="text-primary">OSA</span>

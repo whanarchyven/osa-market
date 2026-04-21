@@ -2,10 +2,12 @@ import Image from 'next/image'
 import type { Metadata } from 'next'
 import { notFound } from 'next/navigation'
 import { getPromoBySlug } from '@/shared/api/promo/getPromoBySlug'
-import { getProductById } from '@/shared/api/products/getProductById'
+import { getProductsByIds } from '@/shared/api/products/getProductsByIds'
 import { PromoProductsSlider } from '@/widgets/promo/ui/PromoProductsSlider'
 import { PromoSignupForm } from '@/widgets/promo/ui/PromoSignupForm'
 import { parseRichTextBlock } from '@/shared/utils/richText'
+import { buildMetadataWithYoast, seoContextFromEnv } from '@/shared/seo/yoast'
+import { getBackendMediaAlt, getBackendMediaUrl } from '@/shared/utils/media'
 
 export const revalidate = 60
 const SITE_URL = process.env.NEXT_PUBLIC_FRONT_BASE_URL || 'https://osa-market.ru'
@@ -26,9 +28,9 @@ export async function generateMetadata(
   const title = promo.acf.zagolovok
   const description = stripHtml(promo.acf.opisanie || '').slice(0, 200)
   const url = `${SITE_URL}/promos/${slug}`
-  const image = promo.acf.oblozhka || undefined
+  const image = getBackendMediaUrl(promo.acf.oblozhka) || undefined
 
-  return {
+  const fallback: Metadata = {
     title: `${title} — OSA-MARKET`,
     description,
     alternates: {
@@ -48,6 +50,14 @@ export async function generateMetadata(
       images: image ? [image] : undefined,
     },
   }
+
+  const yoast = promo.yoast_head_json
+  const { siteUrl, apiBaseUrl } = seoContextFromEnv()
+  return buildMetadataWithYoast(fallback, yoast, {
+    siteUrl,
+    apiBaseUrl,
+    canonicalPath: `/promos/${slug}`,
+  })
 }
 
 interface PromoDetailPageProps {
@@ -60,27 +70,19 @@ export default async function PromoDetailPage({ params }: PromoDetailPageProps) 
 
   if (!promo) return notFound()
 
+  const coverImageUrl = getBackendMediaUrl(promo.acf.oblozhka)
+  const coverImageAlt = getBackendMediaAlt(promo.acf.oblozhka, promo.acf.zagolovok)
   const relatedIds = promo.acf.svyazannye_tovary?.map((item) => item.tovar) ?? []
-  const relatedProducts = (
-    await Promise.all(
-      relatedIds.map(async (id) => {
-        try {
-          return await getProductById(id)
-        } catch {
-          return null
-        }
-      })
-    )
-  ).filter((product): product is NonNullable<typeof product> => Boolean(product))
+  const relatedProducts = await getProductsByIds(relatedIds)
 
   return (
     <main className="bg-background">
       <section className="relative min-h-[70vh] flex items-center overflow-hidden">
         <div className="absolute inset-0">
-          {promo.acf.oblozhka ? (
+          {coverImageUrl ? (
             <Image
-              src={promo.acf.oblozhka}
-              alt={promo.acf.zagolovok}
+              src={coverImageUrl}
+              alt={coverImageAlt}
               fill
               className="object-cover"
               priority

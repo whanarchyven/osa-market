@@ -1,10 +1,11 @@
 import { AboutHero, AboutStory, AboutStats, AboutTeam, AboutValues, AboutCTA } from '@/widgets/about'
 import { getAboutPageData } from '@/shared/api/pages/about/getAboutPageData'
 import type { Metadata } from 'next'
+import { buildMetadataWithYoast, seoContextFromEnv } from '@/shared/seo/yoast'
 
 const SITE_URL = process.env.NEXT_PUBLIC_FRONT_BASE_URL || 'https://osa-market.ru'
 
-export const metadata: Metadata = {
+const aboutFallbackMetadata: Metadata = {
   title: 'О нас - OSA-MARKET',
   description: 'Узнайте о компании OSA-MARKET: наша история, ценности и миссия в мире компьютерных технологий.',
   alternates: {
@@ -19,8 +20,23 @@ export const metadata: Metadata = {
   },
 }
 
-/** Редко меняющаяся страница: дольше CDN/браузерный кэш, товарные — 60 с. */
-export const revalidate = 86400
+export async function generateMetadata(): Promise<Metadata> {
+  try {
+    const data = await getAboutPageData()
+    const yoast = data[0]?.yoast_head_json
+    const { siteUrl, apiBaseUrl } = seoContextFromEnv()
+    return buildMetadataWithYoast(aboutFallbackMetadata, yoast, {
+      siteUrl,
+      apiBaseUrl,
+      canonicalPath: '/about',
+    })
+  } catch {
+    return aboutFallbackMetadata
+  }
+}
+
+/** Редко меняющаяся страница: обновление раз в неделю достаточно. */
+export const revalidate = 604800
 
 export default async function AboutPage() {
   const data = await getAboutPageData()

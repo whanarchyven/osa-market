@@ -1,3 +1,6 @@
+import type { YoastHeadJson } from '@/shared/seo/yoast'
+import type { BackendMedia } from '@/shared/types/media'
+
 export interface PromoRelatedProduct {
   tovar: number
 }
@@ -8,8 +11,8 @@ export interface PromoACF {
   srok_dejstviya_do: string
   usloviya_polucheniya: string
   skidka: string
-  oblozhka: string
-  miniatyura: string
+  oblozhka: BackendMedia
+  miniatyura: BackendMedia
   svyazannye_tovary: PromoRelatedProduct[]
 }
 
@@ -44,4 +47,6 @@ export interface PromoItem {
   }
   class_list: string[]
   acf: PromoACF
+  yoast_head?: string
+  yoast_head_json?: YoastHeadJson
 }

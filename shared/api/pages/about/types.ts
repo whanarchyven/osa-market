@@ -1,3 +1,6 @@
+import type { YoastHeadJson } from '@/shared/seo/yoast'
+import type { BackendMedia } from '@/shared/types/media'
+
 export interface AboutHeroBlock {
   zagolovok: string
   podzagolovok: string
@@ -13,7 +16,7 @@ export interface AboutHistoryBlock {
   zagolovok: string
   kontent: string
   akczentirovannyj_blok: AboutHistoryAccent
-  gallereya: string[]
+  gallereya: BackendMedia[]
 }
 
 export interface AboutNumberTile {
@@ -33,7 +36,7 @@ export interface AboutTeamMember {
     imya: string
     dolzhnost: string
     tekst: string
-    izobrazhenie: string
+    izobrazhenie: BackendMedia
   }
 }
 
@@ -106,4 +109,6 @@ export interface AboutPageData {
   }
   class_list: string[]
   acf: AboutPageACF
+  yoast_head?: string
+  yoast_head_json?: YoastHeadJson
 }

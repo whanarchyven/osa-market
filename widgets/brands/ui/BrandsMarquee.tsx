@@ -22,9 +22,10 @@ function BrandCard({ brand }: { brand: ProductBrandApi }) {
       {imageUrl ? (
         <Image
           src={imageUrl}
-          alt={brand.name}
+          alt={brand.image?.alt || brand.name}
           width={160}
           height={64}
+          sizes="160px"
           className="max-h-16 w-auto max-w-[200px] object-contain"
         />
       ) : (

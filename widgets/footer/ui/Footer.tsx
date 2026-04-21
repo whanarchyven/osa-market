@@ -153,14 +153,19 @@ export function Footer({ data }: FooterProps) {
         {/* Bottom Section */}
         <div className="border-t border-border pt-8 flex flex-col md:flex-row justify-between items-center gap-4 text-sm text-muted-foreground">
           <p>{copyright}</p>
-          <div className="flex gap-6">
+          <div className="flex flex-wrap justify-center gap-4 md:gap-6">
+            <Link href="/delivery" className="hover:text-primary transition">
+              Доставка и оплата
+            </Link>
+            <Link href="/warranty-and-refund" className="hover:text-primary transition">
+              Гарантия и возврат
+            </Link>
             <Link href="/privacy-policy" className="hover:text-primary transition">
               Политика конфиденциальности
             </Link>
             <Link href="/terms-of-use" className="hover:text-primary transition">
               Условия использования
             </Link>
-            
           </div>
         </div>
       </div>

@@ -1,7 +1,10 @@
+import type { YoastHeadJson } from '@/shared/seo/yoast'
+import type { BackendMedia } from '@/shared/types/media'
+
 export interface NewsACF {
   zagolovok: string
-  oblozhka: string
-  miniatyura: string
+  oblozhka: BackendMedia
+  miniatyura: BackendMedia
   kontent: string
   avtor: string
 }
@@ -37,4 +40,6 @@ export interface NewsItem {
   }
   class_list: string[]
   acf: NewsACF
+  yoast_head?: string
+  yoast_head_json?: YoastHeadJson
 }

@@ -1,7 +1,11 @@
+import { cache } from 'react'
 import { ProductGallery, ProductInfo, ProductReviewForm } from '@/widgets/product'
 import type { Metadata } from 'next'
 import { getProductById } from '@/shared/api/products/getProductById'
+import { getProductBySlug } from '@/shared/api/products/getProductBySlug'
+import { getProductsByIds } from '@/shared/api/products/getProductsByIds'
 import { getProductReviews } from '@/shared/api/products/reviews/getProductReviews'
+import { notFound, permanentRedirect } from 'next/navigation'
 import {
   Breadcrumb,
   BreadcrumbItem,
@@ -13,6 +17,9 @@ import {
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { cn } from '@/lib/utils'
 import { Star } from 'lucide-react'
+import { buildMetadataWithYoast, seoContextFromEnv } from '@/shared/seo/yoast'
+import { PromoProductsSlider } from '@/widgets/promo/ui/PromoProductsSlider'
+import { getProductPath } from '@/shared/utils/productRoute'
 
 export const revalidate = 60
 const SITE_URL = process.env.NEXT_PUBLIC_FRONT_BASE_URL || 'https://osa-market.ru'
@@ -20,19 +27,46 @@ const SITE_URL = process.env.NEXT_PUBLIC_FRONT_BASE_URL || 'https://osa-market.r
 const stripHtml = (html: string) =>
   html.replace(/<[^>]*>/g, ' ').replace(/\s+/g, ' ').trim()
 
+const getResolvedProduct = cache(async (slug: string) => {
+  try {
+    const productBySlug = await getProductBySlug(slug)
+    if (productBySlug) {
+      return { product: productBySlug, isLegacyId: false }
+    }
+  } catch {
+    // If slug lookup fails, try legacy id fallback below.
+  }
+
+  if (/^\d+$/.test(slug)) {
+    try {
+      const productById = await getProductById(Number(slug))
+      return { product: productById, isLegacyId: true }
+    } catch {
+      return null
+    }
+  }
+
+  return null
+})
+
 export async function generateMetadata(
   { params }: ProductPageProps
 ): Promise<Metadata> {
   const { slug } = await params
-  const productId = Number(slug)
-  const product = await getProductById(productId)
+  const resolved = await getResolvedProduct(slug)
+
+  if (!resolved) {
+    return { title: 'Товар — OSA-MARKET' }
+  }
+
+  const { product } = resolved
 
   const title = `${product.name} — купить в OSA-MARKET`
   const description = stripHtml(product.short_description || product.description || '')
   const image = product.images?.[0]?.src
-  const url = `${SITE_URL}/product/${product.id}`
+  const url = `${SITE_URL}${getProductPath(product)}`
 
-  return {
+  const fallback: Metadata = {
     title,
     description,
     alternates: {
@@ -52,6 +86,14 @@ export async function generateMetadata(
       images: image ? [image] : undefined,
     },
   }
+
+  const yoast = product.yoast_head_json
+  const { siteUrl, apiBaseUrl } = seoContextFromEnv()
+  return buildMetadataWithYoast(fallback, yoast, {
+    siteUrl,
+    apiBaseUrl,
+    canonicalPath: getProductPath(product),
+  })
 }
 
 interface ProductPageProps {
@@ -60,11 +102,23 @@ interface ProductPageProps {
 
 export default async function ProductPage({ params }: ProductPageProps) {
   const { slug } = await params
-  
-  const productId = Number(slug)
-  const product = await getProductById(productId)
-  const reviews = await getProductReviews(productId)
-  const productUrl = `${SITE_URL}/product/${product.id}`
+  const resolved = await getResolvedProduct(slug)
+
+  if (!resolved) {
+    return notFound()
+  }
+
+  const { product, isLegacyId } = resolved
+
+  if (isLegacyId) {
+    permanentRedirect(getProductPath(product))
+  }
+
+  const [reviews, relatedProducts] = await Promise.all([
+    getProductReviews(product.id),
+    getProductsByIds(product.upsell_ids ?? []),
+  ])
+  const productUrl = `${SITE_URL}${getProductPath(product)}`
   const primaryImage = product.images?.[0]?.src
   const offerPrice = product.on_sale ? product.sale_price : product.price
   const availability =
@@ -190,6 +244,8 @@ export default async function ProductPage({ params }: ProductPageProps) {
             </div>
           </div>
 
+          
+
           {/* Табы с описанием и характеристиками */}
           <Tabs defaultValue="description" className="w-full">
             <TabsList className="w-full justify-start bg-card border border-border">
@@ -275,6 +331,15 @@ export default async function ProductPage({ params }: ProductPageProps) {
               </div>
             </TabsContent>
           </Tabs>
+
+          {relatedProducts.length > 0 && (
+            <section className="my-14">
+              <h2 className="mb-6 text-2xl md:text-3xl font-bold text-foreground">
+                Смотрите также
+              </h2>
+              <PromoProductsSlider products={relatedProducts} />
+            </section>
+          )}
       </div>
     </main>
   )

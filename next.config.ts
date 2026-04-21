@@ -38,7 +38,21 @@ function buildContentSecurityPolicy(): string {
 const nextConfig: NextConfig = {
   poweredByHeader: false,
   images: {
-    domains: ["images.unsplash.com", "zaburdaev.space", "api.osa-market.ru"],
+    formats: ["image/avif", "image/webp"],
+    remotePatterns: [
+      {
+        protocol: "https",
+        hostname: "images.unsplash.com",
+      },
+      {
+        protocol: "https",
+        hostname: "zaburdaev.space",
+      },
+      {
+        protocol: "https",
+        hostname: "api.osa-market.ru",
+      },
+    ],
   },
   async headers() {
     const common: { key: string; value: string }[] = [

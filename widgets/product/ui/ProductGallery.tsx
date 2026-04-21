@@ -81,7 +81,7 @@ export function ProductGallery({ images, productName }: ProductGalleryProps) {
             >
               <Image
                 src={image.thumbnail || image.src || "/placeholder.svg"}
-                alt={`${productName} - изображение ${index + 1}`}
+                alt={image.alt || `${productName} - изображение ${index + 1}`}
                 fill
                 className="object-contain p-1"
               />

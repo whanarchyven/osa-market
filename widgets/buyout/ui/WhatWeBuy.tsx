@@ -1,5 +1,6 @@
 import Image from 'next/image'
 import type { WhatWebuyBlock } from '@/shared/types/api'
+import { getBackendMediaAlt, getBackendMediaUrl } from '@/shared/utils/media'
 
 interface WhatWeBuyProps {
   data: WhatWebuyBlock
@@ -22,8 +23,8 @@ export function WhatWeBuy({ data }: WhatWeBuyProps) {
               {/* Фоновое изображение */}
               <div className="relative h-64 overflow-hidden bg-secondary">
                 <Image
-                  src={card.izobrazhenie || "/placeholder.svg"}
-                  alt={card.zagolovok}
+                  src={getBackendMediaUrl(card.izobrazhenie) || "/placeholder.svg"}
+                  alt={getBackendMediaAlt(card.izobrazhenie, card.zagolovok)}
                   fill
                   className="object-cover group-hover:scale-110 transition-transform duration-300"
                 />

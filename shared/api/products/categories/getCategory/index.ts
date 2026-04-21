@@ -7,7 +7,6 @@ export const getCategory = async (id: number): Promise<ProductCategoryTaxonomy> 
     const result = await axiosInstance.get<ProductCategoryTaxonomy>(
       API.getCategoryById(id)
     )
-    console.log(result.data, 'CATEGORY DATA')
     return result.data
   } catch (e: any) {
     console.log(e, 'ERROR FETCHING CATEGORY')

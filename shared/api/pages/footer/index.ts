@@ -7,7 +7,6 @@ export const getFooterData = unstable_cache(
   async (): Promise<FooterPageData[]> => {
     try {
       const result = await axiosInstance.get<FooterPageData[]>(API.getFooterPage)
-      console.log(result.data, 'FOOTER PAGE DATA')
       return result.data
     } catch (e: any) {
       console.log(e, 'ERROR FETCHING FOOTER PAGE')

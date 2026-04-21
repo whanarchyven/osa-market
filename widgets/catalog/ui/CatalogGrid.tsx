@@ -1,8 +1,9 @@
 'use client'
 
 import { useEffect, useState } from 'react'
-import { useRouter, useSearchParams } from 'next/navigation'
-import { ChevronDown, Loader2 } from 'lucide-react'
+import Link from 'next/link'
+import { usePathname, useRouter, useSearchParams } from 'next/navigation'
+import { ChevronDown, ChevronLeft, ChevronRight, Loader2 } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import {
   DropdownMenu,
@@ -11,12 +12,12 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu'
 import { CatalogProductCard } from './CatalogProductCard'
-import type { Product } from '@/shared/types/api'
+import type { ProductListItem } from '@/shared/types/product'
 import { cn } from '@/lib/utils'
 import { useUIStore } from '@/shared/store'
 
 interface CatalogGridProps {
-  products: Product[]
+  products: ProductListItem[]
   totalCount: number
   totalPages: number
   currentPage: number
@@ -31,12 +32,54 @@ const sortOptions: { value: SortOption; label: string }[] = [
   { value: 'newest', label: 'Новинки' },
 ]
 
+const buildPaginationItems = (currentPage: number, totalPages: number) => {
+  if (totalPages <= 7) {
+    return Array.from({ length: totalPages }, (_, index) => index + 1)
+  }
+
+  const pages = new Set<number>([1, totalPages])
+
+  for (
+    let page = Math.max(2, currentPage - 1);
+    page <= Math.min(totalPages - 1, currentPage + 1);
+    page += 1
+  ) {
+    pages.add(page)
+  }
+
+  if (currentPage <= 3) {
+    pages.add(2)
+    pages.add(3)
+  }
+
+  if (currentPage >= totalPages - 2) {
+    pages.add(totalPages - 1)
+    pages.add(totalPages - 2)
+  }
+
+  const sortedPages = [...pages].sort((a, b) => a - b)
+  const items: Array<number | 'ellipsis'> = []
+
+  sortedPages.forEach((page, index) => {
+    const previousPage = sortedPages[index - 1]
+
+    if (previousPage && page - previousPage > 1) {
+      items.push('ellipsis')
+    }
+
+    items.push(page)
+  })
+
+  return items
+}
+
 export function CatalogGrid({
   products,
   totalCount,
   totalPages,
   currentPage,
 }: CatalogGridProps) {
+  const pathname = usePathname()
   const router = useRouter()
   const searchParams = useSearchParams()
   const { isCatalogLoading, setCatalogLoading } = useUIStore()
@@ -61,16 +104,20 @@ export function CatalogGrid({
     router.push(`?${params.toString()}`)
   }
 
-  const handlePageChange = (page: number) => {
+  const getPageHref = (page: number) => {
     const params = new URLSearchParams(searchParams.toString())
+
     if (page <= 1) {
       params.delete('page')
     } else {
       params.set('page', String(page))
     }
-    setCatalogLoading(true)
-    router.push(`?${params.toString()}`)
+
+    const query = params.toString()
+    return query ? `${pathname}?${query}` : pathname
   }
+
+  const paginationItems = buildPaginationItems(currentPage, totalPages)
 
   return (
     <div className="flex-1">
@@ -130,25 +177,74 @@ export function CatalogGrid({
         )}
       </div>
       {totalPages > 1 && (
-        <div className="mt-8 flex items-center justify-center gap-2">
-          <Button
-            variant="outline"
-            onClick={() => handlePageChange(Math.max(1, currentPage - 1))}
-            disabled={currentPage <= 1}
-          >
-            Назад
-          </Button>
-          <div className="text-sm text-muted-foreground">
-            Страница {currentPage} из {totalPages}
-          </div>
-          <Button
-            variant="outline"
-            onClick={() => handlePageChange(Math.min(totalPages, currentPage + 1))}
-            disabled={currentPage >= totalPages}
-          >
-            Вперед
-          </Button>
-        </div>
+        <nav
+          className="mt-8 flex items-center justify-center gap-2 flex-wrap"
+          aria-label="Пагинация каталога"
+        >
+          {currentPage > 1 ? (
+            <Button variant="outline" size="icon" asChild>
+              <Link
+                href={getPageHref(currentPage - 1)}
+                rel="prev"
+                onClick={() => setCatalogLoading(true)}
+                aria-label="Предыдущая страница"
+              >
+                <ChevronLeft className="h-4 w-4" />
+              </Link>
+            </Button>
+          ) : (
+            <Button variant="outline" size="icon" disabled aria-label="Предыдущая страница">
+              <ChevronLeft className="h-4 w-4" />
+            </Button>
+          )}
+
+          {paginationItems.map((item, index) =>
+            item === 'ellipsis' ? (
+              <span
+                key={`ellipsis-${index}`}
+                className="flex h-9 w-9 items-center justify-center text-sm text-muted-foreground"
+                aria-hidden="true"
+              >
+                ...
+              </span>
+            ) : (
+              <Button
+                key={item}
+                variant={item === currentPage ? 'default' : 'outline'}
+                className={cn(
+                  'min-w-9 px-3',
+                  item === currentPage && 'bg-primary text-primary-foreground hover:bg-primary/90'
+                )}
+                asChild
+              >
+                <Link
+                  href={getPageHref(item)}
+                  aria-current={item === currentPage ? 'page' : undefined}
+                  onClick={() => setCatalogLoading(true)}
+                >
+                  {item}
+                </Link>
+              </Button>
+            )
+          )}
+
+          {currentPage < totalPages ? (
+            <Button variant="outline" size="icon" asChild>
+              <Link
+                href={getPageHref(currentPage + 1)}
+                rel="next"
+                onClick={() => setCatalogLoading(true)}
+                aria-label="Следующая страница"
+              >
+                <ChevronRight className="h-4 w-4" />
+              </Link>
+            </Button>
+          ) : (
+            <Button variant="outline" size="icon" disabled aria-label="Следующая страница">
+              <ChevronRight className="h-4 w-4" />
+            </Button>
+          )}
+        </nav>
       )}
     </div>
   )

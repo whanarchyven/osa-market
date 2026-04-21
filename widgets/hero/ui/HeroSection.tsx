@@ -1,7 +1,3 @@
-import Link from 'next/link'
-import { LayoutGrid, User, ArrowRight } from 'lucide-react'
-
-import { FeaturedSlider } from './FeaturedSlider'
 import { HeroButtons } from './HeroButtons'
 import Image from 'next/image'
 import { HeroSectionProps } from '@/shared/api/pages/main/types'
@@ -11,9 +7,6 @@ export function HeroSection({
   opisanie,
   fakty,
   preimushhestva,
-  nazvanie_bloka_s_tovarami,
-  opisanie_bloka_s_tovarami,
-  tovary,
   ssylka_na_video,
 }: HeroSectionProps) {
   return (
@@ -46,7 +39,7 @@ export function HeroSection({
             {/* Large Logo */}
             <div className="space-y-4">
               <div className='flex items-center gap-2'>
-                <Image src="/logo.svg" alt="OSA-MARKET" width={100} height={100} />
+                <Image src="/logo.svg" alt="OSA-MARKET" width={100} height={100} priority />
                 <div className="inline-block">
                 <span className="text-5xl md:text-6xl lg:text-7xl font-bold tracking-tight">
                   <span className="text-primary">OSA</span>

@@ -1,4 +1,6 @@
-import type { ProductApi } from '@/shared/types/product'
+import type { ProductApi, ProductListItem } from '@/shared/types/product'
+import type { YoastHeadJson } from '@/shared/seo/yoast'
+import type { BackendMedia } from '@/shared/types/media'
 
 export interface Fakt {
     zagolovok: string
@@ -52,7 +54,7 @@ export interface BlokKategorij {
 
 export interface TextWithImage {
   tekst: string
-  izobrazhenie: string
+  izobrazhenie: BackendMedia
 }
 
 export interface TextOnly {
@@ -86,7 +88,7 @@ export interface BlokOKompanii {
 
 export interface NoutbukItem {
   noutbuk: number
-  product?: ProductApi | null
+  product?: ProductListItem | null
 }
 
 export interface BlokNoutbuki {
@@ -96,7 +98,7 @@ export interface BlokNoutbuki {
 
 export interface KompyuterItem {
   kompyuter: number
-  product?: ProductApi | null
+  product?: ProductListItem | null
 }
 
 export interface BlokKompyutery {
@@ -178,6 +180,8 @@ export interface BrandsBlock {
     }
     class_list: string[]
     acf: PageACF
+    yoast_head?: string
+    yoast_head_json?: YoastHeadJson
   }
   
   // Типы для каталога (Header)
@@ -243,9 +247,6 @@ export interface BrandsBlock {
     opisanie: string
     fakty: Fakt[]
     preimushhestva: Preimushhestvo[]
-    nazvanie_bloka_s_tovarami: string
-    opisanie_bloka_s_tovarami: string
-    tovary: TovarItem[]
     ssylka_na_video: string
   }
 

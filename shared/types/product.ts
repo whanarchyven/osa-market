@@ -1,3 +1,5 @@
+import type { YoastHeadJson } from '@/shared/seo/yoast'
+
 export interface ProductDimensions {
   length: string
   width: string
@@ -57,6 +59,11 @@ export interface ProductAttribute {
   visible: boolean
   variation: boolean
   options: string[]
+}
+
+export interface ProductPreviewImage {
+  src: string
+  alt: string
 }
 
 export interface ProductDefaultAttribute {
@@ -218,4 +225,24 @@ export interface ProductApi {
   post_password: string
   global_unique_id: string
   _links: ProductLinks
+  yoast_head?: string
+  yoast_head_json?: YoastHeadJson
+}
+
+export interface ProductListItem {
+  id: number
+  name: string
+  slug: string
+  short_description: string
+  price: string
+  regular_price: string
+  sale_price: string
+  on_sale: boolean
+  average_rating: string
+  rating_count: number
+  stock_status: string
+  categories: ProductCategory[]
+  brands: ProductBrand[]
+  images: ProductPreviewImage[]
+  attributes: ProductAttribute[]
 }

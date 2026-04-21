@@ -5,9 +5,11 @@ export interface CategoryAttributeSlug {
 export interface ProductCategoryAcf {
   dostupnye_attributy: CategoryAttributeSlug[]
   ikonka_kategorii?: string
-  image?: { url?: string } | string
+  image?: { url?: string; alt?: string } | string
   lucide_icon?: string
 }
+
+import type { YoastHeadJson } from '@/shared/seo/yoast'
 
 export interface ProductCategoryTaxonomy {
   id: number
@@ -21,6 +23,8 @@ export interface ProductCategoryTaxonomy {
   acf?: ProductCategoryAcf
   /** Флаг управления отображением количества товаров на карточке */
   showProducts?: boolean
+  yoast_head?: string
+  yoast_head_json?: YoastHeadJson
 }
 
 

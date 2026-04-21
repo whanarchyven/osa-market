@@ -4,10 +4,12 @@ import { persist } from 'zustand/middleware'
 // Types
 export interface Product {
   id: string
+  slug?: string
   name: string
   price: number
   oldPrice?: number
   image: string
+  imageAlt?: string
   category: string
   subcategory?: string
   brand?: string

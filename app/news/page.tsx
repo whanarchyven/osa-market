@@ -2,6 +2,9 @@ import Image from 'next/image'
 import Link from 'next/link'
 import { getNewsList } from '@/shared/api/news/getNewsList'
 import type { Metadata } from 'next'
+import { getPageSeoBySlug } from '@/shared/api/pages/getPageSeoBySlug'
+import { buildMetadataWithYoast, seoContextFromEnv } from '@/shared/seo/yoast'
+import { getBackendMediaAlt, getBackendMediaUrl } from '@/shared/utils/media'
 
 const SITE_URL = process.env.NEXT_PUBLIC_FRONT_BASE_URL || 'https://osa-market.ru'
 
@@ -25,7 +28,7 @@ export async function generateMetadata({
   const description = 'Актуальные новости и аналитика рынка техники'
   const url = page > 1 ? `${SITE_URL}/news?page=${page}` : `${SITE_URL}/news`
 
-  return {
+  const fallback: Metadata = {
     title,
     description,
     alternates: {
@@ -38,6 +41,18 @@ export async function generateMetadata({
       type: 'website',
     },
   }
+
+  if (page > 1) {
+    return fallback
+  }
+
+  const seoPage = await getPageSeoBySlug('news')
+  const { siteUrl, apiBaseUrl } = seoContextFromEnv()
+  return buildMetadataWithYoast(fallback, seoPage?.yoast_head_json, {
+    siteUrl,
+    apiBaseUrl,
+    canonicalPath: '/news',
+  })
 }
 
 export default async function NewsPage({ searchParams }: NewsPageProps) {
@@ -67,8 +82,8 @@ export default async function NewsPage({ searchParams }: NewsPageProps) {
                 <div className="relative h-48 bg-muted/30">
                   {news.acf.miniatyura ? (
                     <Image
-                      src={news.acf.miniatyura}
-                      alt={news.acf.zagolovok}
+                      src={getBackendMediaUrl(news.acf.miniatyura)}
+                      alt={getBackendMediaAlt(news.acf.miniatyura, news.acf.zagolovok)}
                       fill
                       className="object-cover"
                     />

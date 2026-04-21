@@ -1,6 +1,7 @@
 import { CatalogFilters, CatalogGrid } from '@/widgets/catalog'
 import type { Metadata } from 'next'
 import { getCatalogData } from '@/shared/api'
+import { getCatalogCategoryBySlug } from '@/shared/api/pages/catalog'
 import {
   Breadcrumb,
   BreadcrumbItem,
@@ -12,6 +13,8 @@ import {
 import { CategoriesBlock } from '@/widgets/categories/ui/CategoriesBlock'
 import { getCatalogPageData } from '@/shared/api/pages/catalog/getCatalogPageData'
 import { getCategory } from '@/shared/api/products/categories/getCategory'
+import { buildMetadataWithYoast, seoContextFromEnv } from '@/shared/seo/yoast'
+import { parseRichTextBlock } from '@/shared/utils/richText'
 
 export const revalidate = 60
 const SITE_URL = process.env.NEXT_PUBLIC_FRONT_BASE_URL || 'https://osa-market.ru'
@@ -19,18 +22,40 @@ const SITE_URL = process.env.NEXT_PUBLIC_FRONT_BASE_URL || 'https://osa-market.r
 const stripHtml = (html: string) =>
   html.replace(/<[^>]*>/g, ' ').replace(/\s+/g, ' ').trim()
 
+const getCatalogCanonicalPath = (
+  slug: string,
+  searchParams: { [key: string]: string | string[] | undefined }
+) => {
+  const pageParam = Array.isArray(searchParams.page)
+    ? searchParams.page[0]
+    : searchParams.page
+  const page = Math.max(1, Number(pageParam) || 1)
+  const extraParams = Object.entries(searchParams).filter(
+    ([key, value]) => key !== 'page' && Boolean(value)
+  )
+
+  if (extraParams.length > 0 || page <= 1) {
+    return `/catalog/${slug}`
+  }
+
+  return `/catalog/${slug}?page=${page}`
+}
+
 export async function generateMetadata(
-  { params }: CatalogPageProps
+  { params, searchParams }: CatalogPageProps
 ): Promise<Metadata> {
   const { slug } = await params
-  const catalogData = await getCatalogData(slug, {})
-  const title = `${catalogData.categoryName} — купить в OSA-MARKET`
-  const description = stripHtml(
-    `Категория ${catalogData.categoryName}. ${catalogData.totalCount} товаров в наличии.`
-  )
-  const url = `${SITE_URL}/catalog/${slug}`
+  const search = await searchParams
+  const category = await getCatalogCategoryBySlug(slug)
+  const categoryName = category?.name ?? slug
+  const categoryDescription = stripHtml(category?.description ?? '')
+  const canonicalPath = getCatalogCanonicalPath(slug, search)
+  const url = `${SITE_URL}${canonicalPath}`
+  const title = `${categoryName} — купить в OSA-MARKET`
+  const description =
+    categoryDescription || stripHtml(`Категория ${categoryName} в OSA-MARKET.`)
 
-  return {
+  const fallback: Metadata = {
     title,
     description,
     alternates: {
@@ -43,6 +68,27 @@ export async function generateMetadata(
       type: 'website',
     },
   }
+
+  const yoast = category?.yoast_head_json
+  const { siteUrl, apiBaseUrl } = seoContextFromEnv()
+  const metadata = buildMetadataWithYoast(fallback, yoast, {
+    siteUrl,
+    apiBaseUrl,
+    canonicalPath,
+  })
+
+  if (canonicalPath !== `/catalog/${slug}`) {
+    metadata.alternates = {
+      ...metadata.alternates,
+      canonical: url,
+    }
+    metadata.openGraph = {
+      ...metadata.openGraph,
+      url,
+    }
+  }
+
+  return metadata
 }
 
 interface CatalogPageProps {
@@ -137,6 +183,12 @@ export default async function CatalogPage({ params, searchParams }: CatalogPageP
           <h1 className="text-2xl md:text-3xl font-bold text-foreground mb-8">
             {catalogData.categoryName}
           </h1>
+
+          {catalogData.categoryDescription &&
+            parseRichTextBlock(
+              catalogData.categoryDescription,
+              'mb-8 max-w-none prose prose-invert prose-p:text-foreground/90 prose-li:text-foreground/90 prose-a:text-primary'
+            )}
 
           {/* Контент */}
           <div className="flex flex-col lg:flex-row gap-8">

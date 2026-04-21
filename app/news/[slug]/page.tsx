@@ -1,6 +1,9 @@
 import { notFound } from 'next/navigation'
 import type { Metadata } from 'next'
+import Image from 'next/image'
 import { getNewsBySlug } from '@/shared/api/news/getNewsBySlug'
+import { buildMetadataWithYoast, seoContextFromEnv } from '@/shared/seo/yoast'
+import { getBackendMediaAlt, getBackendMediaUrl } from '@/shared/utils/media'
 
 export const revalidate = 60
 const SITE_URL = process.env.NEXT_PUBLIC_FRONT_BASE_URL || 'https://osa-market.ru'
@@ -21,9 +24,9 @@ export async function generateMetadata(
   const title = news.acf.zagolovok
   const description = stripHtml(news.acf.kontent || '').slice(0, 200)
   const url = `${SITE_URL}/news/${slug}`
-  const image = news.acf.oblozhka || undefined
+  const image = getBackendMediaUrl(news.acf.oblozhka) || undefined
 
-  return {
+  const fallback: Metadata = {
     title: `${title} — OSA-MARKET`,
     description,
     alternates: {
@@ -43,6 +46,14 @@ export async function generateMetadata(
       images: image ? [image] : undefined,
     },
   }
+
+  const yoast = news.yoast_head_json
+  const { siteUrl, apiBaseUrl } = seoContextFromEnv()
+  return buildMetadataWithYoast(fallback, yoast, {
+    siteUrl,
+    apiBaseUrl,
+    canonicalPath: `/news/${slug}`,
+  })
 }
 
 interface NewsDetailPageProps {
@@ -55,17 +66,25 @@ export default async function NewsDetailPage({ params }: NewsDetailPageProps) {
 
   if (!news) return notFound()
 
+  const coverImageUrl = getBackendMediaUrl(news.acf.oblozhka)
+  const coverImageAlt = getBackendMediaAlt(news.acf.oblozhka, news.acf.zagolovok)
+
   return (
     <main className="bg-background">
       <section className="relative min-h-screen flex items-center justify-center overflow-hidden">
-        <div
-          className="absolute inset-0"
-          style={{
-            backgroundImage: `url('${news.acf.oblozhka}')`,
-            backgroundSize: 'cover',
-            backgroundPosition: 'center',
-          }}
-        />
+        <div className="absolute inset-0">
+          {coverImageUrl ? (
+            <Image
+              src={coverImageUrl}
+              alt={coverImageAlt}
+              fill
+              className="object-cover"
+              priority
+            />
+          ) : (
+            <div className="h-full w-full bg-muted/30" />
+          )}
+        </div>
         <div className="absolute inset-0 bg-black/60" />
         <div className="relative z-10 max-w-4xl px-6 text-center">
           <h1 className="text-3xl md:text-5xl font-bold text-white text-balance">
