@@ -3,6 +3,7 @@ import type { Metadata } from 'next'
 import { getHowToPassPageData } from '@/shared/api/pages/how-to-pass/getHowToPassPageData'
 import { buildMetadataWithYoast, seoContextFromEnv } from '@/shared/seo/yoast'
 
+/** Согласовано с delivery / warranty-and-refund / footer — раз в минуту. */
 export const revalidate = 60
 const SITE_URL = process.env.NEXT_PUBLIC_FRONT_BASE_URL || 'https://osa-market.ru'
 

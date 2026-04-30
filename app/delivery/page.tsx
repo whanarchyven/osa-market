@@ -4,7 +4,8 @@ import { getPageBySlug } from '@/shared/api/pages/getPageBySlug'
 import { buildMetadataWithYoast, seoContextFromEnv } from '@/shared/seo/yoast'
 import { WordpressLegalPage } from '@/shared/ui/WordpressLegalPage'
 
-export const revalidate = 604800
+/** Временно: обновление кэша не реже раза в минуту (см. warranty-and-refund, footer). */
+export const revalidate = 60
 
 const stripHtml = (html: string) =>
   html.replace(/<[^>]*>/g, ' ').replace(/\s+/g, ' ').trim()

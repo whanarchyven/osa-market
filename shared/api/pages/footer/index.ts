@@ -14,6 +14,6 @@ export const getFooterData = unstable_cache(
     }
   },
   ['wp-footer-page'],
-  /** См. комментарий у getHeaderData — общий горизонт с «медленными» страницами. */
-  { revalidate: 86400 },
+  /** Временно: синхрон с legal-страницами (раз в минуту). Обычно 86400. */
+  { revalidate: 60 },
 )
