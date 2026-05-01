@@ -11,7 +11,12 @@ const isLinkValue = (value: string) =>
 export function Footer({ data }: FooterProps) {
   const currentYear = new Date().getFullYear()
   const contacts = data?.gruppa_kontakty?.stroka_kontaktov ?? []
-  const socials = data?.soczialnye_seti ?? []
+  const socials = Array.isArray(data?.soczialnye_seti) ? data.soczialnye_seti : []
+  const legalHtml =
+    data?.yuridicheskaya_informacziya &&
+    typeof data.yuridicheskaya_informacziya === 'object'
+      ? data.yuridicheskaya_informacziya.yuridicheskij_tekst
+      : undefined
   const slogan =
     data?.slogan ??
     'Ваш надёжный партнёр в мире компьютерных технологий. Качество, честность и экспертиза.'
@@ -147,6 +152,12 @@ export function Footer({ data }: FooterProps) {
                 />
               </div>
             </div>
+            {legalHtml ? (
+              <div
+                className="text-base text-right mt-4 text-muted-foreground [&_p]:mb-1 [&_p:last-child]:mb-0 [&_br]:leading-normal"
+                dangerouslySetInnerHTML={{ __html: legalHtml }}
+              />
+            ) : null}
           </div>
         </div>
 

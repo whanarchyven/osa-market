@@ -15,11 +15,16 @@ export interface FooterSocialItem {
   }
 }
 
+export interface FooterLegalBlock {
+  yuridicheskij_tekst?: string
+}
+
 export interface FooterACF {
   slogan: string
   kopirajt: string
   gruppa_kontakty: FooterContactsGroup
-  soczialnye_seti: FooterSocialItem[]
+  soczialnye_seti: FooterSocialItem[] | false
+  yuridicheskaya_informacziya?: FooterLegalBlock | false
 }
 
 export interface FooterPageData {
