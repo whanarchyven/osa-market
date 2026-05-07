@@ -154,10 +154,10 @@ export const getStaticEntries = (): SitemapEntry[] => {
       priority: 0.7,
     },
     {
-      loc: `${SITE_URL}/buyout`,
+      loc: `${SITE_URL}/pc-build`,
       lastmod: now,
       changefreq: 'weekly',
-      priority: 0.8,
+      priority: 0.85,
     },
     {
       loc: `${SITE_URL}/how-to-pass`,

@@ -184,11 +184,7 @@ export default async function CatalogPage({ params, searchParams }: CatalogPageP
             {catalogData.categoryName}
           </h1>
 
-          {catalogData.categoryDescription &&
-            parseRichTextBlock(
-              catalogData.categoryDescription,
-              'mb-8 max-w-none prose prose-invert prose-p:text-foreground/90 prose-li:text-foreground/90 prose-a:text-primary'
-            )}
+          
 
           {/* Контент */}
           <div className="flex flex-col lg:flex-row gap-8">
@@ -210,6 +206,12 @@ export default async function CatalogPage({ params, searchParams }: CatalogPageP
             currentPage={catalogData.currentPage}
           />
           </div>
+          <div className="my-8 max-w-none prose prose-invert prose-p:text-foreground/90 prose-li:text-foreground/90 prose-a:text-primary text-justify">
+          {catalogData.categoryDescription &&
+            parseRichTextBlock(
+              catalogData.categoryDescription,
+            )}
+            </div>
         </div>
       </main>
   )

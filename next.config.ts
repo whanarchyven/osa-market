@@ -17,6 +17,11 @@ function buildContentSecurityPolicy(): string {
     }
   }
 
+  const mediaSources = new Set<string>(["'self'", "blob:", "https://api.osa-market.ru"]);
+  for (const origin of connectSources) {
+    if (origin !== "'self'") mediaSources.add(origin);
+  }
+
   const directives = [
     "default-src 'self'",
     "script-src 'self' 'unsafe-inline' https://mc.yandex.ru",
@@ -24,7 +29,8 @@ function buildContentSecurityPolicy(): string {
     "img-src 'self' data: blob: https://images.unsplash.com https://zaburdaev.space https://api.osa-market.ru https://mc.yandex.ru",
     "font-src 'self' data:",
     `connect-src ${[...connectSources].join(" ")}`,
-    "frame-src 'self' https://yandex.ru https://mc.yandex.ru",
+    `media-src ${[...mediaSources].join(" ")}`,
+    "frame-src 'self' https://yandex.ru https://www.youtube.com https://youtube.com https://www.youtube-nocookie.com https://mc.yandex.ru",
     "object-src 'none'",
     "base-uri 'self'",
     "form-action 'self'",

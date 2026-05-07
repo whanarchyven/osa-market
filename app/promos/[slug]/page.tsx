@@ -8,12 +8,26 @@ import { PromoSignupForm } from '@/widgets/promo/ui/PromoSignupForm'
 import { parseRichTextBlock } from '@/shared/utils/richText'
 import { buildMetadataWithYoast, seoContextFromEnv } from '@/shared/seo/yoast'
 import { getBackendMediaAlt, getBackendMediaUrl } from '@/shared/utils/media'
+import type { PromoACF } from '@/shared/api/promo/types'
 
 export const revalidate = 60
 const SITE_URL = process.env.NEXT_PUBLIC_FRONT_BASE_URL || 'https://osa-market.ru'
 
 const stripHtml = (html: string) =>
   html.replace(/<[^>]*>/g, ' ').replace(/\s+/g, ' ').trim()
+
+function relatedProductIds(raw: PromoACF['svyazannye_tovary']): number[] {
+  if (raw == null || raw === false) return []
+  if (Array.isArray(raw)) {
+    return raw
+      .map((item) => item?.tovar)
+      .filter((id): id is number => typeof id === 'number')
+  }
+  if (typeof raw === 'object' && typeof raw.tovar === 'number') {
+    return [raw.tovar]
+  }
+  return []
+}
 
 export async function generateMetadata(
   { params }: PromoDetailPageProps
@@ -72,8 +86,9 @@ export default async function PromoDetailPage({ params }: PromoDetailPageProps) 
 
   const coverImageUrl = getBackendMediaUrl(promo.acf.oblozhka)
   const coverImageAlt = getBackendMediaAlt(promo.acf.oblozhka, promo.acf.zagolovok)
-  const relatedIds = promo.acf.svyazannye_tovary?.map((item) => item.tovar) ?? []
-  const relatedProducts = await getProductsByIds(relatedIds)
+  const relatedIds = relatedProductIds(promo.acf.svyazannye_tovary)
+  const relatedProducts =
+    relatedIds.length > 0 ? await getProductsByIds(relatedIds) : []
 
   return (
     <main className="bg-background">
@@ -112,15 +127,16 @@ export default async function PromoDetailPage({ params }: PromoDetailPageProps) 
         </div>
       </section>
 
-      <section className="py-12">
-        <div className="container mx-auto px-4">
-          <h2 className="text-2xl md:text-3xl font-bold text-foreground mb-6">
-            Товары в акции
-          </h2>
-          <PromoProductsSlider products={relatedProducts} />
-        </div>
-      </section>
-
+      {relatedProducts.length > 0 && (
+        <section className="py-12">
+          <div className="container mx-auto px-4">
+            <h2 className="text-2xl md:text-3xl font-bold text-foreground mb-6">
+              Товары в акции
+            </h2>
+            <PromoProductsSlider products={relatedProducts} />
+          </div>
+        </section>
+      )}
       <section className="py-12">
         <div className="container mx-auto px-4">
           <div className="grid gap-8 lg:grid-cols-[minmax(0,1fr)_minmax(0,0.9fr)]">

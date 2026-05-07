@@ -10,10 +10,13 @@ const SITE_URL = process.env.NEXT_PUBLIC_FRONT_BASE_URL || 'https://osa-market.r
 
 export const revalidate = 60
 
+type PromosSearchParams = {
+  /** Необязательный query; при ошибке парсинга = 1. */
+  page?: string
+}
+
 interface PromosPageProps {
-  searchParams?: {
-    page?: string
-  }
+  searchParams?: Promise<PromosSearchParams>
 }
 
 const stripHtml = (value: string) =>
@@ -22,7 +25,8 @@ const stripHtml = (value: string) =>
 export async function generateMetadata({
   searchParams,
 }: PromosPageProps): Promise<Metadata> {
-  const page = Math.max(1, Number(searchParams?.page ?? '1'))
+  const sp = (await searchParams) ?? {}
+  const page = Math.max(1, Number(sp.page ?? '1') || 1)
   const baseTitle = 'Акции - OSA-MARKET'
   const title = page > 1 ? `${baseTitle} | Страница ${page}` : baseTitle
   const description = 'Специальные предложения и скидки OSA-MARKET'
@@ -56,7 +60,8 @@ export async function generateMetadata({
 }
 
 export default async function PromosPage({ searchParams }: PromosPageProps) {
-  const page = Math.max(1, Number(searchParams?.page ?? '1'))
+  const sp = (await searchParams) ?? {}
+  const page = Math.max(1, Number(sp.page ?? '1') || 1)
   const { items, totalPages } = await getPromoList(page, 9)
 
   return (

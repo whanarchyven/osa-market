@@ -1,5 +1,6 @@
 import { HeroButtons } from './HeroButtons'
 import Image from 'next/image'
+import { ResponsiveHeroMedia } from '@/shared/ui/ResponsiveHeroMedia'
 import { HeroSectionProps } from '@/shared/api/pages/main/types'
 
 export function HeroSection({
@@ -13,19 +14,13 @@ export function HeroSection({
     <section className="relative min-h-[calc(100vh-120px)] lg:min-h-[calc(100vh-108px)] flex items-center overflow-hidden">
       {/* Video Background */}
       <div className="absolute inset-0 z-0">
-        <video
-          autoPlay
-          loop
-          muted
-          playsInline
-          className="w-full h-full object-cover"
-          poster="https://images.unsplash.com/photo-1587202372775-e229f172b9d7?w=1920&h=1080&fit=crop"
-        >
-          <source
-            src={ssylka_na_video}
-            type="video/mp4"
+        <div className="relative h-full w-full">
+          <ResponsiveHeroMedia
+            mobileImageSrc="/mobile_temlate.jpg"
+            videoSrc={ssylka_na_video}
+            videoPoster="https://images.unsplash.com/photo-1587202372775-e229f172b9d7?w=1920&h=1080&fit=crop"
           />
-        </video>
+        </div>
         {/* Gradient overlays */}
         <div className="absolute inset-0 bg-gradient-to-r from-background via-background/90 to-background/40" />
         <div className="absolute inset-0 bg-gradient-to-t from-background via-transparent to-background/50" />

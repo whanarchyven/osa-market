@@ -13,7 +13,8 @@ export interface PromoACF {
   skidka: string
   oblozhka: BackendMedia
   miniatyura: BackendMedia
-  svyazannye_tovary: PromoRelatedProduct[]
+  /** ACF может отдать false, один объект или массив. */
+  svyazannye_tovary?: PromoRelatedProduct[] | PromoRelatedProduct | false | null
 }
 
 export interface PromoItem {

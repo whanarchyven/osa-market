@@ -20,9 +20,10 @@ import type { SocialNetworkItem } from '@/shared/types/api'
 const navLinks = [
   { href: '/promos', label: 'Акции' },
   { href: '/news', label: 'Новости' },
+  { href: '/pc-build', label: 'Сборка ПК' },
   { href: '/about', label: 'О нас' },
   { href: '/buyout', label: 'Выкуп' },
-  { href: '/how-to-pass', label: 'Как добраться' },
+  { href: '/how-to-pass', label: 'Контакты' },
 ]
 
 interface TopBarProps {

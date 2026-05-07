@@ -279,13 +279,27 @@ export function BottomBar({ nomer_telefona }: BottomBarProps) {
                 Новости
               </Link>
               <Link
+                href="/pc-build"
+                onClick={() => setMobileMenuOpen(false)}
+                className="flex items-center gap-3 px-4 py-3 text-foreground hover:bg-secondary rounded-lg transition-colors"
+              >
+                Сборка ПК
+              </Link>
+              <Link
                 href="/about"
                 onClick={() => setMobileMenuOpen(false)}
                 className="flex items-center gap-3 px-4 py-3 text-foreground hover:bg-secondary rounded-lg transition-colors"
               >
                 О нас
               </Link>
-              
+              <Link
+                href="/how-to-pass"
+                onClick={() => setMobileMenuOpen(false)}
+                className="flex items-center gap-3 px-4 py-3 text-foreground hover:bg-secondary rounded-lg transition-colors"
+              >
+                Контакты
+              </Link>
+
               {phoneValue && (
                 <div className="pt-4 border-t border-border">
                   <a

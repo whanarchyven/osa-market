@@ -84,7 +84,31 @@
 @layer base {
   * {
     @apply border-border outline-ring/50;
+    scrollbar-width: thin;
+    scrollbar-color: #ffc300 transparent;
   }
+
+  *::-webkit-scrollbar {
+    width: 6px;
+    height: 6px;
+  }
+
+  *::-webkit-scrollbar-track {
+    background: transparent;
+    border-radius: 9999px;
+  }
+
+  *::-webkit-scrollbar-thumb {
+    background-color: #ffc300;
+    border-radius: 9999px;
+    border: 1px solid transparent;
+    background-clip: content-box;
+  }
+
+  *::-webkit-scrollbar-corner {
+    background: transparent;
+  }
+
   body {
     @apply bg-background text-foreground;
   }

@@ -1,4 +1,11 @@
-import { AboutHero, AboutStory, AboutStats, AboutTeam, AboutValues, AboutCTA } from '@/widgets/about'
+import {
+  AboutCTA,
+  AboutHero,
+  AboutStory,
+  AboutStats,
+  AboutValues,
+  AboutYandexReviews,
+} from '@/widgets/about'
 import { getAboutPageData } from '@/shared/api/pages/about/getAboutPageData'
 import type { Metadata } from 'next'
 import { buildMetadataWithYoast, seoContextFromEnv } from '@/shared/seo/yoast'
@@ -79,6 +86,7 @@ export default async function AboutPage() {
         zagolovok_cennostei={acf.blok_czennosti.zagolovok}
         cennosti={acf.blok_czennosti.czennosti.map((c) => c.czennost)}
       />
+      <AboutYandexReviews />
       <AboutCTA
         zagolovok_cta={acf.klikbejt_blok.zagolovok}
         podzagolovok_cta={acf.klikbejt_blok.tekst}

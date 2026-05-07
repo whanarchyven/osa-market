@@ -74,8 +74,14 @@ export function Footer({ data }: FooterProps) {
               <Link href="/news" className="text-muted-foreground hover:text-primary transition text-sm">
                 Новости
               </Link>
+              <Link href="/pc-build" className="text-muted-foreground hover:text-primary transition text-sm">
+                Сборка ПК
+              </Link>
               <Link href="/about" className="text-muted-foreground hover:text-primary transition text-sm">
                 О нас
+              </Link>
+              <Link href="/how-to-pass" className="text-muted-foreground hover:text-primary transition text-sm">
+                Контакты
               </Link>
               <Link href="/buyout" className="text-muted-foreground hover:text-primary transition text-sm">
                 Выкуп
