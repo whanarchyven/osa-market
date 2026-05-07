@@ -17,9 +17,7 @@ export default function GlobalError({
       <body style={{background:'#101010',color:'white'}}>
         <main style={{fontFamily:"Montserrat",display:'flex',height:'100vh',width:'100vw',flexDirection:'column',gap:'24px',justifyContent:'center',alignItems:'center'}}>
           <h1 style={{fontSize:'36px'}}>500 - Внутренняя ошибка сервера</h1>
-          <img style={{width:'400px'}} src={'/500.png'}/>
-          <p>В серверной сейчас кого-то оттарабанят, и всё заработает</p>
-          <p style={{opacity:0.5}}>немного подождите :)</p>
+          <p style={{opacity:0.5}}>Мы уже работаем над этим, попробуйте позже</p>
           
         </main>
       </body>
