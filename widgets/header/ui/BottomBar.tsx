@@ -288,7 +288,7 @@ export function BottomBar({ nomer_telefona, soczialnye_seti }: BottomBarProps) {
                 onClick={() => setMobileMenuOpen(false)}
                 className="flex items-center gap-3 px-4 py-3 text-foreground hover:bg-secondary rounded-lg transition-colors"
               >
-                Сборка ПК
+                ПК на заказ
               </Link>
               <Link
                 href="/about"
