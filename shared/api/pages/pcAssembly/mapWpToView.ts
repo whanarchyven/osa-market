@@ -55,6 +55,17 @@ function asArray<T>(value: unknown): T[] {
   return Array.isArray(value) ? (value as T[]) : []
 }
 
+/** Допускаем строку или объект ACF `{ url }`; иное — пустой src */
+function acfBuyerPhotoToSrc(raw: unknown): string {
+  if (raw == null || raw === false) return ''
+  if (typeof raw === 'string') return raw.trim()
+  if (typeof raw === 'object' && raw !== null && 'url' in raw) {
+    const url = (raw as { url?: unknown }).url
+    return typeof url === 'string' ? url.trim() : ''
+  }
+  return ''
+}
+
 /** Разбиваем «Имя Фамилия», одно слово остаётся в firstName */
 function splitBuyerName(full: string | undefined): { firstName: string; lastName: string } {
   const t = full?.trim() ?? ''
@@ -136,7 +147,8 @@ function mapPrimerySborkiItem(
 
   let videoEmbedSrc: string | undefined
   let videoFileSrc: string | undefined
-  const v = otzyv?.video_otzyva?.trim()
+  const vRaw = otzyv?.video_otzyva
+  const v = typeof vRaw === 'string' ? vRaw.trim() : ''
   if (v) {
     const c = classifyVideo(v)
     videoEmbedSrc = c.embedSrc
@@ -161,8 +173,11 @@ function mapPrimerySborkiItem(
       ? {
           firstName,
           lastName,
-          photoSrc: otzyv.foto_pokupatelya?.trim() || '',
-          text: otzyv.tekst_otzyva?.trim() || undefined,
+          photoSrc: acfBuyerPhotoToSrc(otzyv.foto_pokupatelya),
+          text:
+            typeof otzyv.tekst_otzyva === 'string'
+              ? otzyv.tekst_otzyva.trim() || undefined
+              : undefined,
           videoEmbedSrc,
           videoFileSrc,
         }

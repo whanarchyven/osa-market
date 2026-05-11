@@ -7,15 +7,17 @@ import { Logo } from './Logo'
 import { useAuthStore, useShopStore, useUIStore } from '@/shared/store'
 import { useAuthSync } from '@/shared/hooks/useAuthSync'
 import type { ProductApi } from '@/shared/types/product'
+import type { SocialNetworkItem } from '@/shared/types/api'
 import { getProductPath } from '@/shared/utils/productRoute'
 
 interface BottomBarProps {
   nomer_telefona?: string
+  soczialnye_seti?: SocialNetworkItem[]
 }
 
 const normalizePhone = (value?: string) => value?.replace(/\s+/g, '') ?? ''
 
-export function BottomBar({ nomer_telefona }: BottomBarProps) {
+export function BottomBar({ nomer_telefona, soczialnye_seti }: BottomBarProps) {
   useAuthSync()
 
   const { isCatalogOpen, toggleCatalog, isMobileMenuOpen, setMobileMenuOpen } = useUIStore()
@@ -40,6 +42,9 @@ export function BottomBar({ nomer_telefona }: BottomBarProps) {
 
   const phoneValue = nomer_telefona?.trim() ?? ''
   const phoneHref = phoneValue ? `tel:${normalizePhone(phoneValue)}` : ''
+  const mobileSocials = (soczialnye_seti ?? []).filter(
+    (item) => item?.soczset?.ssylka?.trim() && item?.soczset?.ikonka
+  )
 
   useEffect(() => {
     const trimmedQuery = searchQuery.trim()
@@ -300,14 +305,38 @@ export function BottomBar({ nomer_telefona }: BottomBarProps) {
                 Контакты
               </Link>
 
-              {phoneValue && (
-                <div className="pt-4 border-t border-border">
-                  <a
-                    href={phoneHref}
-                    className="flex items-center gap-3 px-4 py-3 text-foreground hover:bg-secondary rounded-lg transition-colors"
-                  >
-                    {phoneValue}
-                  </a>
+              {(phoneValue || mobileSocials.length > 0) && (
+                <div className="pt-4 border-t border-border space-y-2">
+                  {phoneValue ? (
+                    <a
+                      href={phoneHref}
+                      className="flex items-center gap-3 px-4 py-3 text-foreground hover:bg-secondary rounded-lg transition-colors"
+                    >
+                      {phoneValue}
+                    </a>
+                  ) : null}
+                  {mobileSocials.length > 0 ? (
+                    <div className="flex flex-wrap items-center gap-2 px-4 pb-1">
+                      {mobileSocials.map((item, index) => (
+                        <a
+                          key={`${item.soczset.ssylka}-${index}`}
+                          href={item.soczset.ssylka}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          onClick={() => setMobileMenuOpen(false)}
+                          className="flex size-12 shrink-0 items-center justify-center rounded-xl border border-border/60 bg-muted/25 text-muted-foreground transition-colors hover:border-primary/35 hover:bg-secondary hover:text-primary"
+                          aria-label={`Социальная сеть ${index + 1}`}
+                        >
+                          <img
+                            src={item.soczset.ikonka}
+                            alt=""
+                            className="size-6 object-contain"
+                            loading="lazy"
+                          />
+                        </a>
+                      ))}
+                    </div>
+                  ) : null}
                 </div>
               )}
             </nav>

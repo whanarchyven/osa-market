@@ -6,9 +6,17 @@ export interface PcAssemblyWpHarakteristika {
   opisanie: string
 }
 
+/** В WP/ACF картинка может прийти как URL строкой или как объект медиавложения `{ url }` */
+export type PcAssemblyWpBuyerPhoto =
+  | string
+  | { url?: string }
+  | undefined
+  | null
+  | false
+
 export interface PcAssemblyWpOtzyv {
-  foto_pokupatelya: string
-  imya_pokupatelya: string
+  foto_pokupatelya?: PcAssemblyWpBuyerPhoto
+  imya_pokupatelya?: string
   tekst_otzyva?: string
   video_otzyva?: string
 }

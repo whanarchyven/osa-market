@@ -109,7 +109,7 @@ export function PcAssemblyBenefitsSection({
           </button>
 
           {/* Клип по горизонтали — coverflow не уезжает за вьюпорт */}
-          <div className="relative -mx-1 overflow-x-clip px-11 sm:-mx-0 sm:px-14 lg:mx-auto lg:max-w-5xl">
+          <div className="relative -mx-1 overflow-x-clip px-11 sm:-mx-0 sm:px-14 lg:mx-auto lg:max-w-7xl">
             {/* <div className="pointer-events-none absolute inset-y-8 left-0 z-10 w-10 bg-gradient-to-r from-[#101010] to-transparent md:w-14" />
             <div className="pointer-events-none absolute inset-y-8 right-0 z-10 w-10 bg-gradient-to-l from-[#101010] to-transparent md:w-14" /> */}
 

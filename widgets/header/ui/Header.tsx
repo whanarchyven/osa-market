@@ -17,7 +17,10 @@ export function Header({
   return (
     <header className="sticky top-0 z-[99999]">
       <TopBar nomer_telefona={nomer_telefona} soczialnye_seti={soczialnye_seti} />
-      <BottomBar nomer_telefona={nomer_telefona} />
+      <BottomBar
+        nomer_telefona={nomer_telefona}
+        soczialnye_seti={soczialnye_seti}
+      />
       <CatalogDropdown razdely_kataloga={razdely_kataloga} />
     </header>
   )

@@ -75,7 +75,7 @@ export function Footer({ data }: FooterProps) {
                 Новости
               </Link>
               <Link href="/pc-build" className="text-muted-foreground hover:text-primary transition text-sm">
-                Сборка ПК
+                ПК на заказ
               </Link>
               <Link href="/about" className="text-muted-foreground hover:text-primary transition text-sm">
                 О нас

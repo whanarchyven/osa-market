@@ -36,7 +36,7 @@ export function HowToPassContacts({ blok }: HowToPassContactsProps) {
         {rows.map((item, idx) => {
           const href = contactHref(item)
           const IconBlock = item.ikonka ? (
-            <span className="relative mt-0.5 size-10 shrink-0 overflow-hidden rounded-lg border border-primary/40 bg-muted/40">
+            <span className="relative flex size-10 shrink-0 items-center justify-center overflow-hidden rounded-lg border border-primary/40 bg-muted/40">
               <Image
                 src={item.ikonka}
                 alt=""
@@ -50,7 +50,7 @@ export function HowToPassContacts({ blok }: HowToPassContactsProps) {
               />
             </span>
           ) : (
-            <span className="size-10 shrink-0 rounded-lg bg-muted/30" aria-hidden />
+            <span className="flex size-10 shrink-0 items-center justify-center rounded-lg bg-muted/30" aria-hidden />
           )
 
           const text = (
@@ -61,7 +61,7 @@ export function HowToPassContacts({ blok }: HowToPassContactsProps) {
 
           if (!href || !isExternalLink(href)) {
             return (
-              <li key={`${item.tekst}-${idx}`} className="flex gap-4">
+              <li key={`${item.tekst}-${idx}`} className="flex items-center gap-4">
                 {IconBlock}
                 {text}
               </li>
@@ -72,11 +72,11 @@ export function HowToPassContacts({ blok }: HowToPassContactsProps) {
             <li key={`${href}-${idx}`}>
               <a
                 href={href}
-                className="group flex gap-4 rounded-xl border border-transparent p-2 -m-2 transition hover:border-primary/30 hover:bg-primary/5"
+                className="group flex items-center gap-4 rounded-xl border border-transparent p-2 -m-2 transition hover:border-primary/30 hover:bg-primary/5"
                 {...(href.startsWith('http') ? { target: '_blank', rel: 'noopener noreferrer' } : {})}
               >
                 {IconBlock}
-                <span className="text-base leading-snug text-foreground underline-offset-4 group-hover:text-primary group-hover:underline">
+                <span className="text-base text-foreground underline-offset-4 group-hover:text-primary group-hover:underline">
                   {item.tekst}
                 </span>
               </a>
