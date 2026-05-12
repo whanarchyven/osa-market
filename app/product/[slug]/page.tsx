@@ -1,4 +1,4 @@
-import { cache } from 'react'
+import { cache, Fragment } from 'react'
 import { ProductGallery, ProductInfo, ProductReviewForm } from '@/widgets/product'
 import type { Metadata } from 'next'
 import { getProductById } from '@/shared/api/products/getProductById'
@@ -20,6 +20,7 @@ import { Star } from 'lucide-react'
 import { buildMetadataWithYoast, seoContextFromEnv } from '@/shared/seo/yoast'
 import { PromoProductsSlider } from '@/widgets/promo/ui/PromoProductsSlider'
 import { getProductPath } from '@/shared/utils/productRoute'
+import { getProductCatalogBreadcrumbCategories } from '@/shared/utils/productCatalogBreadcrumb'
 
 export const revalidate = 60
 const SITE_URL = process.env.NEXT_PUBLIC_FRONT_BASE_URL || 'https://osa-market.ru'
@@ -114,9 +115,10 @@ export default async function ProductPage({ params }: ProductPageProps) {
     permanentRedirect(getProductPath(product))
   }
 
-  const [reviews, relatedProducts] = await Promise.all([
+  const [reviews, relatedProducts, breadcrumbCategories] = await Promise.all([
     getProductReviews(product.id),
     getProductsByIds(product.upsell_ids ?? []),
+    getProductCatalogBreadcrumbCategories(product.categories),
   ])
   const productUrl = `${SITE_URL}${getProductPath(product)}`
   const primaryImage = product.images?.[0]?.src
@@ -126,7 +128,6 @@ export default async function ProductPage({ params }: ProductPageProps) {
       ? 'https://schema.org/InStock'
       : 'https://schema.org/OutOfStock'
 
-  const category = product.categories[0]
   const breadcrumbItems = [
     {
       '@type': 'ListItem',
@@ -134,29 +135,18 @@ export default async function ProductPage({ params }: ProductPageProps) {
       name: 'Главная',
       item: `${SITE_URL}/`,
     },
-    ...(category
-      ? [
-          {
-            '@type': 'ListItem',
-            position: 2,
-            name: category.name,
-            item: `${SITE_URL}/catalog/${category.slug}`,
-          },
-          {
-            '@type': 'ListItem',
-            position: 3,
-            name: product.name,
-            item: productUrl,
-          },
-        ]
-      : [
-          {
-            '@type': 'ListItem',
-            position: 2,
-            name: product.name,
-            item: productUrl,
-          },
-        ]),
+    ...breadcrumbCategories.map((cat, index) => ({
+      '@type': 'ListItem' as const,
+      position: index + 2,
+      name: cat.name,
+      item: `${SITE_URL}/catalog/${cat.slug}`,
+    })),
+    {
+      '@type': 'ListItem',
+      position: 2 + breadcrumbCategories.length,
+      name: product.name,
+      item: productUrl,
+    },
   ]
 
   return (
@@ -210,16 +200,16 @@ export default async function ProductPage({ params }: ProductPageProps) {
                 <BreadcrumbLink href="/">Главная</BreadcrumbLink>
               </BreadcrumbItem>
               <BreadcrumbSeparator />
-              {category && (
-                <>
+              {breadcrumbCategories.map((cat) => (
+                <Fragment key={`${cat.id}-${cat.slug}`}>
                   <BreadcrumbItem>
-                    <BreadcrumbLink href={`/catalog/${category.slug}`}>
-                      {category.name}
+                    <BreadcrumbLink href={`/catalog/${cat.slug}`}>
+                      {cat.name}
                     </BreadcrumbLink>
                   </BreadcrumbItem>
                   <BreadcrumbSeparator />
-                </>
-              )}
+                </Fragment>
+              ))}
               <BreadcrumbItem>
                 <BreadcrumbPage className="max-w-[300px] truncate">
                   {product.name}

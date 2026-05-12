@@ -10,9 +10,13 @@ import {
   BreadcrumbPage,
   BreadcrumbSeparator,
 } from '@/components/ui/breadcrumb'
-import { CategoriesBlock } from '@/widgets/categories/ui/CategoriesBlock'
+import {
+  CatalogSubcategoriesSection,
+  CategoriesBlock,
+} from '@/widgets/categories'
 import { getCatalogPageData } from '@/shared/api/pages/catalog/getCatalogPageData'
 import { getCategory } from '@/shared/api/products/categories/getCategory'
+import { getCategoriesByParent } from '@/shared/api/products/categories/getCategoriesByParent'
 import { buildMetadataWithYoast, seoContextFromEnv } from '@/shared/seo/yoast'
 import { parseRichTextBlock } from '@/shared/utils/richText'
 
@@ -100,10 +104,18 @@ export default async function CatalogPage({ params, searchParams }: CatalogPageP
   const { slug } = await params
   const search = await searchParams
 
-  const [catalogData, catalogPageData] = await Promise.all([
+  const [catalogData, catalogPageData, taxonomyForPage] = await Promise.all([
     getCatalogData(slug, search),
     getCatalogPageData(),
+    getCatalogCategoryBySlug(slug),
   ])
+
+  const subcategories =
+    taxonomyForPage == null
+      ? []
+      : taxonomyForPage.parent > 0
+        ? await getCategoriesByParent(taxonomyForPage.parent)
+        : await getCategoriesByParent(taxonomyForPage.id)
 
   const managedCategories =
     catalogPageData[0]?.acf?.otobrazhaemye_kategorii
@@ -177,6 +189,12 @@ export default async function CatalogPage({ params, searchParams }: CatalogPageP
             title="Категории"
             categories={categoriesWithFlags}
             activeCategoryId={activeCategoryId}
+          />
+
+          <CatalogSubcategoriesSection
+            subcategories={subcategories}
+            activeSlug={slug}
+            activeCategoryId={taxonomyForPage?.id}
           />
 
           {/* Заголовок */}

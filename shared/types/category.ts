@@ -3,7 +3,8 @@ export interface CategoryAttributeSlug {
 }
 
 export interface ProductCategoryAcf {
-  dostupnye_attributy: CategoryAttributeSlug[]
+  /** В WP может прийти как массив, один объект, false или пустое значение */
+  dostupnye_attributy?: CategoryAttributeSlug[] | CategoryAttributeSlug | false | null
   ikonka_kategorii?: string
   image?: { url?: string; alt?: string } | string
   lucide_icon?: string

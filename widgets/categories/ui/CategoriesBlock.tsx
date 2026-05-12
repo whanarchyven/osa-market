@@ -17,7 +17,7 @@ export function CategoriesBlock({
   if (!categories.length) return null
 
   return (
-    <section className="py-12">
+    <section className="py-6">
       <div className="container mx-auto px-4">
         <div className="mb-8">
           <h2 className="text-2xl font-bold text-foreground md:text-3xl">

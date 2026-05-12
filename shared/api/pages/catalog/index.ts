@@ -6,6 +6,7 @@ import {
   getProductAttributeTerms,
 } from '@/shared/api/products/attributes'
 import type { YoastHeadJson } from '@/shared/seo/yoast'
+import type { CategoryAttributeSlug } from '@/shared/types/category'
 import type { ProductAttributeApi, ProductCategoryTaxonomy } from '@/shared/types/api'
 import type { ProductApi, ProductListItem } from '@/shared/types/product'
 
@@ -115,6 +116,30 @@ export const getCatalogCategoryBySlug = cache(
   }
 )
 
+/** Родитель по id (WP product_cat); для связки родитель-потомок в крошках и т.п. */
+export const getCatalogCategoryById = cache(
+  async (categoryId: number): Promise<ProductCategoryTaxonomy | null> => {
+    try {
+      const result = await axiosInstance.get<ProductCategoryTaxonomy>(
+        API.getCategoryById(categoryId)
+      )
+      return result.data ?? null
+    } catch {
+      return null
+    }
+  }
+)
+
+function normalizeDostupnyeAttributy(raw: unknown): CategoryAttributeSlug[] {
+  if (raw == null || raw === false) return []
+  if (Array.isArray(raw))
+    return raw.filter((row): row is CategoryAttributeSlug => Boolean(row) && typeof row === 'object')
+  if (typeof raw === 'object' && raw !== null && 'slug_attributa' in raw) {
+    return [raw as CategoryAttributeSlug]
+  }
+  return []
+}
+
 const fetchAllProducts = async (categoryId?: number): Promise<CatalogProduct[]> => {
   const items: CatalogProduct[] = []
   let page = 1
@@ -181,8 +206,8 @@ export const getCatalogData = async (
       getCatalogCategoryBySlug(categorySlug),
     ])
     const categoryName = category?.name ?? categorySlug
-    const availableSlugs =
-      category?.acf?.dostupnye_attributy?.map((item) => item.slug_attributa) ?? []
+    const attrRows = normalizeDostupnyeAttributy(category?.acf?.dostupnye_attributy)
+    const availableSlugs = attrRows.map((item) => item.slug_attributa)
     const normalizedSlugs = new Set(
       availableSlugs
         .filter(Boolean)

@@ -99,6 +99,8 @@ export const API = {
 
   //categories
   getCategories:`${wordpressApiUrl}/product_cat?per_page=100${postfix}`,
+  getCategoriesByParent: (parentId: number) =>
+    `${wordpressApiUrl}/product_cat?parent=${parentId}&per_page=100&orderby=name&order=asc${postfix}`,
   getCategoryById: (id: number) => `${wordpressApiUrl}/product_cat/${id}?${postfix.replace('&', '')}`,
   getCategoryBySlug: (slug: string) => `${wordpressApiUrl}/product_cat?slug=${slug}${postfix}`,
 

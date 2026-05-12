@@ -148,7 +148,7 @@ export function LaptopsBlock({
         </div>
 
         <div className="grid gap-6 lg:grid-cols-12 items-stretch">
-          <div className="lg:col-span-3 rounded-3xl flex flex-col gap-6">
+          <div className="min-w-0 lg:col-span-3 rounded-3xl flex flex-col gap-6">
             <div className="space-y-3">
               <Link href={getProductPath(currentProduct)} className="text-2xl font-semibold text-foreground">
                 {currentProduct?.name}
@@ -201,7 +201,7 @@ export function LaptopsBlock({
             </div>
           </div>
 
-          <div className="lg:col-span-6 relative overflow-hidden py-8">
+          <div className="lg:col-span-6 relative min-w-0 overflow-hidden py-8">
             <div className='h-full w-24 from-[#101010] to-[#101010]/0 bg-gradient-to-r z-[999] absolute left-0'></div>
             <div className='h-full w-24 from-[#101010] to-[#101010]/0 bg-gradient-to-l z-[99] absolute right-0'></div>
             <button
@@ -297,7 +297,7 @@ export function LaptopsBlock({
             `}</style>
           </div>
 
-          <div className="lg:col-span-3 rounded-3xl flex gap-4 flex-col">
+          <div className="min-w-0 lg:col-span-3 rounded-3xl flex gap-4 flex-col">
           <p className='text-right text-xl font-bold'>Характеристики</p>
             <div className="overflow-y-scroll !h-[200px] pr-2 space-y-3">
               {(currentProduct?.attributes ?? []).map((attr) => (
@@ -341,24 +341,27 @@ export function LaptopsBlock({
                 <p className="text-xs text-muted-foreground">Загрузка отзывов...</p>
               ) : productReviews.length ? (
                 <>
-                  <Swiper
-                    className="reviews-swiper"
-                    modules={[Navigation, Pagination]}
-                    navigation={{
-                      prevEl: `.${reviewsPrevClass}`,
-                      nextEl: `.${reviewsNextClass}`,
-                    }}
-                    pagination={{
-                      el: `.${reviewsPaginationClass}`,
-                      clickable: true,
-                    }}
-                    spaceBetween={12}
-                    slidesPerView={1.15}
-                    breakpoints={{
-                      640: { slidesPerView: 1.5 },
-                      1024: { slidesPerView: 1.2 },
-                    }}
-                  >
+                  <div className="min-w-0 w-full overflow-hidden">
+                    <Swiper
+                      className="reviews-swiper w-full max-w-full"
+                      modules={[Navigation, Pagination]}
+                      navigation={{
+                        prevEl: `.${reviewsPrevClass}`,
+                        nextEl: `.${reviewsNextClass}`,
+                      }}
+                      pagination={{
+                        el: `.${reviewsPaginationClass}`,
+                        clickable: true,
+                      }}
+                      spaceBetween={12}
+                      slidesPerView={1}
+                      breakpoints={{
+                        480: { slidesPerView: 1.12 },
+                        640: { slidesPerView: 1.5 },
+                        1024: { slidesPerView: 1.2 },
+                      }}
+                      watchOverflow
+                    >
                     {productReviews.map((review) => (
                       <SwiperSlide key={review.id} className="h-auto">
                         <Dialog
@@ -377,7 +380,7 @@ export function LaptopsBlock({
                                 setOpenReviewId(review.id)
                               }
                             }}
-                            className="rounded-2xl border border-border/60 bg-background/40 p-3 outline-none transition hover:border-primary/60 focus-visible:border-primary/60"
+                            className="h-full w-full max-w-full rounded-2xl border border-border/60 bg-background/40 p-3 outline-none transition hover:border-primary/60 focus-visible:border-primary/60"
                           >
                             <div className="flex items-center gap-2 text-xs text-muted-foreground">
                               <Star className="h-3 w-3 fill-primary text-primary" />
@@ -419,7 +422,8 @@ export function LaptopsBlock({
                         </Dialog>
                       </SwiperSlide>
                     ))}
-                  </Swiper>
+                    </Swiper>
+                  </div>
                   <div
                     className={`reviews-swiper-pagination ${reviewsPaginationClass} mt-2 flex justify-center`}
                   />
