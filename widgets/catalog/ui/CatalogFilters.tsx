@@ -20,6 +20,71 @@ interface CatalogFiltersProps {
   categorySlug: string
 }
 
+type AttributeFiltersAccordionProps = {
+  attributes: ProductAttributeApi[]
+  loadingTerms: Record<number, boolean>
+  terms: Record<number, ProductAttributeTermApi[]>
+  handleAccordionChange: (attributeId: number, slug: string) => void
+  handleFilterChange: (slug: string, termSlug: string, checked: boolean) => void
+  isChecked: (slug: string, termSlug: string) => boolean
+}
+
+/** Внутренний блок с аккордеонами по атрибутам (переиспользуется мобилка / десктоп). */
+function AttributeFiltersAccordion({
+  attributes,
+  loadingTerms,
+  terms,
+  handleAccordionChange,
+  handleFilterChange,
+  isChecked,
+}: AttributeFiltersAccordionProps) {
+  return (
+    <Accordion type="multiple" className="w-full">
+      {attributes.map((attr) => (
+        <AccordionItem key={attr.id} value={`attr-${attr.id}`} className="border-border">
+          <AccordionTrigger
+            onClick={() => handleAccordionChange(attr.id, attr.slug)}
+            className="text-foreground hover:no-underline"
+          >
+            {attr.name}
+          </AccordionTrigger>
+          <AccordionContent>
+            {loadingTerms[attr.id] ? (
+              <div className="space-y-2 py-2">
+                {Array.from({ length: 4 }).map((_, index) => (
+                  <div key={index} className="flex items-center gap-3">
+                    <div className="h-4 w-4 animate-pulse rounded-sm bg-muted" />
+                    <div className="h-4 w-32 animate-pulse rounded bg-muted" />
+                  </div>
+                ))}
+              </div>
+            ) : terms[attr.id] ? (
+              <div className="space-y-2">
+                {terms[attr.id].map((term) => (
+                  <label
+                    key={term.id}
+                    className="flex cursor-pointer items-center gap-3 py-1 text-foreground transition-colors hover:text-primary"
+                  >
+                    <Checkbox
+                      checked={isChecked(attr.slug, term.slug)}
+                      onCheckedChange={(checked) =>
+                        handleFilterChange(attr.slug, term.slug, checked as boolean)
+                      }
+                    />
+                    <span className="text-sm">{term.name}</span>
+                  </label>
+                ))}
+              </div>
+            ) : (
+              <div className="py-2 text-sm text-muted-foreground">Нет доступных опций</div>
+            )}
+          </AccordionContent>
+        </AccordionItem>
+      ))}
+    </Accordion>
+  )
+}
+
 export function CatalogFilters({ attributes, categorySlug }: CatalogFiltersProps) {
   const router = useRouter()
   const searchParams = useSearchParams()
@@ -37,7 +102,6 @@ export function CatalogFilters({ attributes, categorySlug }: CatalogFiltersProps
     })
   }
 
-  // Инициализация выбранных фильтров из URL
   useEffect(() => {
     const filters: Record<string, string[]> = {}
     searchParams.forEach((value, key) => {
@@ -49,12 +113,11 @@ export function CatalogFilters({ attributes, categorySlug }: CatalogFiltersProps
     setCatalogLoading(false)
   }, [searchParams, setCatalogLoading])
 
-  // Загрузка значений атрибута при открытии аккордеона
   const handleAccordionChange = async (attributeId: number, slug: string) => {
     if (terms[attributeId] || loadingTerms[attributeId]) return
 
-    setLoadingTerms(prev => ({ ...prev, [attributeId]: true }))
-    
+    setLoadingTerms((prev) => ({ ...prev, [attributeId]: true }))
+
     try {
       if (slug === 'brand') {
         const brands = await getBrands()
@@ -67,98 +130,76 @@ export function CatalogFilters({ attributes, categorySlug }: CatalogFiltersProps
           count: brand.count ?? 0,
           _links: brand._links,
         }))
-        setTerms(prev => ({ ...prev, [attributeId]: sortByMenuOrder(mapped) }))
+        setTerms((prev) => ({ ...prev, [attributeId]: sortByMenuOrder(mapped) }))
       } else {
         const data = await getProductAttributeTerms(attributeId)
-        setTerms(prev => ({ ...prev, [attributeId]: sortByMenuOrder(data) }))
+        setTerms((prev) => ({ ...prev, [attributeId]: sortByMenuOrder(data) }))
       }
     } catch (error) {
       console.error('Error loading terms:', error)
     } finally {
-      setLoadingTerms(prev => ({ ...prev, [attributeId]: false }))
+      setLoadingTerms((prev) => ({ ...prev, [attributeId]: false }))
     }
   }
 
-  // Обработка изменения фильтра
   const handleFilterChange = (slug: string, termSlug: string, checked: boolean) => {
     const newFilters = { ...selectedFilters }
-    
+
     if (checked) {
       newFilters[slug] = [...(newFilters[slug] || []), termSlug]
     } else {
-      newFilters[slug] = (newFilters[slug] || []).filter(t => t !== termSlug)
+      newFilters[slug] = (newFilters[slug] || []).filter((t) => t !== termSlug)
       if (newFilters[slug].length === 0) {
         delete newFilters[slug]
       }
     }
-    
+
     setSelectedFilters(newFilters)
-    
-    // Обновление URL
+
     const params = new URLSearchParams()
     Object.entries(newFilters).forEach(([key, values]) => {
       if (values.length > 0) {
         params.set(key, values.join(','))
       }
     })
-    
+
     setCatalogLoading(true)
     router.push(`/catalog/${categorySlug}${params.toString() ? `?${params.toString()}` : ''}`)
   }
 
-  const isChecked = (slug: string, termSlug: string) => {
-    return selectedFilters[slug]?.includes(termSlug) || false
+  const isChecked = (slug: string, termSlug: string) =>
+    selectedFilters[slug]?.includes(termSlug) || false
+
+  const accordionProps: AttributeFiltersAccordionProps = {
+    attributes,
+    loadingTerms,
+    terms,
+    handleAccordionChange,
+    handleFilterChange,
+    isChecked,
   }
 
   return (
     <div className="w-full">
-      <h2 className="text-lg font-semibold mb-4 text-foreground">Фильтр товаров</h2>
-      
-      <Accordion type="multiple" className="w-full">
-        {attributes.map((attr) => (
-          <AccordionItem key={attr.id} value={`attr-${attr.id}`} className="border-border">
-            <AccordionTrigger 
-              onClick={() => handleAccordionChange(attr.id, attr.slug)}
-              className="text-foreground hover:no-underline"
-            >
-              {attr.name}
+      {/* Мобила: один общий аккордеон скрывает все группы фильтров */}
+      <div className="lg:hidden">
+        <Accordion type="single" collapsible className="w-full rounded-xl border border-border px-3">
+          <AccordionItem value="catalog-filters-root" className="border-none">
+            <AccordionTrigger className="py-3 text-lg font-semibold text-foreground hover:no-underline">
+              Фильтр товаров
             </AccordionTrigger>
-            <AccordionContent>
-              {loadingTerms[attr.id] ? (
-                <div className="space-y-2 py-2">
-                  {Array.from({ length: 4 }).map((_, index) => (
-                    <div key={index} className="flex items-center gap-3">
-                      <div className="h-4 w-4 rounded-sm bg-muted animate-pulse" />
-                      <div className="h-4 w-32 rounded bg-muted animate-pulse" />
-                    </div>
-                  ))}
-                </div>
-              ) : terms[attr.id] ? (
-                <div className="space-y-2">
-                  {terms[attr.id].map((term) => (
-                    <label
-                      key={term.id}
-                      className="flex items-center gap-3 cursor-pointer py-1 text-foreground hover:text-primary transition-colors"
-                    >
-                      <Checkbox
-                        checked={isChecked(attr.slug, term.slug)}
-                        onCheckedChange={(checked) => 
-                          handleFilterChange(attr.slug, term.slug, checked as boolean)
-                        }
-                      />
-                      <span className="text-sm">{term.name}</span>
-                    </label>
-                  ))}
-                </div>
-      ) : (
-                <div className="text-muted-foreground text-sm py-2">
-                  Нет доступных опций
-                </div>
-              )}
+            <AccordionContent className="border-t border-border/80 pb-2 pt-2">
+              <AttributeFiltersAccordion {...accordionProps} />
             </AccordionContent>
           </AccordionItem>
-        ))}
-      </Accordion>
+        </Accordion>
+      </div>
+
+      {/* Десктоп: заголовок + аккордеоны как раньше */}
+      <div className="hidden lg:block">
+        <h2 className="mb-4 text-lg font-semibold text-foreground">Фильтр товаров</h2>
+        <AttributeFiltersAccordion {...accordionProps} />
+      </div>
     </div>
   )
 }

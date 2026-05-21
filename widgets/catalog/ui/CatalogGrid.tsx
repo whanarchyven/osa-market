@@ -131,7 +131,14 @@ export function CatalogGrid({
           {/* Сортировка */}
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
-              <Button variant="outline" className="gap-2 bg-transparent">
+              <Button
+                variant="outline"
+                className={cn(
+                  'gap-2 bg-transparent text-foreground transition-colors',
+                  'hover:bg-primary/10 hover:text-primary hover:border-primary/40',
+                  '[&_svg]:transition-colors [&_svg]:hover:text-primary'
+                )}
+              >
                 {currentSort?.label}
                 <ChevronDown className="h-4 w-4" />
               </Button>
@@ -162,10 +169,12 @@ export function CatalogGrid({
           </div>
         )}
         {products.length > 0 ? (
-          <div className="grid gap-4 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3">
-            {products.map((product) => (
-              <CatalogProductCard key={product.id} product={product} />
-            ))}
+          <div className="-mx-4 w-[calc(100%+2rem)] overflow-x-hidden sm:mx-0 sm:w-full">
+            <div className="grid grid-cols-1 gap-3 px-2 sm:grid-cols-2 sm:gap-4 sm:px-0 lg:grid-cols-3">
+              {products.map((product) => (
+                <CatalogProductCard key={product.id} product={product} />
+              ))}
+            </div>
           </div>
         ) : (
           <div className="text-center py-12">

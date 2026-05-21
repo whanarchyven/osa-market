@@ -93,6 +93,9 @@ export function PcAssemblyExamplesSection({
             ))}
           </Swiper>
           <style jsx global>{`
+            .pc-build-examples {
+              --swiper-navigation-size: 1rem;
+            }
             .pc-build-examples .swiper-pagination-bullet {
               background-color: #ffc300;
               opacity: 0.4;
@@ -105,10 +108,19 @@ export function PcAssemblyExamplesSection({
             .pc-build-examples .swiper-button-prev {
               color: #ffc300;
               top: 46%;
+              margin-top: 0;
               border-radius: 9999px;
               background: rgb(26 26 26 / 0.9);
-              width: 2.75rem;
-              height: 2.75rem;
+              width: 2.75rem !important;
+              height: 2.75rem !important;
+              display: flex !important;
+              align-items: center;
+              justify-content: center !important;
+            }
+            .pc-build-examples .swiper-button-next:after,
+            .pc-build-examples .swiper-button-prev:after {
+              font-size: var(--swiper-navigation-size) !important;
+              font-weight: 700;
             }
           `}</style>
         </div>

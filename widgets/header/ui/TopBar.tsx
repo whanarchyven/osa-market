@@ -134,7 +134,7 @@ export function TopBar({ nomer_telefona, soczialnye_seti }: TopBarProps) {
             
             <Dialog open={isCallbackModalOpen} onOpenChange={setCallbackModalOpen}>
               <DialogTrigger asChild>
-                <button className="flex items-center gap-2 text-sm text-primary hover:text-primary/80 transition-colors">
+                <button className="flex cursor-pointer items-center gap-2 text-sm text-primary hover:text-primary/80 transition-colors">
                   <PhoneCall className="w-4 h-4" />
                   Заказать звонок
                 </button>

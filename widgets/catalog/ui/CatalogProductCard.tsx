@@ -34,8 +34,8 @@ export function CatalogProductCard({ product }: CatalogProductCardProps) {
     ? Math.round((1 - Number(product.sale_price) / Number(product.regular_price)) * 100)
     : 0
 
-  // Получаем основные характеристики для отображения
-  const mainAttributes = product.attributes.slice(0, 5)
+  /** Первые атрибуты из WooCommerce API (до 6 шт — ровная сетка 2×3). Порядок как в данных товара. */
+  const mainAttributes = product.attributes.slice(0, 6)
 
   const handleBuyNow = () => {
     addToCartWithToast(storeProduct, 1)
@@ -78,12 +78,12 @@ export function CatalogProductCard({ product }: CatalogProductCardProps) {
             </span>
           </div>
           <div className="flex items-center gap-2">
-            <button
+            {/* <button
               className="p-1 hover:text-primary transition-colors"
               title="Сравнить"
             >
               <BarChart3 className="h-4 w-4" />
-            </button>
+            </button> */}
             <button
               onClick={() => toggleFavorite(storeProduct)}
               className={cn(
@@ -104,19 +104,23 @@ export function CatalogProductCard({ product }: CatalogProductCardProps) {
           </h3>
         </Link>
 
-        {/* Характеристики */}
-        <div className="pt-2 border-t border-border grid grid-cols-2 gap-2 md:block md:space-y-5">
-          {mainAttributes.map((attr) => (
-            <div
-              key={attr.id}
-              className="flex p-2 md:p-3 rounded border-primary/20 border shadow-primary/20 hover:shadow-xl flex-col items-start gap-1.5 text-[10px] md:text-xs"
-            >
-              <span className="text-muted-foreground shrink-0">{attr.name}:</span>
-              <span className="text-foreground text-sm md:text-lg text-primary">
-                {attr.options.join(', ')}
-              </span>
-            </div>
-          ))}
+        {/* Характеристики — всегда 2 в ряд, компактная сетка */}
+        <div className="border-t border-border/80 pt-2">
+          <div className="grid grid-cols-2 gap-1.5">
+            {mainAttributes.map((attr) => (
+              <div
+                key={attr.id}
+                className="flex flex-col rounded-md border border-border/60 bg-muted/20 px-1.5 py-1 md:px-2 md:py-1.5"
+              >
+                <span className="line-clamp-2 text-[9px] leading-tight text-muted-foreground md:text-[10px]">
+                  {attr.name}
+                </span>
+                <span className="line-clamp-2 text-[10px] font-medium leading-snug text-foreground md:text-xs">
+                  {attr.options.join(', ')}
+                </span>
+              </div>
+            ))}
+          </div>
         </div>
 
         {/* Цена */}

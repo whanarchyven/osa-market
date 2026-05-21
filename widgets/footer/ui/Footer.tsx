@@ -27,9 +27,9 @@ export function Footer({ data }: FooterProps) {
     <footer className="bg-card border-t border-border">
       <div className="max-w-7xl mx-auto px-4 py-16">
         {/* Main Footer Content */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-8 mb-12">
+        <div className="grid grid-cols-2 lg:grid-cols-5 gap-8 mb-12">
           {/* Logo and About */}
-          <div className="flex flex-col gap-4">
+          <div className="col-span-2 flex flex-col gap-4 lg:col-span-1">
             <div className="font-bold text-2xl">
               <span className="text-primary">OSA</span>
               <span>-MARKET</span>
@@ -133,7 +133,7 @@ export function Footer({ data }: FooterProps) {
           </div>
 
           {/* Map */}
-          <div className="lg:col-span-2">
+          <div className="col-span-2 lg:col-span-2">
             <h3 className="font-semibold text-foreground mb-4">Мы на карте</h3>
             <div className="overflow-hidden rounded-xl border border-border/60 bg-muted/30 h-48">
               <div className="relative h-full w-full overflow-hidden">

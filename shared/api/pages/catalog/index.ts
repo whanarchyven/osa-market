@@ -64,7 +64,7 @@ const mapProductToListItem = (product: CatalogProduct): ProductListItem => ({
     src: image.src,
     alt: image.alt,
   })),
-  attributes: product.attributes.slice(0, 5),
+  attributes: product.attributes.slice(0, 6),
 })
 
 const getSortKey = (searchParams: CatalogSearchParams): SortOption | undefined => {
@@ -113,20 +113,6 @@ export const getCatalogCategoryBySlug = cache(
     )
 
     return result.data[0] ?? null
-  }
-)
-
-/** Родитель по id (WP product_cat); для связки родитель-потомок в крошках и т.п. */
-export const getCatalogCategoryById = cache(
-  async (categoryId: number): Promise<ProductCategoryTaxonomy | null> => {
-    try {
-      const result = await axiosInstance.get<ProductCategoryTaxonomy>(
-        API.getCategoryById(categoryId)
-      )
-      return result.data ?? null
-    } catch {
-      return null
-    }
   }
 )
 

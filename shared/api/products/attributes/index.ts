@@ -1,18 +1,22 @@
+import { cache } from 'react'
+
 import { API } from '@/shared/api/api'
 import { axiosInstance } from '@/shared/api/axios'
 import type { ProductAttributeApi, ProductAttributeTermApi } from '@/shared/types/api'
 
-export const getProductAttributes = async (): Promise<ProductAttributeApi[]> => {
-  try {
-    const result = await axiosInstance.get<ProductAttributeApi[]>(
-      API.getProductAttributes
-    )
-    return result.data
-  } catch (e: any) {
-    console.log(e, 'ERROR FETCHING PRODUCT ATTRIBUTES')
-    throw e
+export const getProductAttributes = cache(
+  async (): Promise<ProductAttributeApi[]> => {
+    try {
+      const result = await axiosInstance.get<ProductAttributeApi[]>(
+        API.getProductAttributes
+      )
+      return result.data
+    } catch (e: unknown) {
+      console.log(e, 'ERROR FETCHING PRODUCT ATTRIBUTES')
+      throw e
+    }
   }
-}
+)
 
 export const getProductAttributeTerms = async (
   attributeId: number
@@ -30,9 +34,8 @@ export const getProductAttributeTerms = async (
       API.getProductAttributeTerms(attributeId)
     )
     return result.data
-  } catch (e: any) {
+  } catch (e: unknown) {
     console.log(e, 'ERROR FETCHING PRODUCT ATTRIBUTE TERMS')
     throw e
   }
 }
-

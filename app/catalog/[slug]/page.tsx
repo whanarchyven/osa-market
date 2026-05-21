@@ -10,13 +10,9 @@ import {
   BreadcrumbPage,
   BreadcrumbSeparator,
 } from '@/components/ui/breadcrumb'
-import {
-  CatalogSubcategoriesSection,
-  CategoriesBlock,
-} from '@/widgets/categories'
+import { CategoriesBlock } from '@/widgets/categories'
 import { getCatalogPageData } from '@/shared/api/pages/catalog/getCatalogPageData'
 import { getCategory } from '@/shared/api/products/categories/getCategory'
-import { getCategoriesByParent } from '@/shared/api/products/categories/getCategoriesByParent'
 import { buildMetadataWithYoast, seoContextFromEnv } from '@/shared/seo/yoast'
 import { parseRichTextBlock } from '@/shared/utils/richText'
 
@@ -104,18 +100,11 @@ export default async function CatalogPage({ params, searchParams }: CatalogPageP
   const { slug } = await params
   const search = await searchParams
 
-  const [catalogData, catalogPageData, taxonomyForPage] = await Promise.all([
+  /** Каталог + CMS-страница каталога параллельно; slug для taxonomy совпадает с вызовом внутри getCatalogData (React cache dedupe). */
+  const [catalogData, catalogPageData] = await Promise.all([
     getCatalogData(slug, search),
     getCatalogPageData(),
-    getCatalogCategoryBySlug(slug),
   ])
-
-  const subcategories =
-    taxonomyForPage == null
-      ? []
-      : taxonomyForPage.parent > 0
-        ? await getCategoriesByParent(taxonomyForPage.parent)
-        : await getCategoriesByParent(taxonomyForPage.id)
 
   const managedCategories =
     catalogPageData[0]?.acf?.otobrazhaemye_kategorii
@@ -147,90 +136,75 @@ export default async function CatalogPage({ params, searchParams }: CatalogPageP
   const activeCategoryId = categoriesWithFlags.find((c) => c.slug === slug)?.id
 
   return (
-      <main className="min-h-screen bg-background pt-4 pb-12">
-        <script
-          type="application/ld+json"
-          dangerouslySetInnerHTML={{
-            __html: JSON.stringify({
-              '@context': 'https://schema.org',
-              '@type': 'BreadcrumbList',
-              itemListElement: [
-                {
-                  '@type': 'ListItem',
-                  position: 1,
-                  name: 'Главная',
-                  item: `${SITE_URL}/`,
-                },
-                {
-                  '@type': 'ListItem',
-                  position: 2,
-                  name: catalogData.categoryName,
-                  item: `${SITE_URL}/catalog/${slug}`,
-                },
-              ],
-            }),
-          }}
+    <main className="min-h-screen bg-background pt-4 pb-12">
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{
+          __html: JSON.stringify({
+            '@context': 'https://schema.org',
+            '@type': 'BreadcrumbList',
+            itemListElement: [
+              {
+                '@type': 'ListItem',
+                position: 1,
+                name: 'Главная',
+                item: `${SITE_URL}/`,
+              },
+              {
+                '@type': 'ListItem',
+                position: 2,
+                name: catalogData.categoryName,
+                item: `${SITE_URL}/catalog/${slug}`,
+              },
+            ],
+          }),
+        }}
+      />
+      <div className="container mx-auto px-4">
+        <Breadcrumb className="mb-6">
+          <BreadcrumbList>
+            <BreadcrumbItem>
+              <BreadcrumbLink href="/">Главная</BreadcrumbLink>
+            </BreadcrumbItem>
+            <BreadcrumbSeparator />
+            <BreadcrumbItem>
+              <BreadcrumbPage>{catalogData.categoryName}</BreadcrumbPage>
+            </BreadcrumbItem>
+          </BreadcrumbList>
+        </Breadcrumb>
+
+        <CategoriesBlock
+          title="Категории"
+          categories={categoriesWithFlags}
+          activeCategoryId={activeCategoryId}
         />
-        <div className="container mx-auto px-4">
-          {/* Хлебные крошки */}
-          <Breadcrumb className="mb-6">
-            <BreadcrumbList>
-              <BreadcrumbItem>
-                <BreadcrumbLink href="/">Главная</BreadcrumbLink>
-              </BreadcrumbItem>
-              <BreadcrumbSeparator />
-              <BreadcrumbItem>
-                <BreadcrumbPage>{catalogData.categoryName}</BreadcrumbPage>
-              </BreadcrumbItem>
-            </BreadcrumbList>
-          </Breadcrumb>
 
-          <CategoriesBlock
-            title="Категории"
-            categories={categoriesWithFlags}
-            activeCategoryId={activeCategoryId}
-          />
+        <h1 className="text-2xl md:text-3xl font-bold text-foreground mb-8 mt-10">
+          {catalogData.categoryName}
+        </h1>
 
-          <CatalogSubcategoriesSection
-            subcategories={subcategories}
-            activeSlug={slug}
-            activeCategoryId={taxonomyForPage?.id}
-          />
+        <div className="flex flex-col lg:flex-row gap-8">
+          <aside className="w-full lg:w-72 shrink-0">
+            <div className="lg:sticky lg:top-4 max-h-[calc(100vh-120px)] overflow-y-auto pr-2">
+              <CatalogFilters
+                attributes={catalogData.attributes}
+                categorySlug={slug}
+              />
+            </div>
+          </aside>
 
-          {/* Заголовок */}
-          <h1 className="text-2xl md:text-3xl font-bold text-foreground mb-8">
-            {catalogData.categoryName}
-          </h1>
-
-          
-
-          {/* Контент */}
-          <div className="flex flex-col lg:flex-row gap-8">
-            {/* Фильтры - сайдбар */}
-            <aside className="w-full lg:w-72 shrink-0">
-              <div className="lg:sticky lg:top-4 max-h-[calc(100vh-120px)] overflow-y-auto pr-2">
-                <CatalogFilters 
-                  attributes={catalogData.attributes} 
-                  categorySlug={slug}
-                />
-              </div>
-            </aside>
-
-            {/* Сетка товаров */}
-          <CatalogGrid 
-            products={catalogData.products} 
+          <CatalogGrid
+            products={catalogData.products}
             totalCount={catalogData.totalCount}
             totalPages={catalogData.totalPages}
             currentPage={catalogData.currentPage}
           />
-          </div>
-          <div className="my-8 max-w-none prose prose-invert prose-p:text-foreground/90 prose-li:text-foreground/90 prose-a:text-primary text-justify">
-          {catalogData.categoryDescription &&
-            parseRichTextBlock(
-              catalogData.categoryDescription,
-            )}
-            </div>
         </div>
-      </main>
+        <div className="my-8 max-w-none prose prose-invert prose-p:text-foreground/90 prose-li:text-foreground/90 prose-a:text-primary text-justify">
+          {catalogData.categoryDescription &&
+            parseRichTextBlock(catalogData.categoryDescription)}
+        </div>
+      </div>
+    </main>
   )
 }
