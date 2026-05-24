@@ -16,6 +16,7 @@ export type OrderCreate = {
   payment_method_title?: string
   set_paid?: boolean
   customer_id?: number
+  customer_note?: string
   billing: OrderAddress
   shipping?: OrderAddress
   line_items: OrderLineItemCreate[]

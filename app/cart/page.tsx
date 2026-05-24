@@ -13,6 +13,7 @@ import { DeliveryAddressField } from '@/widgets/cart/ui/DeliveryAddressField'
 import type { ProductApi } from '@/shared/types/product'
 import { PromoProductsSlider } from '@/widgets/promo/ui/PromoProductsSlider'
 import { getProductPath } from '@/shared/utils/productRoute'
+import { resolveWooBillingEmail } from '@/shared/utils/wcBillingEmail'
 
 type CheckoutForm = {
   firstName: string
@@ -149,12 +150,13 @@ export default function CartPage() {
   ): string | undefined => {
     const trimmed = value.trim()
 
-    if (!trimmed) {
-      return 'Поле обязательно'
-    }
-
+    // Мессенджер / username (поле формы `email`) — необязательно
     if (field === 'email') {
       return undefined
+    }
+
+    if (!trimmed) {
+      return 'Поле обязательно'
     }
 
     if (field === 'phone') {
@@ -210,14 +212,23 @@ export default function CartPage() {
 
     try {
       const customerId = isAuthenticated ? Number(user?.id) : null
+      const messengerRaw = form.email.trim()
+      const billingEmail = resolveWooBillingEmail(messengerRaw)
+      const messengerNote =
+        messengerRaw &&
+        messengerRaw.trim().toLowerCase() !== billingEmail.trim().toLowerCase()
+          ? `Контакт в мессенджере / username: ${messengerRaw}`
+          : undefined
+
       const order = await createOrder({
         ...(Number.isFinite(customerId) && customerId && customerId > 0
           ? { customer_id: customerId }
           : {}),
+        ...(messengerNote ? { customer_note: messengerNote } : {}),
         billing: {
           first_name: form.firstName.trim(),
           last_name: '',
-          email: form.email.trim(),
+          email: billingEmail,
           phone: form.phone.trim(),
           address_1: form.address.trim(),
         },
@@ -240,7 +251,7 @@ export default function CartPage() {
             customer: {
               firstName: form.firstName.trim(),
               lastName: '',
-              messengerId: form.email.trim(),
+              messengerId: form.email.trim() || undefined,
               phone: form.phone.trim(),
               address: form.address.trim(),
             },
@@ -516,7 +527,8 @@ export default function CartPage() {
                           </p>
                         )}
                         <p className="text-xs text-muted-foreground">
-                          Пример: @username или номер телефона в мессенджерах (telegram, whatsapp, MAX)
+                          Необязательно. Пример: @username или номер телефона в мессенджерах (telegram,
+                          whatsapp, MAX)
                         </p>
                       </div>
                     </div>
