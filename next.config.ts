@@ -2,7 +2,11 @@ import type { NextConfig } from "next";
 
 /** CSP для продакшена: Яндекс.Метрика, карта в футере, изображения с API и CDN. */
 function buildContentSecurityPolicy(): string {
-  const connectSources = new Set<string>(["'self'", "https://mc.yandex.ru"]);
+  const connectSources = new Set<string>([
+    "'self'",
+    "https://mc.yandex.ru",
+    "wss://mc.yandex.ru",
+  ]);
   for (const key of [
     "NEXT_PUBLIC_FRONT_API_URL",
     "NEXT_PUBLIC_FRONT_PROXY_API_URL",

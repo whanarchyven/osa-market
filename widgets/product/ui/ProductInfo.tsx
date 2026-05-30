@@ -1,7 +1,8 @@
 'use client'
 
 import { useState } from 'react'
-import { Heart, Share2, BarChart3, Minus, Plus } from 'lucide-react'
+import { useRouter } from 'next/navigation'
+import { Heart, Minus, Plus } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { useShopStore } from '@/shared/store'
 import type { Product } from '@/shared/types/api'
@@ -14,6 +15,7 @@ interface ProductInfoProps {
 }
 
 export function ProductInfo({ product }: ProductInfoProps) {
+  const router = useRouter()
   const [quantity, setQuantity] = useState(1)
   const { toggleFavorite, isFavorite } = useShopStore()
   const addToCartWithToast = useAddToCartWithToast()
@@ -30,6 +32,11 @@ export function ProductInfo({ product }: ProductInfoProps) {
 
   const handleAddToCart = () => {
     addToCartWithToast(storeProduct, quantity)
+  }
+
+  const handleBuyNow = () => {
+    addToCartWithToast(storeProduct, quantity)
+    router.push('/cart')
   }
 
   const decreaseQuantity = () => {
@@ -111,37 +118,41 @@ export function ProductInfo({ product }: ProductInfoProps) {
           )}
         </div>
 
-        {/* Количество и кнопка купить */}
-        <div className="flex w-full flex-col gap-3 sm:flex-row sm:items-stretch">
-          {/* Счетчик количества */}
-          <div className="flex h-12 w-full shrink-0 items-stretch overflow-hidden rounded-lg border border-border sm:h-auto sm:w-auto">
-            <button
-              type="button"
-              onClick={decreaseQuantity}
-              disabled={quantity <= 1}
-              className="flex flex-1 items-center justify-center hover:bg-secondary transition-colors disabled:opacity-50 sm:flex-none sm:px-3"
+        {/* Количество и кнопки */}
+        <div className="space-y-2">
+          <div className="flex w-full flex-col gap-3 sm:flex-row sm:items-stretch">
+            <div className="flex h-12 w-full shrink-0 items-stretch overflow-hidden rounded-lg border border-border sm:h-auto sm:w-auto">
+              <button
+                type="button"
+                onClick={decreaseQuantity}
+                disabled={quantity <= 1}
+                className="flex flex-1 items-center justify-center hover:bg-secondary transition-colors disabled:opacity-50 sm:flex-none sm:px-3"
+              >
+                <Minus className="h-4 w-4" />
+              </button>
+              <span className="flex min-w-[3rem] flex-[2] items-center justify-center border-x border-border font-medium sm:w-12 sm:flex-none sm:border-x-0">
+                {quantity}
+              </span>
+              <button
+                type="button"
+                onClick={increaseQuantity}
+                className="flex flex-1 items-center justify-center hover:bg-secondary transition-colors sm:flex-none sm:px-3"
+              >
+                <Plus className="h-4 w-4" />
+              </button>
+            </div>
+
+            <Button
+              variant="outline"
+              onClick={handleAddToCart}
+              className="h-12 w-full flex-1 !border !border-primary text-lg font-semibold hover:!bg-primary hover:!text-black sm:w-auto"
             >
-              <Minus className="h-4 w-4" />
-            </button>
-            <span className="flex min-w-[3rem] flex-[2] items-center justify-center border-x border-border font-medium sm:w-12 sm:flex-none sm:border-x-0">
-              {quantity}
-            </span>
-            <button
-              type="button"
-              onClick={increaseQuantity}
-              className="flex flex-1 items-center justify-center hover:bg-secondary transition-colors sm:flex-none sm:px-3"
-            >
-              <Plus className="h-4 w-4" />
-            </button>
+              В корзину
+            </Button>
           </div>
 
-          {/* Кнопка купить */}
-          <Button
-            onClick={handleAddToCart}
-            disabled={false}
-            className="h-12 w-full flex-1 text-lg font-semibold sm:w-auto"
-          >
-            Купить
+          <Button className="h-12 w-full text-lg font-semibold" onClick={handleBuyNow}>
+            Купить в один клик
           </Button>
         </div>
 

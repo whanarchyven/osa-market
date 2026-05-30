@@ -44,7 +44,7 @@ function AttributeFiltersAccordion({
         <AccordionItem key={attr.id} value={`attr-${attr.id}`} className="border-border">
           <AccordionTrigger
             onClick={() => handleAccordionChange(attr.id, attr.slug)}
-            className="text-foreground hover:no-underline"
+            className="py-3 text-sm font-medium text-foreground hover:no-underline"
           >
             {attr.name}
           </AccordionTrigger>
@@ -185,7 +185,7 @@ export function CatalogFilters({ attributes, categorySlug }: CatalogFiltersProps
       <div className="lg:hidden">
         <Accordion type="single" collapsible className="w-full rounded-xl border border-border px-3">
           <AccordionItem value="catalog-filters-root" className="border-none">
-            <AccordionTrigger className="py-3 text-lg font-semibold text-foreground hover:no-underline">
+            <AccordionTrigger className="py-3 text-base font-semibold text-foreground hover:no-underline">
               Фильтр товаров
             </AccordionTrigger>
             <AccordionContent className="border-t border-border/80 pb-2 pt-2">
@@ -197,7 +197,7 @@ export function CatalogFilters({ attributes, categorySlug }: CatalogFiltersProps
 
       {/* Десктоп: заголовок + аккордеоны как раньше */}
       <div className="hidden lg:block">
-        <h2 className="mb-4 text-lg font-semibold text-foreground">Фильтр товаров</h2>
+        <h2 className="mb-4 text-base font-semibold text-foreground">Фильтр товаров</h2>
         <AttributeFiltersAccordion {...accordionProps} />
       </div>
     </div>

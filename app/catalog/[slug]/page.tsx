@@ -177,9 +177,10 @@ export default async function CatalogPage({ params, searchParams }: CatalogPageP
           title="Категории"
           categories={categoriesWithFlags}
           activeCategoryId={activeCategoryId}
+          variant="compact"
         />
 
-        <h1 className="text-2xl md:text-3xl font-bold text-foreground mb-8 mt-10">
+        <h1 className="text-xl md:text-2xl font-bold text-foreground mb-6 mt-6">
           {catalogData.categoryName}
         </h1>
 
