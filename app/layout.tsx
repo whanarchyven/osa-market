@@ -94,7 +94,9 @@ export default async function RootLayout({
         <link rel="dns-prefetch" href="//api.osa-market.ru" />
         <link rel="preconnect" href="https://api.osa-market.ru" crossOrigin="anonymous" />
         <link rel="dns-prefetch" href="//mc.yandex.ru" />
+        <link rel="dns-prefetch" href="//mc.yandex.com" />
         <link rel="preconnect" href="https://mc.yandex.ru" crossOrigin="anonymous" />
+        <link rel="preconnect" href="https://mc.yandex.com" crossOrigin="anonymous" />
         <link rel="dns-prefetch" href="//images.unsplash.com" />
         <link rel="preconnect" href="https://images.unsplash.com" crossOrigin="anonymous" />
         <link rel="preload" href="/logo.svg" as="image" type="image/svg+xml" />

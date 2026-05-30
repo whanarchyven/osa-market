@@ -1,12 +1,16 @@
 import type { NextConfig } from "next";
 
+/** Домены счётчика Метрики (.ru и .com — tag.js может переключаться между ними). */
+const YANDEX_METRIKA_HTTPS = ["https://mc.yandex.ru", "https://mc.yandex.com"] as const;
+const YANDEX_METRIKA_CONNECT = [
+  ...YANDEX_METRIKA_HTTPS,
+  "wss://mc.yandex.ru",
+  "wss://mc.yandex.com",
+] as const;
+
 /** CSP для продакшена: Яндекс.Метрика, карта в футере, изображения с API и CDN. */
 function buildContentSecurityPolicy(): string {
-  const connectSources = new Set<string>([
-    "'self'",
-    "https://mc.yandex.ru",
-    "wss://mc.yandex.ru",
-  ]);
+  const connectSources = new Set<string>(["'self'", ...YANDEX_METRIKA_CONNECT]);
   for (const key of [
     "NEXT_PUBLIC_FRONT_API_URL",
     "NEXT_PUBLIC_FRONT_PROXY_API_URL",
@@ -28,13 +32,13 @@ function buildContentSecurityPolicy(): string {
 
   const directives = [
     "default-src 'self'",
-    "script-src 'self' 'unsafe-inline' https://mc.yandex.ru",
+    `script-src 'self' 'unsafe-inline' ${YANDEX_METRIKA_HTTPS.join(" ")}`,
     "style-src 'self' 'unsafe-inline'",
-    "img-src 'self' data: blob: https://images.unsplash.com https://zaburdaev.space https://api.osa-market.ru https://mc.yandex.ru",
+    `img-src 'self' data: blob: https://images.unsplash.com https://zaburdaev.space https://api.osa-market.ru ${YANDEX_METRIKA_HTTPS.join(" ")}`,
     "font-src 'self' data:",
     `connect-src ${[...connectSources].join(" ")}`,
     `media-src ${[...mediaSources].join(" ")}`,
-    "frame-src 'self' https://yandex.ru https://www.youtube.com https://youtube.com https://www.youtube-nocookie.com https://mc.yandex.ru",
+    `frame-src 'self' https://yandex.ru https://www.youtube.com https://youtube.com https://www.youtube-nocookie.com ${YANDEX_METRIKA_HTTPS.join(" ")}`,
     "object-src 'none'",
     "base-uri 'self'",
     "form-action 'self'",
