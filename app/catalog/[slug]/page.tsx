@@ -173,6 +173,8 @@ export default async function CatalogPage({ params, searchParams }: CatalogPageP
           </BreadcrumbList>
         </Breadcrumb>
 
+        {/* Допустим что то написали изменили */}
+
         <CategoriesBlock
           title="Категории"
           categories={categoriesWithFlags}
