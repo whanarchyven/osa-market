@@ -45,8 +45,7 @@ export function CookieConsent() {
 
   return (
     <>
-      {consent === 'accepted' && (
-        <Script
+              <Script
           id="yandex-metrika"
           strategy="afterInteractive"
           dangerouslySetInnerHTML={{
@@ -62,8 +61,7 @@ export function CookieConsent() {
             `,
           }}
         />
-      )}
-
+      
       {isReady && !consent && (
         <div className="fixed inset-x-0 bottom-4 z-50 px-4">
           <div className="mx-auto flex max-w-4xl flex-col gap-4 rounded-2xl border border-border bg-card/95 p-4 shadow-2xl backdrop-blur md:flex-row md:items-center md:justify-between">
