@@ -240,6 +240,10 @@ export default function CartPage() {
         line_items: lineItems,
       })
 
+      if (typeof window !== 'undefined' && (window as any).ym) {
+      (window as any).ym(107058084, 'reachGoal', 'new_order_request');
+    }
+    
       try {
         const telegramResponse = await fetch('/api/telegram/order', {
           method: 'POST',
