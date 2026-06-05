@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from 'react'
 import Script from 'next/script'
+import { usePathname } from 'next/navigation'
 import { Button } from '@/components/ui/button'
 
 const CONSENT_COOKIE_NAME = 'osa-cookie-consent'
@@ -33,6 +34,14 @@ export function CookieConsent() {
   const [consent, setConsent] = useState<CookieConsentValue | null>(null)
   const [isReady, setIsReady] = useState(false)
 
+  const pathname = usePathname()
+
+  useEffect(() => {
+    if (typeof window !== 'undefined' && (window as any).ym) {
+      (window as any).ym(107058084, 'hit', pathname)
+    }
+  }, [pathname])
+  
   useEffect(() => {
     setConsent(readConsent())
     setIsReady(true)
