@@ -41,12 +41,12 @@ function buildContentSecurityPolicy(): string {
     `frame-src 'self' https://yandex.ru https://www.youtube.com https://youtube.com https://www.youtube-nocookie.com ${YANDEX_METRIKA_HTTPS.join(" ")}`,
     "object-src 'none'",
     "base-uri 'self'",
-    "form-action 'self'",
-    "frame-ancestors 'self'",
-    "upgrade-insecure-requests",
-  ];
+  "form-action 'self'",
+  "frame-ancestors 'self' https://metrika.yandex.ru https://mc.yandex.ru https://metrika.yandex.com",
+  "upgrade-insecure-requests",
+];
 
-  return directives.join("; ");
+return directives.join("; ");
 }
 
 const nextConfig: NextConfig = {
